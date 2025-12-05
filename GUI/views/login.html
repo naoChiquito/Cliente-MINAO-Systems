@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; img-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+
+    <title>Inicio de sesión</title>
+
+    <link rel="stylesheet" href="../styles/style.css">
+
+    <script src="../../logic/LogIn.js" defer></script>
+</head>
+
+<body class="login-body">
+
+    <div class="login-wrapper">
+
+       
+        <div class="left-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="login-logo">
+            <h2 class="left-title">Bienvenido a MINAO Systems</h2>
+            <p class="left-subtitle">Aprende de una forma divertida</p>
+        </div>
+
+       
+        <div class="right-card">
+            
+            <h1 class="login-title">Iniciar sesión</h1>
+
+            <form id="login_form" class="login-form">
+
+                <label>Correo electrónico</label>
+                <input type="email" id="email" required>
+
+                <label>Contraseña</label>
+                <input type="password" id="password" required>
+
+                <button class="btn-login" type="submit">Entrar</button>
+
+            </form>
+
+            <p class="register-text">
+                ¿Aún no tienes cuenta?
+                <a href="SignUpView.html">Registrarme</a>
+            </p>
+
+        </div>
+    </div>
+
+</body>
+</html>

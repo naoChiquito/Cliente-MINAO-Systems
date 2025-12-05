@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; img-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+
+    <title>Menú Estudiante</title>
+
+    <link rel="stylesheet" href="../styles/style.css">
+    <script src="../../logic/StudentMainMenu.js" defer></script>
+</head>
+
+<body class="login-body">
+
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+
+    <div class="login-wrapper">
+
+        <div class="left-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="login-logo-large">
+            <h2 class="left-title">Bienvenido estudiante</h2>
+            <p class="left-subtitle">Explora y aprende nuevos conocimientos</p>
+        </div>
+
+        <div class="right-card">
+
+            <img src="../resources/logo_light.png" alt="Logo" class="menu-top-logo">
+
+            <h1 class="login-title">Menú principal</h1>
+
+            <div class="menu-options">
+                <button class="menu-button" onclick="location.href='SearchCoursesView.html'">Buscar cursos</button>

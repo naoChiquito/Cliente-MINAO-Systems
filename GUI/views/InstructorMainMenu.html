@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Menú Principal - Instructor</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+
+    <script src="../../logic/InstructorMenu.js" defer></script> 
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Cargando...]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Menu del Instructor</h1>
+                <p>Gestiona tus cursos</p>
+            </header>
+
+            <section class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Cursos Activos</h3>
+                    <p id="activeCoursesCount">--</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Estudiantes Inscritos</h3>
+                    <p id="totalStudentsCount">--</p>
+                </div>
+            </section>
+            
+            <section class="course-list">
+                <h2>Cursos Recientes</h2>
+                
+                <div id="coursesContainer" class="course-list-items">
+                    <p>Cargando cursos...</p>
+                    </div>
+                
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>

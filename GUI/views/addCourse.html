@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear Nuevo Curso</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+
+    <script src="../../logic/addCourse.js" defer></script> 
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Crear Nuevo Curso</h1>
+                <p>Agrega la información general de tu nuevo curso</p>
+            </header>
+
+            <section class="form-container">
+                
+                <form id="addCourseForm" class="course-form">
+                    
+                    <label for="name">Nombre del Curso</label>
+                    <input type="text" id="name" required>
+
+                    <label for="description">Descripción Detallada</label>
+                    <textarea id="description" rows="5" required></textarea>
+
+                    <label for="category">Categoría</label>
+                    <input type="category" id="category" required>
+
+                    <label for="startDate">Fecha de Inicio</label>
+                    <input type="date" id="startDate" required>
+
+                    <label for="endDate">Fecha de Fin</label>
+                    <input type="date" id="endDate" required>
+
+                    <button type="submit" class="btn-primary">Guardar Curso</button>
+                    
+                </form>
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>
