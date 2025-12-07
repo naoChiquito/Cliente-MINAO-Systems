@@ -86,7 +86,105 @@ async function addCourse(courseData) {
     }
 }
 
+async function getCourseDetails(courseId) {
+    const FETCH_TIMEOUT = 10000;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://localhost:8000/minao_systems/courses/${courseId}`;
+        
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal,
+            headers: { "Content-Type": "application/json" }
+        });
+        
+        clearTimeout(id); 
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Fallo al obtener detalles del curso. Código: ${response.status}`);
+        }
+     
+        return await response.json().catch(() => ({})); 
+
+    } catch (err) {
+        clearTimeout(id); 
+        throw err;
+    }
+}
+
+async function updateCourse(courseData) {
+    const FETCH_TIMEOUT = 15000;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://localhost:8000/minao_systems/courses/updateCourse`;
+        
+        const response = await fetch(url, {
+            method: "PATCH",
+            signal: controller.signal,
+            headers: { 
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(courseData) 
+        });
+
+        clearTimeout(id); 
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Fallo al actualizar. Código: ${response.status}`);
+        }
+        
+        return { success: true, message: "Curso actualizado exitosamente." }; 
+
+    } catch (err) {
+        clearTimeout(id); 
+        if (err.name === 'AbortError') {
+            throw new Error("La conexión ha expirado (Timeout).");
+        }
+        throw err;
+    }
+}
+
+
+async function setState(courseId, newState) {
+    const FETCH_TIMEOUT = 15000;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://localhost:8000/minao_systems/courses/setCourseState`; 
+        
+        const response = await fetch(url, {
+            method: "PATCH", 
+            signal: controller.signal,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({cursoId: courseId, state: newState }) 
+        });
+
+        clearTimeout(id); 
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Fallo al cambiar el estado. Código: ${response.status}`);
+        }
+        
+        return { success: true, message: "Estado del curso actualizado." }; 
+
+    } catch (err) {
+        clearTimeout(id); 
+        if (err.name === 'AbortError') {
+            throw new Error("La conexión ha expirado (Timeout).");
+        }
+        throw err;
+    }
+}
 
 
 
-module.exports = { getCoursesByInstructor, addCourse };
+
+module.exports = { getCoursesByInstructor, addCourse,  getCourseDetails, updateCourse, setState };
