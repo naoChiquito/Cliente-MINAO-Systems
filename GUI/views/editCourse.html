@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Curso</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+
+    <script src="../../logic/EditCourse.js" defer></script> 
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Editando Curso: <span id="courseTitleDisplay">[Cargando...]</span></h1>
+                <p>ID: <span id="courseIdDisplay"></span> | <a href="CourseManagement.html">Volver a Gestión</a></p>
+            </header>
+
+            <section class="form-container">
+                
+                <form id="editCourseForm" class="course-form">
+                    
+                    <input type="hidden" id="courseId" name="courseId">
+
+                    <label for="name">Nombre del Curso</label>
+                    <input type="text" id="name" required>
+
+                    <label for="description">Descripción Detallada</label>
+                    <textarea id="description" rows="5" required></textarea>
+
+                    <label for="category">Categoría</label>
+                    <input type="text" id="category" required>
+
+                    <label for="startDate">Fecha de Inicio</label>
+                    <div><span id="startDate">--</span></div>
+
+                    <label for="endDate">Fecha de Fin</label>
+                    <input type="date" id="endDate" required>
+
+                    <button type="submit" class="btn-action">Guardar Cambios</button>
+                    <button type="button" id="deactivateCourseBtn" class="btn-action2">Desactivar curso</button>
+                    
+                    <p id="feedbackMessage" style="color: red; margin-top: 15px;"></p>
+                </form>
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>

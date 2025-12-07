@@ -17,12 +17,23 @@ contextBridge.exposeInMainWorld("api", {
     addCourse: (courseData) => 
         ipcRenderer.invoke('perform-add-course', courseData),
 
+    getCourseDetails: (courseId) => 
+        ipcRenderer.invoke('get-course-details', courseId),
+
+    updateCourse: (courseData) => 
+        ipcRenderer.invoke('update-course', courseData),
+
+    setState: (courseId, newState) => 
+        ipcRenderer.invoke('change-course-state', courseId, newState),
+
     clearSession: () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('userName');
         localStorage.removeItem('userPaternalSurname');
         console.log("Sesión local limpiada por orden del Main Process.");
     }
+
+
 
 });
 

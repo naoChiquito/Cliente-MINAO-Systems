@@ -13,8 +13,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     getInstructorCourses(instructorId); 
+    
 });
-
 
 
 async function getInstructorCourses(instructorId) {
@@ -60,15 +60,16 @@ function renderCourses(courses, totalCount) {
         
         courses.forEach(course => {
             htmlContent += `
-                <div class="course-item">
-                    <h4>${course.name} (${course.category})</h4>
-                    <p>Estado: ${course.state}</p>
-                    <p>${course.description.substring(0, 80)}...</p>
-                    <p>Inicio: ${new Date(course.startDate).toLocaleDateString()}</p>
-                </div>
-            `;
-        });
+            <div class="course-item clickable" data-course-id="${course.cursoId}">
+                <h4>${course.name} (${course.category})</h4>
+                <p>Estado: ${course.state}</p>
+                <p>${course.description.substring(0, 80)}...</p>
+                <p>Inicio: ${new Date(course.startDate).toLocaleDateString()}</p>
+            </div>
+        `;
+    });
         container.innerHTML = htmlContent;
+        attachCourseCardListeners();
         
     } else {
         if (activeCoursesCount) {
@@ -76,4 +77,22 @@ function renderCourses(courses, totalCount) {
         }
         container.innerHTML = '<p>No tienes cursos activos. ¡Crea uno nuevo!</p>';
     }
+}
+
+function attachCourseCardListeners() {
+    const courseCards = document.querySelectorAll('.course-item.clickable');
+    
+    courseCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const courseId = card.getAttribute('data-course-id');
+            
+            if (courseId) {
+
+                localStorage.setItem('CourseId', courseId);
+                window.location.href = 'CourseManagement.html'; 
+            } else {
+                console.error("No se pudo encontrar el ID del curso para esta tarjeta.");
+            }
+        });
+    });
 }

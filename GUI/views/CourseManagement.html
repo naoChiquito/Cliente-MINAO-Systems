@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de Curso</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+
+    <script src="../../logic/CourseManagement.js" defer></script> 
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Gestión del Curso: <span id="courseTitleDisplay">[Cargando Nombre...]</span></h1>
+                <p>ID: <span id="courseIdDisplay"></span> | <a href="InstructorMainMenu.html">Volver a Mis Cursos</a></p>
+            </header>
+
+            <section class="course-details-section">
+                <h2>Detalles y Estado</h2>
+                
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <strong>Categoría:</strong> <span id="categoryDisplay">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Fecha de Inicio:</strong> <span id="startDateDisplay">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Fecha de Fin:</strong> <span id="endDateDisplay">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Estado:</strong> <span id="stateDisplay">--</span>
+                    </div>
+                </div>
+                
+                <div class="detail-description">
+                    <strong>Descripción:</strong> <p id="descriptionDisplay">Cargando descripción...</p>
+                </div>
+            </section>
+            
+            <section class="management-actions-section">
+                <h2>Herramientas de Gestión</h2>
+                
+                <div class="action-grid">
+                    
+                    <div class="action-item">
+                        <h3>Editar Información</h3>
+                        <p>Modifica el nombre, descripción y fechas del curso.</p>
+                        <button id="editInfoBtn" class="btn-action btn-primary">Editar Curso</button>
+                    </div>
+
+                    <div class="action-item" data-content-loaded="false">
+                        <h3>Contenido (Módulos)</h3>
+                        <span id="contentStatus" class="status-tag status-pending">No Cargado</span> 
+                        <p>Añade o reorganiza las lecciones y recursos.</p>
+                        <button id="manageContentBtn" class="btn-action">Gestionar Contenido</button>
+                    </div>
+                    
+                    <div class="action-item" data-quiz-loaded="false">
+                        <h3>Cuestionarios</h3>
+                        <span id="quizStatus" class="status-tag status-not-found">No Creado</span> 
+                        <p>Crea o modifica los exámenes finales y evaluaciones.</p>
+                        <button id="manageQuizBtn" class="btn-action">Gestionar Cuestionario</button>
+                    </div>
+
+                </div>
+            </section>
+            
+            <section id="dynamicFormArea" class="dynamic-form-section">
+                </section>
+
+        </div>
+    </div>
+
+</body>
+</html>
