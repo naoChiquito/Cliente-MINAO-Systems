@@ -3,7 +3,7 @@ const path = require('path');
 const { login } = require('../services/loginservice'); 
 const { signUp } = require('../services/signUpservice');
 const { verifyEmail } = require('../services/verifyEmailService');
-const { getCoursesByInstructor, addCourse } = require('../services/courseService');
+const { getCoursesByInstructor, addCourse, getCourseDetails, updateCourse, setState } = require('../services/courseService');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -88,6 +88,36 @@ app.whenReady().then(() => {
         }
 
     });
+
+    ipcMain.handle('get-course-details', async (event, courseId) => {
+        try {
+            const details = await getCourseDetails(courseId); 
+            return { success: true, data: details };
+        } catch (error) {
+            console.error("Error al obtener detalles del curso:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('update-course', async (event, courseData) => {
+        try {
+            const result = await updateCourse(courseData);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error("Error al editar curso:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('change-course-state', async (event, courseId, newState) => {
+        try {
+            const result = await setState(courseId, newState);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error("Error al cambiar estado:", error.message);
+            return { success: false, message: error.message };
+        }
+    });    
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
