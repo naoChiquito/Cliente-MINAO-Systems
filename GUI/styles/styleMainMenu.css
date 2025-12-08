@@ -338,3 +338,129 @@
     transition: background-color 0.2s;
     margin-top: 10px;
 }
+
+
+
+
+
+
+.form-container2 {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+}
+
+.course-form label {
+    font-weight: bold;
+    color: #1a4d7d;       
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+#courseSearch {
+    padding: 12px;
+    border: 2px solid #c9d6df;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+}
+
+#courseSearch:focus {
+    border-color: #1c5778;
+    outline: none;
+    box-shadow: 0 0 6px rgba(28, 87, 120, 0.4);
+}
+
+
+.question-title {
+    color: #1a4d7d;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+
+
+.answerBox {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #c9d6df;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    resize: vertical;
+    font-size: 15px;
+    color: #333;
+    min-height: 90px;
+    transition: all 0.25s ease-in-out;
+    line-height: 1.4;
+}
+
+
+.answerBox:focus {
+    border-color: #1c5778;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 6px rgba(28, 87, 120, 0.35);
+}
+
+
+.grade-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-left: 6px solid #fca311;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grade-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.grade-course-title {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: #1a4d7d;
+    margin-bottom: 8px;
+}
+
+.grade-teacher {
+    margin: 0;
+    color: #444;
+    font-size: 0.95em;
+    margin-bottom: 6px;
+}
+
+.grade-progress {
+    color: #666;
+    font-size: 0.95em;
+    margin-bottom: 18px;
+}
+
+.grade-final {
+    font-size: 2.8em;
+    font-weight: bold;
+    color: #1a4d7d;
+    text-align: right;
+}
+
+.grade-final {
+    font-size: 2.8em;
+    font-weight: bold;
+    color: #1a4d7d;
+    text-align: right;
+    line-height: 1;
+}
+
+.grade-final-text {
+    display: block;
+    font-size: 0.35em;
+    font-weight: 500;
+    color: #444;
+    margin-top: 4px;
+}

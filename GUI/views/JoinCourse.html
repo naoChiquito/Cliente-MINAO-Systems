@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Unirse a Curso</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <script src="../../logic/joinCourse.js" defer></script>
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Alumno: <span id="studentNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="StudentMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">Unirse a Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Unirse al Curso</h1>
+                <p>Consulta la información del curso antes de unirte</p>
+            </header>
+
+            <section class="form-container">
+                
+                <form id="joinCourseForm" class="course-form">
+
+                    <label for="courseName">Nombre del Curso</label>
+                    <input type="text" id="courseName" readonly>
+
+                    <label for="courseDescription">Descripción</label>
+                    <textarea id="courseDescription" rows="5" readonly></textarea>
+
+                     <label for="professorName">Nombre del Instructor</label>
+                    <input type="text" id="professorName" readonly>
+
+                   
+                    <label for="startDate">Fecha de Inicio</label>
+                    <input type="date" id="startDate" readonly>
+
+                    <label for="endDate">Fecha de Fin</label>
+                    <input type="date" id="endDate" readonly>
+
+                    <button type="submit" class="btn-primary">Unirse a Curso</button>
+
+                </form>
+
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>
