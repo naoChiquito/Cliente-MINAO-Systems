@@ -16,10 +16,14 @@ function createWindow() {
         },
     });
 
+    // Cargar la página de login
     mainWindow.loadFile('GUI/views/login.html'); 
 
+    // Habilitar las herramientas de desarrollo para la consola de la aplicación
+    mainWindow.webContents.openDevTools(); // Esto abre las DevTools automáticamente
 
-     mainWindow.on('close', (event) => {
+    // Evento de cierre de ventana
+    mainWindow.on('close', (event) => {
         if (mainWindow) {
             mainWindow.webContents.executeJavaScript('window.api.clearSession();', true)
                 .then(() => {
@@ -124,7 +128,6 @@ app.whenReady().then(() => {
             createWindow();
         }
     });
-
 
 });
 
