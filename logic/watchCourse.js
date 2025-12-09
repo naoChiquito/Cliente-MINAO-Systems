@@ -13,13 +13,21 @@ document.addEventListener("DOMContentLoaded", async function() {
     } else {
         // Si no están en el localStorage, hacemos una llamada para verificar el token
         try {
-            const response = await window.api.login(localStorage.getItem('userEmail'), localStorage.getItem('userPassword')); // Asegúrate de tener email y password almacenados también
+            const userEmail = localStorage.getItem('userEmail');
+            const userPassword = localStorage.getItem('userPassword');
+
+            // Validamos que los datos de login estén en localStorage antes de continuar
+            if (!userEmail || !userPassword) {
+                throw new Error("Email o contraseña no encontrados en localStorage");
+            }
+
+            const response = await window.api.login(userEmail, userPassword); // Llamada para verificar el login
 
             if (response.success) {
                 const { name, paternalSurname } = response.data;
                 studentNameDisplay.textContent = `${name} ${paternalSurname}`;
 
-                // Guardar los datos en el localStorage para futuras referencias
+                // Guardar los datos en localStorage para futuras referencias
                 localStorage.setItem('userName', name);
                 localStorage.setItem('userPaternalSurname', paternalSurname);
             } else {
@@ -34,8 +42,21 @@ document.addEventListener("DOMContentLoaded", async function() {
     // Cargar la lista de cursos
     const loadCourses = async () => {
         try {
-            const response = await window.api.getCourses(); // Llamada a la API para obtener los cursos
-            displayCourses(response.data); // Suponemos que los cursos vienen en un array bajo "data"
+            const studentId = localStorage.getItem('userId'); // Obtener el ID del estudiante desde localStorage
+            if (!studentId) {
+                console.error("No se encontró el ID del estudiante en localStorage.");
+                return;
+            }
+
+            const response = await window.api.getCourses(studentId); // Llamada a la API para obtener los cursos del estudiante
+            console.log("Respuesta de la API:", response);  // Esto nos ayudará a entender la respuesta
+
+            // Verificamos si la propiedad 'data' existe y es un array
+            if (response && Array.isArray(response.data)) {
+                displayCourses(response.data); // Suponemos que los cursos vienen en un array bajo "data"
+            } else {
+                console.error("La respuesta no contiene 'data' como se esperaba:", response);
+            }
         } catch (error) {
             console.error("Error al cargar los cursos:", error);
         }
@@ -76,7 +97,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     courseSearchInput.addEventListener('input', async function() {
         const searchText = courseSearchInput.value.trim();
         try {
-            const response = await window.api.getCourses(searchText); // Llamada de búsqueda por nombre
+            const studentId = localStorage.getItem('userId'); // Obtener el ID del estudiante desde localStorage
+            if (!studentId) {
+                console.error("No se encontró el ID del estudiante en localStorage.");
+                return;
+            }
+            const response = await window.api.getCourses(studentId, searchText); // Llamada de búsqueda por nombre
             displayCourses(response.data);
         } catch (error) {
             console.error("Error al buscar cursos:", error);

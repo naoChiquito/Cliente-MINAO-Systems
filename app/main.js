@@ -4,6 +4,7 @@ const { login } = require('../services/loginservice');
 const { signUp } = require('../services/signUpservice');
 const { verifyEmail } = require('../services/verifyEmailService');
 const { getCoursesByInstructor, addCourse, getCourseDetails, updateCourse, setState } = require('../services/courseService');
+const { getCoursesByStudent } = require('../services/courseService');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({

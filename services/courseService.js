@@ -47,6 +47,56 @@ async function getCoursesByInstructor(instructorId) {
     }
 }
 
+async function getCoursesByStudent(studentId) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+    try {
+        // Construct the URL based on the studentId
+        const url = `http://127.0.0.1:8000/minao_systems/courses/student/${studentId}`;
+
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal,
+            headers: { 
+                "Content-Type": "application/json"
+            }
+        });
+
+        clearTimeout(id);
+        const responseText = await response.text();
+
+        // Handle errors if the response status is not OK
+        if (!response.ok) {
+            try {
+                const errorData = JSON.parse(responseText);
+                throw new Error(errorData.message || `Error al cargar los cursos del estudiante. Código: ${response.status}`);
+            } catch (e) {
+                throw new Error(`Error al cargar los cursos. Código: ${response.status}. Respuesta: ${responseText.substring(0, 50)}`);
+            }
+        }
+
+        // Process the response data
+        try {
+            const responseData = JSON.parse(responseText);
+            if (responseData && Array.isArray(responseData.data)) {
+                return { success: true, data: responseData.data };  // Return success and courses in 'data'
+            }
+
+            // If no data or empty data array, return an empty result
+            return { success: true, data: [] };
+
+        } catch (e) {
+            console.warn("Respuesta 200/204 sin contenido JSON. Asumiendo array vacío.");
+            return { success: true, data: [] };
+        }
+
+    } catch (err) {
+        clearTimeout(id);
+        throw err;  // Propagate error to be handled by the caller
+    }
+}
+
 async function addCourse(courseData) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
@@ -187,4 +237,4 @@ async function setState(courseId, newState) {
 
 
 
-module.exports = { getCoursesByInstructor, addCourse,  getCourseDetails, updateCourse, setState };
+module.exports = { getCoursesByInstructor, addCourse,  getCourseDetails, updateCourse, setState, getCoursesByStudent };
