@@ -4,6 +4,8 @@ const { login } = require('../services/loginservice');
 const { signUp } = require('../services/signUpservice');
 const { verifyEmail } = require('../services/verifyEmailService');
 const { getCoursesByInstructor, addCourse, getCourseDetails, updateCourse, setState } = require('../services/courseService');
+const { getCourseContent, updateModuleContent, deleteContent, createContent } = require('../services/contentService');
+const { uploadContent, getFilesByContent, deleteContentFile } = require('../services/gRPCService');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -121,7 +123,78 @@ app.whenReady().then(() => {
             console.error("Error al cambiar estado:", error.message);
             return { success: false, message: error.message };
         }
-    });    
+    });
+    
+    ipcMain.handle('get-course-content', async (event, courseId) => {
+        try {
+            const contentData = await getCourseContent(courseId); 
+            return { success: true, data: contentData };
+        } catch (error) {
+            console.error("Error al obtener contenido del curso:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('update-module-content', async (event,contentId, moduleData) => {
+        try {
+            const result = await updateModuleContent(contentId, moduleData);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error("Error al actualizar contenido del módulo:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('delete-module-content', async (event, contentId) => {
+        try {
+            const result = await deleteContent(contentId);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error("Error al eliminar contenido del módulo:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('create-content', async (event, moduleData) => {
+        try {
+            const result = await createContent(moduleData);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error("Error al crear módulo:", error.message);
+            return { success: false, message: error.message };
+        }
+    }); 
+
+    ipcMain.handle('upload-content', async (event, uploadData) => {
+        try {
+            const result = await uploadContent(uploadData);
+            return { success: true, message: result.message };
+        } catch (error) {
+            console.error('Error en la subida gRPC (Main Process):', error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('get-files-by-content', async (event, contentId) => {
+        try {
+            const result = await getFilesByContent(contentId);
+            return { success: true, files: result.files };
+        } catch (error) {
+            console.error('Error al obtener archivos gRPC:', error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('delete-content-file', async (event, fileId) => {
+        try {
+            const result = await deleteContentFile(fileId);
+            return { success: result.success, message: result.message };
+        } catch (error) {
+            console.error('Error al eliminar archivo gRPC:', error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
