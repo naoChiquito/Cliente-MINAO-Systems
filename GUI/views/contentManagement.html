@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Contenido</title>
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <link rel="stylesheet" href="../styles/styleContent.css"> 
+    <script src="../../logic/ManageContent.js" defer></script> 
+</head>
+
+<body class="main-body">
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+             <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Módulos del Curso: <span id="courseTitleDisplay">[Cargando Nombre...]</span></h1>
+                <p>Haz clic en un módulo para editar su información y administrar sus archivos.</p>
+                <a href="CourseManagement.html" class="btn-back">← Volver a Gestión</a>
+            </header>
+
+            <section class="creation-area">
+                <button id="createModuleBtn" class="btn-action btn-primary">➕ Crear Nuevo Módulo</button>
+            </section>
+
+            <section class="module-cards-grid">
+                <p id="loadingMessage">Cargando módulos...</p>
+                <div id="modulesContainer" class="card-grid">
+                    </div>
+            </section>
+
+        </div>
+    </div>
+</body>
+</html>

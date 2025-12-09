@@ -12,5 +12,9 @@
   "type": "commonjs",
   "devDependencies": {
     "electron": "^39.2.4"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.2",
+    "protobufjs": "^7.5.4"
   }
 }
