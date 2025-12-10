@@ -35,11 +35,22 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("perform-verifyEmail", email, code),
 
 
-    /* ---------- COURSES (STUDENT) ---------- */
+    /* =====================================================
+       COURSES — STUDENT
+       ===================================================== */
+
+    // 🔥 NUEVA FUNCIÓN ACTUALIZADA PARA TU FRONTEND
+    getCoursesByStudent: (studentId) =>
+        ipcRenderer.invoke("get-courses-by-student", studentId),
+
+    // (Mantengo la original por si se usa en otra parte)
     getStudentCourses: (studentId) =>
         ipcRenderer.invoke("get-student-courses", studentId),
 
-    /* ---------- COURSES (INSTRUCTOR) ---------- */
+
+    /* =====================================================
+       COURSES — INSTRUCTOR
+       ===================================================== */
     getInstructorCourses: (instructorId) =>
         ipcRenderer.invoke("get-instructor-courses", instructorId),
 
@@ -56,12 +67,16 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("change-course-state", courseId, newState),
 
 
-    /* ---------- COURSES (PUBLIC LIST) ---------- */
+    /* =====================================================
+       PUBLIC COURSES (si lo sigues usando)
+       ===================================================== */
     getAllCourses: () =>
         ipcRenderer.invoke("get-all-courses"),
 
 
-    /* ---------- CONTENT ---------- */
+    /* =====================================================
+       CONTENT
+       ===================================================== */
     getCourseContent: (courseId) =>
         ipcRenderer.invoke("get-course-content", courseId),
 
@@ -75,7 +90,9 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("create-content", moduleData),
 
 
-    /* ---------- FILES / GRPC ---------- */
+    /* =====================================================
+       FILES / GRPC
+       ===================================================== */
     uploadContent: (uploadData) =>
         ipcRenderer.invoke("upload-content", uploadData),
 
@@ -86,7 +103,9 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("delete-content-file", fileId),
 
 
-    /* ---------- SESSION MGMT ---------- */
+    /* =====================================================
+       SESSION MGMT
+       ===================================================== */
     clearSession: () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("userName");

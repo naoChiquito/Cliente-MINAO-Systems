@@ -150,6 +150,17 @@ app.whenReady().then(() => {
         }
     });
 
+    
+    ipcMain.handle('get-courses-by-student', async (event, studentId) => {
+        try {
+            const courses = await getCoursesByStudent(studentId);
+            return { success: true, data: courses };
+        } catch (error) {
+            console.error("IPC get-courses-by-student error:", error);
+            return { success: false, message: error.message };
+        }
+    });
+
 
     // -----------------------
     // CONTENT IPC

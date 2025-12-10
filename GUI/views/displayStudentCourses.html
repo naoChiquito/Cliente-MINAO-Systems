@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ver Cursos Disponibles</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css">
+    <script src="../../logic/watchCourse.js" defer></script>
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <!-- Sidebar del Alumno -->
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+
+            <h2 class="sidebar-title">Alumno: 
+                <span id="studentNameDisplay">[Nombre]</span>
+            </h2>
+
+            <nav class="main-nav">
+                <ul class="nav-list">
+
+                    <li class="nav-item">
+                        <a href="StudentMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">Ver Cursos</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Contenido -->
+        <div class="main-content-area">
+
+            <header class="content-header">
+                <h1>Cursos Disponibles</h1>
+                <p>Explora los cursos y consulta sus detalles</p>
+            </header>
+
+            <section class="form-container2">
+                <form class="course-form">
+                    <label for="courseSearch">Buscar curso</label>
+                    <input 
+                        type="text" 
+                        id="courseSearch" 
+                        placeholder="Escribe el nombre del curso o del instructor..."
+                    >
+                </form>
+            </section>
+
+            <section class="course-list">
+                <h2>Lista de Cursos</h2>
+
+                <!-- 🔥 Contenedor vacío para que JS inserte los cursos reales -->
+                <div id="coursesContainer"></div>
+
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>
