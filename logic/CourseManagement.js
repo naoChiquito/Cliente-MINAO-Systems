@@ -18,6 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
     const editButton = document.getElementById('editInfoBtn');
+    const contentButton = document.getElementById('contentBtn');
     
     if (editButton) {
         editButton.addEventListener('click', () => {
@@ -30,6 +31,20 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("El botón 'editInfoBtn' no fue encontrado en el DOM.");
     }
+
+    if (contentButton) {
+        contentButton.addEventListener('click', () => {
+            if (courseId) {
+                window.location.href = 'contentManagement.html'; 
+            } else {
+                alert("Error: No se pudo encontrar el ID del curso para ver su contenido.");
+            }
+        });
+    } else {
+        console.error("El botón 'contentBtn' no fue encontrado en el DOM.");
+    }
+
+
 });
 
 
@@ -44,7 +59,6 @@ async function loadCourseDetails(courseId) {
                                 : null;
             
             if (courseDetails) {
-                console.log("Objeto de Curso Listo para Renderizar:", courseDetails); 
                 renderCourseData(courseDetails); 
             } else {
                 document.getElementById('courseTitleDisplay').textContent = 'Curso no encontrado';
@@ -66,6 +80,7 @@ function renderCourseData(course) {
     
     
     document.getElementById('courseTitleDisplay').textContent = course.name || 'Sin nombre';
+    localStorage.setItem('CourseName', course.name);
     document.getElementById('courseIdDisplay').textContent = course.cursoId || localStorage.getItem('CourseId') || 'N/A';
     document.getElementById('categoryDisplay').textContent = course.category || '--';
     
@@ -79,8 +94,6 @@ function renderCourseData(course) {
     document.getElementById('stateDisplay').textContent = course.state || '--';
     document.getElementById('descriptionDisplay').textContent = course.description || 'No hay descripción disponible.';
 
-    updateStatusTag('contentStatus', course.hasContent || false, 'Contenido');
-    updateStatusTag('quizStatus', course.hasQuiz || false, 'Cuestionario');
 }
 
 

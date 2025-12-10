@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Editar Módulo</title>
+
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <link rel="stylesheet" href="../styles/styleContent.css"> 
+
+    <script src="../../logic/EditContent.js" defer></script> 
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                     <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Editando Módulo: <span id="moduleTitleDisplay">[Cargando...]</span></h1>
+                <p>Módulo ID: <span id="moduleIdDisplay"></span> | Curso ID: <span id="courseIdDisplay"></span> | <a href="contentManagement.html">Volver a Módulos</a></p>
+            </header>
+
+            <div class="content-split-layout">
+                
+                <section class="module-edit-panel">
+                    <h2>Información del Módulo</h2>
+                    
+                    <form id="editModuleForm" class="course-form">
+                        
+                        <input type="hidden" id="moduleIdInput" name="moduleId">
+
+                        <label for="title">Título del Módulo</label>
+                        <input type="text" id="title" required>
+
+                        <label for="descripcion">Descripción del Módulo</label>
+                        <textarea id="descripcion" rows="5" required></textarea>
+
+                        <label for="type">Tipo de Contenido</label>
+                        <select id="type" required>
+                            <option value="" disabled selected>Selecciona el tipo</option>
+                            <option value="video">Video Lección</option>
+                            <option value="pdf">Lectura (PDF)</option>
+                            <option value="estudio">Material de Estudio General (imagenes)</option>
+                        </select>
+
+                        <button type="submit" class="btn-action">Guardar Cambios del Módulo</button>
+                        <button type="button" id="deleteModuleBtn" class="btn-action2">Eliminar Módulo</button>
+                        
+                        <p id="feedbackMessage" style="color: red; margin-top: 15px;"></p>
+                    </form>
+                </section>
+
+                <section class="file-management-panel">
+                    <h2>Archivos y Lecciones</h2>
+                    
+                    <div id="fileListContainer" class="list-container">
+                        <h3>Archivos Cargados</h3>
+                        <p id="fileLoadingMessage">Cargando archivos...</p>
+                        </div>
+
+                    <hr>
+
+                    <div class="upload-area">
+                        <h3>Subir Nuevo Archivo</h3>
+                        <form id="uploadContentForm">
+                            <label for="lessonTitle">Título de la Lección</label>
+                            <input type="text" id="lessonTitle" required>
+
+                            <label for="contentFile">Seleccionar Archivo (Video/PDF)</label>
+                            <input type="file" id="contentFile" accept="video/*,application/pdf" required>
+                            
+                            <p id="uploadStatus" style="margin-top: 10px;"></p>
+                            <button type="submit" class="btn-action btn-primary">Subir Archivo</button>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
