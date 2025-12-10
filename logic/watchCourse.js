@@ -62,8 +62,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                     <h4>${course.name}</h4>
                     <p style="margin: 0; color:#555;">
                         ${course.category ? `<b>Categoría:</b> ${course.category}<br>` : ""}
-                        ${course.startDate ? `<b>Inicio:</b> ${course.startDate}<br>` : ""}
-                        ${course.endDate ? `<b>Fin:</b> ${course.endDate}<br>` : ""}
+                        ${start ? `<b>Inicio:</b> ${start}<br>` : ""}
+                        ${end ? `<b>Fin:</b> ${end}<br>` : ""}
                         <b>Estado:</b> ${course.state}
                     </p>
                 </div>
@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", async function() {
             coursesContainer.appendChild(div);
         });
 
-        // Evento para ver detalles
         document.querySelectorAll(".btn-primary").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = e.target.dataset.courseid;

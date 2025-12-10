@@ -3,16 +3,9 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path'); 
 
 const { GRPC_HOST } = require('../app/config'); 
-const PROTO_PATH = path.join(
-    __dirname, 
-    '..',       
-    '..',   
-    'API-MINAOSystems',
-    'course_service', 
-    'grpc', 
-    'protos',
-    'content.proto' 
-);
+const PROTO_PATH = path.join(process.cwd(), 'grpc', 'protos', 'content.proto');
+
+
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
