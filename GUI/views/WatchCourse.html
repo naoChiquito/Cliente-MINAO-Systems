@@ -18,7 +18,9 @@
         <div class="sidebar-card">
             <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
 
-            <h2 class="sidebar-title">Alumno: <span id="studentNameDisplay">[Nombre]</span></h2>
+            <h2 class="sidebar-title">Alumno: 
+                <span id="studentNameDisplay">[Nombre]</span>
+            </h2>
 
             <nav class="main-nav">
                 <ul class="nav-list">
@@ -55,59 +57,22 @@
                 <p>Explora los cursos y consulta sus detalles</p>
             </header>
 
-          <section class="form-container2">
-
-    <form class="course-form">
-
-        <label for="courseSearch">Buscar curso o profesor</label>
-
-        <input 
-            type="text" 
-            id="courseSearch" 
-            placeholder="Escribe el nombre del curso o del instructor..."
-        >
-
-    </form>
-
-</section>
+            <section class="form-container2">
+                <form class="course-form">
+                    <label for="courseSearch">Buscar curso</label>
+                    <input 
+                        type="text" 
+                        id="courseSearch" 
+                        placeholder="Escribe el nombre del curso o del instructor..."
+                    >
+                </form>
+            </section>
 
             <section class="course-list">
-
                 <h2>Lista de Cursos</h2>
 
-                <div id="coursesContainer">
-
-                    <!-- Tarjeta de ejemplo -->
-                    <div class="course-item"
-                        style="display: flex; justify-content: space-between; align-items: center;">
-
-                        <div>
-                            <h4>Curso de JavaScript Moderno</h4>
-                            <p style="margin: 0; color:#555;">Impartido por: <b>Juan Pérez</b></p>
-                        </div>
-
-                        <button class="btn-primary" style="margin: 0; height: 40px;">
-                            Ver detalles
-                        </button>
-
-                    </div>
-
-                    <!-- Otra tarjeta ejemplo -->
-                    <div class="course-item"
-                        style="display: flex; justify-content: space-between; align-items: center;">
-
-                        <div>
-                            <h4>Diseño UX/UI para Principiantes</h4>
-                            <p style="margin: 0; color:#555;">Impartido por: <b>Laura Gómez</b></p>
-                        </div>
-
-                        <button class="btn-primary" style="margin: 0; height: 40px;">
-                            Ver detalles
-                        </button>
-
-                    </div>
-
-                </div>
+                <!-- 🔥 Contenedor vacío para que JS inserte los cursos reales -->
+                <div id="coursesContainer"></div>
 
             </section>
 

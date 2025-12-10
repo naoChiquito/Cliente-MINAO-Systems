@@ -3,112 +3,116 @@ document.addEventListener("DOMContentLoaded", async function() {
     const coursesContainer = document.getElementById('coursesContainer');
     const courseSearchInput = document.getElementById('courseSearch');
 
-    // Verificar si el nombre del alumno ya está en el localStorage
+    /* ============================
+       1. Mostrar nombre del alumno
+    ============================ */
     const userName = localStorage.getItem('userName');
     const userPaternalSurname = localStorage.getItem('userPaternalSurname');
 
     if (userName && userPaternalSurname) {
-        // Si los datos del usuario están en el localStorage, los mostramos
         studentNameDisplay.textContent = `${userName} ${userPaternalSurname}`;
-    } else {
-        // Si no están en el localStorage, hacemos una llamada para verificar el token
-        try {
-            const userEmail = localStorage.getItem('userEmail');
-            const userPassword = localStorage.getItem('userPassword');
-
-            // Validamos que los datos de login estén en localStorage antes de continuar
-            if (!userEmail || !userPassword) {
-                throw new Error("Email o contraseña no encontrados en localStorage");
-            }
-
-            const response = await window.api.login(userEmail, userPassword); // Llamada para verificar el login
-
-            if (response.success) {
-                const { name, paternalSurname } = response.data;
-                studentNameDisplay.textContent = `${name} ${paternalSurname}`;
-
-                // Guardar los datos en localStorage para futuras referencias
-                localStorage.setItem('userName', name);
-                localStorage.setItem('userPaternalSurname', paternalSurname);
-            } else {
-                throw new Error("Token inválido o expirado, por favor inicia sesión nuevamente.");
-            }
-        } catch (error) {
-            console.error("Error al verificar el nombre del alumno:", error);
-            window.location.href = "Login.html"; // Redirigir al login si no se puede verificar el token
-        }
     }
 
-    // Cargar la lista de cursos
+    let allCourses = []; // lista para buscador
+
+    /* ============================
+       2. Cargar todos los cursos
+    ============================ */
     const loadCourses = async () => {
         try {
-            const studentId = localStorage.getItem('userId'); // Obtener el ID del estudiante desde localStorage
-            if (!studentId) {
-                console.error("No se encontró el ID del estudiante en localStorage.");
-                return;
-            }
+            console.log("📡 Solicitando TODOS los cursos...");
+            const response = await window.api.getAllCourses();
 
-            const response = await window.api.getCourses(studentId); // Llamada a la API para obtener los cursos del estudiante
-            console.log("Respuesta de la API:", response);  // Esto nos ayudará a entender la respuesta
+            console.log("📥 Cursos recibidos:", response);
 
-            // Verificamos si la propiedad 'data' existe y es un array
-            if (response && Array.isArray(response.data)) {
-                displayCourses(response.data); // Suponemos que los cursos vienen en un array bajo "data"
+            if (response.success && Array.isArray(response.data)) {
+                allCourses = response.data;
+                displayCourses(allCourses);
             } else {
-                console.error("La respuesta no contiene 'data' como se esperaba:", response);
+                console.error("⚠ Formato inesperado:", response);
             }
+
         } catch (error) {
-            console.error("Error al cargar los cursos:", error);
+            console.error("❌ Error al cargar cursos:", error);
         }
     };
 
-    // Función para mostrar los cursos
+    /* ============================
+       3. Mostrar cursos en pantalla
+    ============================ */
     const displayCourses = (courses) => {
-        coursesContainer.innerHTML = ''; // Limpiar el contenedor antes de agregar nuevos cursos
-        courses.forEach(course => {
-            const courseElement = document.createElement('div');
-            courseElement.classList.add('course-item');
-            courseElement.style.display = 'flex';
-            courseElement.style.justifyContent = 'space-between';
-            courseElement.style.alignItems = 'center';
+        coursesContainer.innerHTML = "";
 
-            courseElement.innerHTML = `
+        if (courses.length === 0) {
+            coursesContainer.innerHTML = `
+                <p style="color:#666; font-size: 14px;">No hay cursos disponibles.</p>
+            `;
+            return;
+        }
+
+        courses.forEach(course => {
+            const div = document.createElement("div");
+            div.classList.add("course-item");
+
+            const start = formatDate(course.startDate);
+            const end = formatDate(course.endDate);
+
+            div.innerHTML = `
                 <div>
                     <h4>${course.name}</h4>
-                    <p style="margin: 0; color:#555;">Impartido por: <b>${course.instructorName}</b></p>
+                    <p style="margin: 0; color:#555;">
+                        ${course.category ? `<b>Categoría:</b> ${course.category}<br>` : ""}
+                        ${course.startDate ? `<b>Inicio:</b> ${course.startDate}<br>` : ""}
+                        ${course.endDate ? `<b>Fin:</b> ${course.endDate}<br>` : ""}
+                        <b>Estado:</b> ${course.state}
+                    </p>
                 </div>
-                <button class="btn-primary" style="margin: 0; height: 40px;" data-courseid="${course.cursoId}">
+
+                <button class="btn-primary" data-courseid="${course.cursoId}">
                     Ver detalles
                 </button>
             `;
-            coursesContainer.appendChild(courseElement);
+
+            coursesContainer.appendChild(div);
         });
 
-        // Agregar evento a los botones "Ver detalles"
-        document.querySelectorAll('.btn-primary').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const courseId = event.target.dataset.courseid;
-                window.location.href = `JoinCourse.html?courseId=${courseId}`; // Redirigir a JoinCourse.html con el courseId
+        // Evento para ver detalles
+        document.querySelectorAll(".btn-primary").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const id = e.target.dataset.courseid;
+                window.location.href = `JoinCourse.html?courseId=${id}`;
             });
         });
     };
 
-    // Filtrar cursos por búsqueda
-    courseSearchInput.addEventListener('input', async function() {
-        const searchText = courseSearchInput.value.trim();
-        try {
-            const studentId = localStorage.getItem('userId'); // Obtener el ID del estudiante desde localStorage
-            if (!studentId) {
-                console.error("No se encontró el ID del estudiante en localStorage.");
-                return;
-            }
-            const response = await window.api.getCourses(studentId, searchText); // Llamada de búsqueda por nombre
-            displayCourses(response.data);
-        } catch (error) {
-            console.error("Error al buscar cursos:", error);
-        }
+    
+    /* ============================
+       4. Recortar el formato de fecha
+    ============================ */
+    function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}/${month}/${day}`;
+}
+
+    /* ============================
+       5. Buscador en vivo
+    ============================ */
+    courseSearchInput.addEventListener("input", () => {
+        const text = courseSearchInput.value.trim().toLowerCase();
+
+        const filtered = allCourses.filter(c =>
+            c.name.toLowerCase().includes(text)
+        );
+
+        displayCourses(filtered);
     });
 
-    // Inicializar la carga de cursos
+    /* ============================
+       6. Inicializar página
+    ============================ */
     loadCourses();
 });

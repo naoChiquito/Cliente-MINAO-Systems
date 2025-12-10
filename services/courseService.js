@@ -233,8 +233,66 @@ async function setState(courseId, newState) {
         throw err;
     }
 }
+async function getAllCourses() {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+    try {
+        const url = `http://127.0.0.1:8000/minao_systems/courses/all`;
+
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal,
+            headers: { 
+                "Content-Type": "application/json"
+            }
+        });
+
+        clearTimeout(id);
+
+        const responseText = await response.text();
+
+        // ❌ Si el HTTP no es OK → lanzar error con detalle
+        if (!response.ok) {
+            try {
+                const errorData = JSON.parse(responseText);
+                throw new Error(errorData.details || errorData.message || `Error al obtener todos los cursos. Código: ${response.status}`);
+            } catch {
+                throw new Error(`Error al obtener todos los cursos. Código: ${response.status}. Respuesta: ${responseText.substring(0, 50)}`);
+            }
+        }
+
+        // Intentar parsear JSON
+        let responseData;
+        try {
+            responseData = JSON.parse(responseText);
+        } catch {
+            throw new Error("Respuesta inesperada del servidor (no es JSON).");
+        }
+
+        // ✔ Ajustado al formato del backend: { success, count, data }
+        if (!responseData.success) {
+            throw new Error("El servidor indicó un error al obtener los cursos.");
+        }
+
+        return {
+            success: true,
+            data: Array.isArray(responseData.data) ? responseData.data : []
+        };
+
+    } catch (err) {
+        clearTimeout(id);
+
+        // Timeout detectado
+        if (err.name === "AbortError") {
+            throw new Error("La conexión ha expirado (Timeout).");
+        }
+
+        throw err;
+    }
+}
 
 
 
 
-module.exports = { getCoursesByInstructor, addCourse,  getCourseDetails, updateCourse, setState, getCoursesByStudent };
+module.exports = { getCoursesByInstructor, addCourse,  getCourseDetails, updateCourse, setState, getCoursesByStudent, getAllCourses };
