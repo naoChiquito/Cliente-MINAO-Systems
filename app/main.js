@@ -57,6 +57,7 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             nodeIntegration: false,
+            sandbox: false
         },
     });
 
@@ -252,23 +253,25 @@ app.whenReady().then(() => {
     // =========================
     // JOIN COURSE
     // =========================
-    ipcMain.handle("join-course", async (event, joinData) => {
+    ipcMain.handle("join-course", async (event, data) => {
         try {
-            const url = `http://127.0.0.1:8000/minao_systems/courses/join`;
+            const url = "http://127.0.0.1:8000/minao_systems/courses/join";
 
             const response = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(joinData)
+                body: JSON.stringify({
+                    studentUserId: data.studentUserId,
+                    cursoId: data.cursoId
+                })
             });
 
-            const json = await response.json();
-            return json;
-
-        } catch (error) {
-            return { success: false, message: error.message };
+            return await response.json();
+        } catch (e) {
+            return { success: false, message: e.message };
         }
     });
+
 
 
     // =========================

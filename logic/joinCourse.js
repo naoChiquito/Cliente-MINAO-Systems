@@ -12,27 +12,39 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 
     /* ============================================================
-       NAVEGACIÓN DEL SIDEBAR
+    NAVEGACIÓN DEL SIDEBAR
     ============================================================ */
-    document.getElementById("navMisCursos")?.addEventListener("click", () => {
-        window.nav.goTo("displayStudentCourses.html");
+
+    document.getElementById("navMisCursos")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.nav.goTo("displayStudentCourses");
     });
 
-    document.getElementById("navVerCursos")?.addEventListener("click", () => {
-        window.nav.goTo("watchCourses.html");
+    document.getElementById("navVerCursos")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.nav.goTo("WatchCourse");
     });
 
-    document.getElementById("navChat")?.addEventListener("click", () => {
-        window.nav.goTo("ChatView.html");
+    document.getElementById("navChat")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.nav.goTo("ChatView");
     });
 
-    document.getElementById("navPerfil")?.addEventListener("click", () => {
-        window.nav.goTo("Profile.html");
+    document.getElementById("navPerfil")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.nav.goTo("Profile");
     });
 
-    document.getElementById("navLogout")?.addEventListener("click", () => {
-        window.nav.goTo("Login.html");
+    document.getElementById("navLogout")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.nav.goTo("login");
     });
+
 
 
     /* ============================================================
@@ -55,8 +67,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     const contentsList = document.getElementById("contents-list");
     const quizzesList = document.getElementById("quizzes-list");
 
+    /* BOTONES */
     const joinButton = document.getElementById("join-button");
-
+    const dropButton = document.getElementById("drop-button");
+    joinButton.textContent = "Unirme al curso";
+    dropButton.style.display = "none";
 
     try {
         /* ================================
@@ -130,38 +145,49 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 
         /* =======================================================
-           5. Validar inscripción
-        ======================================================== */
+        5. Validar inscripción
+        =========================================================== */
 
         let enrolled = false;
 
         if (userId) {
             const enrolledResponse = await window.api.getCoursesByStudent(userId);
+
+            console.log("FULL RESPONSE getCoursesByStudent:", enrolledResponse);
+
+            // 📌 Obtener lista real del backend
             const list =
+                enrolledResponse?.data?.data ||  // ← ESTA es la correcta según tu log
+                enrolledResponse?.data?.result ||
                 enrolledResponse?.data?.courses ||
-                enrolledResponse?.data ||
                 [];
 
+            console.log("CURSOS PROCESADOS:", list);
+
             if (Array.isArray(list)) {
-                enrolled = list.some(c => c.cursoId == courseId);
+                enrolled = list.some(c => String(c.cursoId) === String(courseId));
             }
         }
 
-        function updateJoinButton() {
+        function updateButtons() {
             if (enrolled) {
-                joinButton.textContent = "Darse de baja del curso";
-                joinButton.classList.add("danger");
+                joinButton.style.display = "none";
+                dropButton.style.display = "inline-block";
+                dropButton.textContent = "Darse de baja del curso";
             } else {
-                joinButton.textContent = "Unirme al curso";
-                joinButton.classList.remove("danger");
+                dropButton.style.display = "none";
+                joinButton.style.display = "inline-block";
+                joinButton.textContent = "Unirme al curso";  // ← 🔥 siempre setear aquí
             }
         }
 
-        updateJoinButton();
+
+        updateButtons();
+
 
 
         /* =======================================================
-           6. Acción del botón: UNIRSE / DARSE DE BAJA
+           6. Acción botón UNIRSE
         ======================================================== */
         joinButton.addEventListener("click", async () => {
 
@@ -170,37 +196,41 @@ window.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            if (!enrolled) {
-                const joinResponse = await window.api.joinCourse({
-                    studentUserId: userId,
-                    joinCode: course.joinCode
-                });
+            const joinResponse = await window.api.joinCourse({
+                studentUserId: userId,
+                cursoId: courseId
+            });
 
-                if (joinResponse.success) {
-                    enrolled = true;
-                    updateJoinButton();
-                    alert("¡Te has unido al curso!");
-                } else {
-                    alert(joinResponse.message || "No fue posible unirse al curso.");
-                }
-
+            if (joinResponse.success) {
+                enrolled = true;
+                updateButtons();
+                alert("¡Te has unido al curso!");
             } else {
-                const confirmDrop = confirm(
-                    "¿Estás seguro de que deseas darte de baja de este curso?\n\n" +
-                    "Perderás acceso inmediato a los contenidos y quizzes."
-                );
+                alert(joinResponse.message || "No fue posible unirse al curso.");
+            }
+        });
 
-                if (!confirmDrop) return;
 
-                const result = await window.api.unenrollStudentFromCourse(courseId, userId);
+        /* =======================================================
+           7. Acción botón DARSE DE BAJA
+        ======================================================== */
+        dropButton.addEventListener("click", async () => {
 
-                if (result.success) {
-                    enrolled = false;
-                    updateJoinButton();
-                    alert("Te has dado de baja del curso.");
-                } else {
-                    alert(result.message || "No se pudo completar la acción.");
-                }
+            const confirmDrop = confirm(
+                "¿Estás seguro de que deseas darte de baja del curso?\n\n" +
+                "Perderás acceso inmediato a los contenidos y quizzes."
+            );
+
+            if (!confirmDrop) return;
+
+            const result = await window.api.unenrollStudentFromCourse(courseId, userId);
+
+            if (result.success) {
+                enrolled = false;
+                updateButtons();
+                alert("Te has dado de baja del curso.");
+            } else {
+                alert(result.message || "No se pudo completar la acción.");
             }
         });
 

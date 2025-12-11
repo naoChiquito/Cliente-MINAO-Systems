@@ -50,7 +50,7 @@ contextBridge.exposeInMainWorld("api", {
     joinCourse: (data) =>
         ipcRenderer.invoke("join-course", data),
 
-   unenrollStudentFromCourse: (courseId, studentId) =>
+    unenrollStudentFromCourse: (courseId, studentId) =>
         ipcRenderer.invoke("unenroll-student-from-course", { courseId, studentId }),
 
     getCoursesByStudent: (studentId) =>
