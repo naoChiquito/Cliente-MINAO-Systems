@@ -12,7 +12,7 @@ function withTimeout(ms = FETCH_TIMEOUT) {
 /* ============================================================
    Cursos por instructor
 ============================================================ */
-async function getCoursesByInstructor(instructorId) {
+async function getCoursesByInstructorJSON(instructorId) {
     const { controller, timeoutId } = withTimeout();
 
     try {
@@ -53,6 +53,53 @@ async function getCoursesByInstructor(instructorId) {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === "AbortError") throw new Error("Timeout al obtener cursos del instructor.");
+        throw err;
+    }
+}
+
+async function getCoursesByInstructor(instructorId) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://127.0.0.1:8000/minao_systems/courses/instructor/${instructorId}`; 
+        
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal, 
+            headers: { 
+                "Content-Type": "application/json"
+            }
+        });
+        
+        clearTimeout(id); 
+        const responseText = await response.text(); 
+
+        if (!response.ok) {
+            try {
+                const errorData = JSON.parse(responseText);
+                throw new Error(errorData.message || `Error al cargar cursos. Código: ${response.status}`);
+            } catch (e) {
+                throw new Error(`Error al cargar cursos. Código: ${response.status}. Respuesta: ${responseText.substring(0, 50)}`);
+            }
+        }
+        
+        try {
+
+            const responseData = JSON.parse(responseText);
+            if (responseData && Array.isArray(responseData.result)) {
+                return responseData; 
+            }
+
+            return { count: 0, result: [] }; 
+
+        } catch (e) {
+            console.warn("Respuesta 200/204 sin contenido JSON. Asumiendo array vacío.");
+            return { count: 0, result: [] }; 
+        }
+
+    } catch (err) {
+        clearTimeout(id); 
         throw err;
     }
 }
@@ -281,7 +328,8 @@ async function getAllCourses() {
 }
 
 module.exports = { 
-    getCoursesByInstructor, 
+    getCoursesByInstructor,
+    getCoursesByInstructorJSON,
     addCourse,  
     getCourseDetails, 
     updateCourse, 

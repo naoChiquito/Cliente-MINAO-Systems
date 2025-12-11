@@ -20,7 +20,8 @@ const { verifyEmail } = require('../services/verifyEmailService');
 // COURSE SERVICES
 // -----------------------
 const { 
-    getCoursesByInstructor, 
+    getCoursesByInstructor,
+    getCoursesByInstructorJSON, 
     addCourse, 
     getCourseDetails, 
     updateCourse, 
@@ -37,6 +38,15 @@ const {
     deleteContent, 
     createContent 
 } = require('../services/contentService');
+
+const {
+    getQuizzesByCourse,
+    updateQuestionnaire,
+    getQuizDetailForUser,
+    answerQuiz,
+    viewQuizResult,
+    listQuizResponses
+} = require('../services/quizService');
 
 // -----------------------
 // GRPC SERVICES
@@ -127,14 +137,15 @@ app.whenReady().then(() => {
         }
     });
 
-    ipcMain.handle("update-user-basic-profile", async (event, userId, profileData) => {
+    ipcMain.handle("update-user-basic-profile", async (event, userId, formData) => {
         try {
-            const result = await updateUserBasicProfile(userId, profileData);
+            const result = await updateUserBasicProfile(userId, formData);
             return { success: true, data: result };
         } catch (error) {
             return { success: false, message: error.message };
         }
     });
+
 
 
 
@@ -162,18 +173,22 @@ app.whenReady().then(() => {
     });
 
 
-
-
-
-
-
-
     // -----------------------
     // COURSE IPC
     // -----------------------
     ipcMain.handle('get-instructor-courses', async (event, instructorId) => {
         try {
             const courses = await getCoursesByInstructor(instructorId);
+            return { success: true, data: courses };
+        } catch (error) {
+            console.error("Error al obtener cursos:", error.message);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('get-instructor-courses-json', async (event, instructorId) => {
+        try {
+            const courses = await getCoursesByInstructorJSON(instructorId);
             return { success: true, data: courses };
         } catch (error) {
             return { success: false, message: error.message };
@@ -374,6 +389,84 @@ app.whenReady().then(() => {
         }
     });
 
+});
+
+// =========================================================
+// GET QUIZZES BY COURSE
+// =========================================================
+ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
+    try {
+        const quizzes = await getQuizzesByCourse(courseId);
+        return quizzes;
+    } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+// =========================================================
+// UPDATE QUESTIONNAIRE
+// =========================================================
+ipcMain.handle('update-questionnaire', async (event, quizId, updatedData) => {
+    try {
+        const result = await updateQuestionnaire(quizId, updatedData);
+        return result;
+    } catch (error) {
+        console.error('Error updating questionnaire:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+// =========================================================
+// GET QUIZ DETAIL FOR USER
+// =========================================================
+ipcMain.handle('get-quiz-detail-for-user', async (event, quizId) => {
+    try {
+        const quizDetail = await getQuizDetailForUser(quizId);
+        return quizDetail;
+    } catch (error) {
+        console.error('Error fetching quiz detail:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+// =========================================================
+// ANSWER QUIZ
+// =========================================================
+ipcMain.handle('answer-quiz', async (event, studentUserId, quizId, answers) => {
+    try {
+        const result = await answerQuiz(studentUserId, quizId, answers);
+        return result;
+    } catch (error) {
+        console.error('Error answering quiz:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+// =========================================================
+// VIEW QUIZ RESULT
+// =========================================================
+ipcMain.handle('view-quiz-result', async (event, quizId, studentUserId) => {
+    try {
+        const result = await viewQuizResult(quizId, studentUserId);
+        return result;
+    } catch (error) {
+        console.error('Error viewing quiz result:', error);
+        return { success: false, message: error.message };
+    }
+});
+
+// =========================================================
+// LIST QUIZ RESPONSES
+// =========================================================
+ipcMain.handle('list-quiz-responses', async (event, quizId) => {
+    try {
+        const responses = await listQuizResponses(quizId);
+        return responses;
+    } catch (error) {
+        console.error('Error listing quiz responses:', error);
+        return { success: false, message: error.message };
+    }
 });
 
 

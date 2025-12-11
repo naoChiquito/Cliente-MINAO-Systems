@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = localStorage.getItem("userEmail");
 
     if (!userId || !email) {
-        window.nav.goTo("Login.html");
+        window.nav.goTo("login.html");
         return;
     }
 
@@ -90,14 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("profileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const updatedData = {
-            userName: nameInput.value,
-            paternalSurname: patInput.value,
-            maternalSurname: matInput.value,
-            profileImageUrl: profileImagePreview.src
-        };
+        const formData = new FormData();
+        formData.append("userName", nameInput.value);
+        formData.append("paternalSurname", patInput.value);
+        formData.append("maternalSurname", matInput.value);
+        formData.append("profileImage", profileImageInput.files[0]); // Se agrega el archivo de imagen
 
-        const res = await window.api.updateUserBasicProfile(userId, updatedData);
+        const res = await window.api.updateUserBasicProfile(userId, formData);
 
         if (res.success) {
             alert("Perfil actualizado correctamente.");
@@ -106,5 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Error al actualizar: " + res.message);
         }
     });
+
 
 });

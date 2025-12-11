@@ -59,8 +59,11 @@ contextBridge.exposeInMainWorld("api", {
     getStudentCourses: (studentId) =>
         ipcRenderer.invoke("get-student-courses", studentId),
 
-    getInstructorCourses: (instructorId) =>
-        ipcRenderer.invoke("get-instructor-courses", instructorId),
+    getCourses: (instructorId) =>
+        ipcRenderer.invoke('get-instructor-courses', instructorId),
+
+    getInstructorCoursesJSON: (instructorId) =>
+        ipcRenderer.invoke("get-instructor-courses-json", instructorId),
 
     addCourse: (courseData) =>
         ipcRenderer.invoke("perform-add-course", courseData),
@@ -79,6 +82,24 @@ contextBridge.exposeInMainWorld("api", {
 
     getCourseContent: (courseId) =>
         ipcRenderer.invoke("get-course-content", courseId),
+
+    getQuizzesByCourse: (courseId) =>
+        ipcRenderer.invoke("get-quizzes-by-course", courseId),
+
+    updateQuestionnaire: (quizId, updatedData) =>
+        ipcRenderer.invoke("update-questionnaire", quizId, updatedData),
+
+    getQuizDetailForUser: (quizId) =>
+        ipcRenderer.invoke("get-quiz-detail-for-user", quizId),
+
+    answerQuiz: (studentUserId, quizId, answers) =>
+        ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers),
+
+    viewQuizResult: (quizId, studentUserId) =>
+        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId),
+
+    listQuizResponses: (quizId) =>
+        ipcRenderer.invoke("list-quiz-responses", quizId),
 
     updateModuleContent: (contentId, moduleData) =>
         ipcRenderer.invoke("update-module-content", contentId),
