@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     </p>
                 </div>
 
-                <button class="btn-primary" data-courseid="${course.cursoId}">
+                <button class="btn-primary ver-detalles" data-courseid="${course.cursoId}">
                     Ver detalles
                 </button>
             `;
@@ -76,26 +76,36 @@ document.addEventListener("DOMContentLoaded", async function() {
             coursesContainer.appendChild(div);
         });
 
-        document.querySelectorAll(".btn-primary").forEach(btn => {
+        // ================================
+        //  IMPLEMENTACIÓN SOLICITADA
+        // ================================
+        document.querySelectorAll(".ver-detalles").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = e.target.dataset.courseid;
-                window.location.href = `JoinCourse.html?courseId=${id}`;
+
+                // Guardar ID para la nueva vista
+                localStorage.setItem("selectedCourseId", id);
+
+                console.log("➡ Guardado selectedCourseId:", id);
+
+                // Redirigir a SignUpView.html (según tu solicitud)
+                window.nav.goTo("JoinCourse");
             });
         });
     };
 
-    
+
     /* ============================
        4. Recortar el formato de fecha
     ============================ */
     function formatDate(dateString) {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}/${month}/${day}`;
-}
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}/${month}/${day}`;
+    }
 
     /* ============================
        5. Buscador en vivo
@@ -109,6 +119,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
         displayCourses(filtered);
     });
+    
 
     /* ============================
        6. Inicializar página

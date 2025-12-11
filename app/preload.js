@@ -23,10 +23,11 @@ ipcRenderer.invoke = async (channel, ...args) => {
    🌐 API DISPONIBLE EN EL RENDERER (window.api)
 ===================================================== */
 contextBridge.exposeInMainWorld("api", {
-
-    /* ---------- AUTH ---------- */
     login: (email, password) =>
         ipcRenderer.invoke("perform-login", email, password),
+
+    updateUserBasicProfile: (userId, data) =>
+    ipcRenderer.invoke("update-user-basic-profile", userId, data),
 
     signUp: (formData) =>
         ipcRenderer.invoke("perform-signup", formData),
@@ -34,23 +35,30 @@ contextBridge.exposeInMainWorld("api", {
     verifyEmail: (email, code) =>
         ipcRenderer.invoke("perform-verifyEmail", email, code),
 
+    getUserProfile: (email) =>
+        ipcRenderer.invoke("get-user-profile", email),
 
-    /* =====================================================
-       COURSES — STUDENT
-       ===================================================== */
+    findUserByEmail: (email) =>
+        ipcRenderer.invoke("find-user-by-email", email),
 
-    // 🔥 NUEVA FUNCIÓN ACTUALIZADA PARA TU FRONTEND
+    findUserByEmailJSON: (email) =>
+        ipcRenderer.invoke("find-user-by-email-json", email),
+
+    getInstructorFromCourse: (courseId) =>
+        ipcRenderer.invoke("get-instructor-from-course", courseId),
+
+    joinCourse: (data) =>
+        ipcRenderer.invoke("join-course", data),
+
+   unenrollStudentFromCourse: (courseId, studentId) =>
+        ipcRenderer.invoke("unenroll-student-from-course", { courseId, studentId }),
+
     getCoursesByStudent: (studentId) =>
         ipcRenderer.invoke("get-courses-by-student", studentId),
 
-    // (Mantengo la original por si se usa en otra parte)
     getStudentCourses: (studentId) =>
         ipcRenderer.invoke("get-student-courses", studentId),
 
-
-    /* =====================================================
-       COURSES — INSTRUCTOR
-       ===================================================== */
     getInstructorCourses: (instructorId) =>
         ipcRenderer.invoke("get-instructor-courses", instructorId),
 
@@ -66,22 +74,14 @@ contextBridge.exposeInMainWorld("api", {
     changeCourseState: (courseId, newState) =>
         ipcRenderer.invoke("change-course-state", courseId, newState),
 
-
-    /* =====================================================
-       PUBLIC COURSES (si lo sigues usando)
-       ===================================================== */
     getAllCourses: () =>
         ipcRenderer.invoke("get-all-courses"),
 
-
-    /* =====================================================
-       CONTENT
-       ===================================================== */
     getCourseContent: (courseId) =>
         ipcRenderer.invoke("get-course-content", courseId),
 
     updateModuleContent: (contentId, moduleData) =>
-        ipcRenderer.invoke("update-module-content", contentId, moduleData),
+        ipcRenderer.invoke("update-module-content", contentId),
 
     deleteModuleContent: (contentId) =>
         ipcRenderer.invoke("delete-module-content", contentId),
@@ -89,10 +89,6 @@ contextBridge.exposeInMainWorld("api", {
     createContent: (moduleData) =>
         ipcRenderer.invoke("create-content", moduleData),
 
-
-    /* =====================================================
-       FILES / GRPC
-       ===================================================== */
     uploadContent: (uploadData) =>
         ipcRenderer.invoke("upload-content", uploadData),
 
@@ -102,14 +98,18 @@ contextBridge.exposeInMainWorld("api", {
     deleteContentFile: (fileId) =>
         ipcRenderer.invoke("delete-content-file", fileId),
 
-
-    /* =====================================================
-       SESSION MGMT
-       ===================================================== */
     clearSession: () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("userName");
         localStorage.removeItem("userPaternalSurname");
         console.log("🧹 Sesión local eliminada.");
     }
+});
+
+
+/* =====================================================
+   🌐 NAVIGATION (renombrado a window.nav)
+===================================================== */
+contextBridge.exposeInMainWorld("nav", {
+    goTo: (page) => ipcRenderer.send("navigate-to", page)
 });

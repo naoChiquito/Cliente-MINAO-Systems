@@ -7,7 +7,7 @@
     <title>Ver Cursos Disponibles</title>
 
     <link rel="stylesheet" href="../styles/styleMainMenu.css">
-    <script src="../../logic/watchCourse.js" defer></script>
+    <script src="../../logic/displayStudentCourses.js" defer></script>
 </head>
 
 <body class="main-body">
@@ -26,23 +26,23 @@
                 <ul class="nav-list">
 
                     <li class="nav-item">
-                        <a href="StudentMainMenu.html" class="nav-link">Mis Cursos</a>
+                        <a id="navMisCursos" class="nav-link" style="cursor:pointer;">Mis Cursos</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">Ver Cursos</a>
+                        <a id="navVerCursos" class="nav-link active" style="cursor:pointer;">Ver Cursos</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="ChatView.html" class="nav-link">Chat</a>
+                        <a id="navChat" class="nav-link" style="cursor:pointer;">Chat</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                        <a id="navPerfil" class="nav-link" style="cursor:pointer;">Perfil</a>
                     </li>
 
                     <li class="nav-item logout">
-                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                        <a id="navLogout" class="nav-link" style="cursor:pointer;">Cerrar Sesión</a>
                     </li>
 
                 </ul>
@@ -53,8 +53,8 @@
         <div class="main-content-area">
 
             <header class="content-header">
-                <h1>Cursos Disponibles</h1>
-                <p>Explora los cursos y consulta sus detalles</p>
+                <h1>Mis Cursos </h1>
+                <p>Explora tus cursos y consulta sus detalles</p>
             </header>
 
             <section class="form-container2">
@@ -78,6 +78,6 @@
 
         </div>
     </div>
-
+<script src="../../app/sidebarNavigation.js"></script>
 </body>
 </html>

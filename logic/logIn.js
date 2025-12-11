@@ -28,6 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem('userId', data.userId);
                 localStorage.setItem('userName', data.name);
                 localStorage.setItem('userPaternalSurname', data.paternalSurname);
+                localStorage.setItem("userEmail", response.data.email);
 
                 // Redirigir según el rol del usuario
                 if (data.role.toLowerCase() === "instructor") {

@@ -3,18 +3,49 @@ document.addEventListener("DOMContentLoaded", async function() {
     const coursesContainer = document.getElementById('coursesContainer');
     const courseSearchInput = document.getElementById('courseSearch');
 
+    const userEmail = localStorage.getItem("userEmail");
+    const studentId = localStorage.getItem("userId");
+
     /* ============================
        1. Mostrar nombre del alumno
     ============================ */
-    const userName = localStorage.getItem('userName');
-    const userPaternalSurname = localStorage.getItem('userPaternalSurname');
-    const studentId = localStorage.getItem('userId');   // ← NECESARIO PARA PEDIR CURSOS
+    async function loadStudentName() {
+        try {
+            if (!userEmail) {
+                console.error("❌ No hay email en localStorage.");
+                return;
+            }
 
-    if (userName && userPaternalSurname) {
-        studentNameDisplay.textContent = `${userName} ${userPaternalSurname}`;
+            console.log("📡 Solicitando datos del usuario:", userEmail);
+
+            const response = await window.api.findUserByEmailJSON(userEmail);
+
+            console.log("📥 Usuario recibido:", response);
+
+            if (!response.success || !response.user) {
+                console.error("❌ No se pudo obtener el usuario:", response.message);
+                return;
+            }
+
+            const u = response.user;
+
+            // Mostrar nombre completo
+            const fullName = `${u.userName || ""} ${u.paternalSurname || ""}`.trim();
+            studentNameDisplay.textContent = fullName || "[Nombre]";
+
+            // Guardar para usos futuros (opcional)
+            localStorage.setItem("userName", u.userName || "");
+            localStorage.setItem("userPaternalSurname", u.paternalSurname || "");
+
+        } catch (error) {
+            console.error("❌ Error cargando nombre del alumno:", error);
+        }
     }
 
-    let allCourses = []; // lista para buscador
+    await loadStudentName();
+
+
+    let allCourses = [];
 
     /* ============================
        2. Cargar cursos DEL ESTUDIANTE
@@ -28,13 +59,14 @@ document.addEventListener("DOMContentLoaded", async function() {
 
             console.log(`📡 Solicitando cursos del estudiante ${studentId}...`);
 
-            // 🚀 AHORA LLAMA LA FUNCIÓN CORRECTA DEL BACKEND
             const response = await window.api.getCoursesByStudent(studentId);
 
             console.log("📥 Cursos recibidos:", response);
 
-            if (response.success && Array.isArray(response.data)) {
-                allCourses = response.data;
+            const coursesArray = response?.data?.data;
+
+            if (response.success && Array.isArray(coursesArray)) {
+                allCourses = coursesArray;
                 displayCourses(allCourses);
             } else {
                 console.error("⚠ Formato inesperado:", response);
@@ -44,6 +76,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             console.error("❌ Error al cargar cursos:", error);
         }
     };
+
 
     /* ============================
        3. Mostrar cursos en pantalla
@@ -87,12 +120,12 @@ document.addEventListener("DOMContentLoaded", async function() {
         document.querySelectorAll(".btn-primary").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = e.target.dataset.courseid;
-                window.location.href = `JoinCourse.html?courseId=${id}`;
+                window.nav.goTo(`JoinCourse.html?courseId=${id}`);
             });
         });
     };
 
-    
+
     /* ============================
        4. Recortar el formato de fecha
     ============================ */

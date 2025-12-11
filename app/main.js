@@ -1,5 +1,13 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { findUserByEmail, findUserByEmailJSON, 
+                        updateUserBasicProfile } = require('../services/userService');
+
 const path = require('path');
+
+// -----------------------
+// MAKE mainWindow GLOBAL
+// -----------------------
+let mainWindow;
 
 // -----------------------
 // AUTH SERVICES
@@ -40,7 +48,9 @@ const { uploadContent, getFilesByContent, deleteContentFile } = require('../serv
 // WINDOW CREATION
 // -----------------------
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+
+    // IMPORTANT: assign to global variable
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -50,7 +60,7 @@ function createWindow() {
         },
     });
 
-    mainWindow.loadFile('GUI/views/login.html');
+    mainWindow.loadFile(path.join(__dirname, "../GUI/views/login.html"));
     mainWindow.webContents.openDevTools();
 }
 
@@ -61,6 +71,21 @@ function createWindow() {
 app.whenReady().then(() => {
 
     createWindow();
+
+    // -----------------------
+    // NAVIGATION (🔥 MOVIDO AQUÍ)
+    // -----------------------
+    ipcMain.on("navigate-to", (event, page) => {
+
+        if (!mainWindow) return;
+
+        const fullPath = path.join(__dirname, "../GUI/views", `${page}.html`);
+        console.log("➡ Loading page:", fullPath);
+
+        mainWindow.loadFile(fullPath).catch(err => {
+            console.error("❌ Error loading page:", err);
+        });
+    });
 
     // -----------------------
     // AUTH IPC
@@ -91,6 +116,55 @@ app.whenReady().then(() => {
             return { success: false, message: error.message };
         }
     });
+
+    ipcMain.handle("get-user-profile", async (event, email) => {
+        try {
+            const user = await findUser(email);
+            return { success: true, data: user };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle("update-user-basic-profile", async (event, userId, profileData) => {
+        try {
+            const result = await updateUserBasicProfile(userId, profileData);
+            return { success: true, data: result };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    });
+
+
+
+    ipcMain.handle("find-user-by-email", async (event, email) => {
+    try {
+        const user = await findUserByEmail(email);
+        return { success: true, data: user };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+    });
+
+    ipcMain.handle("find-user-by-email-json", async (event, email) => {
+        try {
+            const userData = await findUserByEmailJSON(email);
+
+            return {
+                success: true,
+                user: userData.user
+            };
+
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    });
+
+
+
+
+
+
 
 
     // -----------------------
@@ -150,13 +224,66 @@ app.whenReady().then(() => {
         }
     });
 
-    
     ipcMain.handle('get-courses-by-student', async (event, studentId) => {
         try {
             const courses = await getCoursesByStudent(studentId);
             return { success: true, data: courses };
         } catch (error) {
             console.error("IPC get-courses-by-student error:", error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // =========================
+    // GET INSTRUCTOR FROM COURSE
+    // =========================
+    ipcMain.handle("get-instructor-from-course", async (event, courseId) => {
+        try {
+            const url = `http://127.0.0.1:8000/minao_systems/instructor/${courseId}/instructor`;
+            const response = await fetch(url);
+            const json = await response.json();
+            return { success: true, data: json };
+        } catch (error) {
+            console.error("Error IPC get-instructor-from-course:", error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // =========================
+    // JOIN COURSE
+    // =========================
+    ipcMain.handle("join-course", async (event, joinData) => {
+        try {
+            const url = `http://127.0.0.1:8000/minao_systems/courses/join`;
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(joinData)
+            });
+
+            const json = await response.json();
+            return json;
+
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    });
+
+
+    // =========================
+    // UNENROLL STUDENT FROM COURSE
+    // =========================
+    ipcMain.handle("unenroll-student-from-course", async (event, data) => {
+        try {
+            const url = `http://127.0.0.1:8000/minao_systems/courses/${data.courseId}/students/${data.studentId}/unenroll`;
+            
+            const response = await fetch(url, { method: "DELETE" });
+            const json = await response.json();
+            
+            return json;
+        } catch (error) {
+            console.error("Error IPC unenroll:", error);
             return { success: false, message: error.message };
         }
     });
@@ -201,9 +328,8 @@ app.whenReady().then(() => {
         }
     });
 
-
     // -----------------------
-    // GRPC UPLOADS (FILES)
+    // GRPC UPLOADS
     // -----------------------
     ipcMain.handle('upload-content', async (event, uploadData) => {
         try {
@@ -232,9 +358,8 @@ app.whenReady().then(() => {
         }
     });
 
-
     // -----------------------
-    // GET ALL COURSES (REST)
+    // GET ALL COURSES
     // -----------------------
     ipcMain.handle('get-all-courses', async () => {
         try {
