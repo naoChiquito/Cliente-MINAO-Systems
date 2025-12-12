@@ -4,18 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; img-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+    <!-- CSP CORRECTA -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   img-src 'self';
+                   script-src 'self';
+                   style-src 'self' 'unsafe-inline';">
 
     <title>Menú Estudiante</title>
 
     <link rel="stylesheet" href="../styles/style.css">
+
+    <!-- Script principal de esta vista -->
     <script src="../../logic/StudentMainMenu.js" defer></script>
+
+    <!-- Sidebar navigation (correctamente ubicado en el head) -->
+    <script src="../../sidebarNavigation.js" defer></script>
 </head>
 
 <body class="login-body">
 
-    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
 
     <div class="login-wrapper">
 
@@ -32,4 +41,23 @@
             <h1 class="login-title">Menú principal</h1>
 
             <div class="menu-options">
-                <button class="menu-button" onclick="location.href='SearchCoursesView.html'">Buscar cursos</button>
+
+                <button class="menu-button" id="btnBuscarCursos">
+                    Buscar cursos
+                </button>
+
+                <button class="menu-button" id="btnMisCursos">
+                    Mis cursos
+                </button>
+
+                <button class="menu-button" id="btnPerfil">
+                    Mi perfil
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

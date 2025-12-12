@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Unirse a Curso</title>
+    <title>Unirse al Curso</title>
 
-    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <!-- Mantiene el estilo de tu diseño original -->
+    <link rel="stylesheet" href="../styles/styleMainMenu.css">
+
+    <!-- Lógica unificada -->
     <script src="../../logic/joinCourse.js" defer></script>
 </head>
 
@@ -14,71 +17,93 @@
 
     <div class="main-wrapper">
 
+        <!-- ============================================================
+                             SIDEBAR (ESTILO DE TU PRIMER VISTA)
+        ============================================================ -->
         <div class="sidebar-card">
             <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
-            <h2 class="sidebar-title">Alumno: <span id="studentNameDisplay">[Nombre]</span></h2>
-            
+            <h2 class="sidebar-title">
+                Alumno: <span id="studentNameDisplay">[Nombre]</span>
+            </h2>
+
             <nav class="main-nav">
                 <ul class="nav-list">
-                    
-                    <li class="nav-item">
-                        <a href="StudentMainMenu.html" class="nav-link">Mis Cursos</a>
+
+                   <li class="nav-item">
+                       <button id="navMisCursos" class="nav-link">Mis Cursos</button>
                     </li>
 
                     <li class="nav-item">
-                        <a href="#" class="nav-link active">Unirse a Curso</a>
+                        <a id="navVerCursos" class="nav-link active" style="cursor:pointer;">Ver Cursos</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="ChatView.html" class="nav-link">Chat</a>
+                        <a id="navChat" class="nav-link" style="cursor:pointer;">Chat</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                        <a id="navPerfil" class="nav-link" style="cursor:pointer;">Perfil</a>
                     </li>
 
                     <li class="nav-item logout">
-                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                        <a id="navLogout" class="nav-link" style="cursor:pointer;">Cerrar Sesión</a>
                     </li>
+
                 </ul>
             </nav>
         </div>
 
+        <!-- ============================================================
+                           CONTENIDO PRINCIPAL UNIFICADO
+        ============================================================ -->
         <div class="main-content-area">
-            
+
             <header class="content-header">
-                <h1>Unirse al Curso</h1>
-                <p>Consulta la información del curso antes de unirte</p>
+                <h1>Información del Curso</h1>
+                <p>Consulta los detalles antes de unirte.</p>
             </header>
 
             <section class="form-container">
-                
-                <form id="joinCourseForm" class="course-form">
 
-                    <label for="courseName">Nombre del Curso</label>
-                    <input type="text" id="courseName" readonly>
+                <div class="course-info-box">
 
-                    <label for="courseDescription">Descripción</label>
-                    <textarea id="courseDescription" rows="5" readonly></textarea>
+                    <h2 id="course-title">Cargando...</h2>
 
-                     <label for="professorName">Nombre del Instructor</label>
-                    <input type="text" id="professorName" readonly>
+                    <p id="course-description"></p>
+                    <p id="course-category"></p>
+                    <p id="course-dates"></p>
+                    <p id="course-instructor"></p>
 
-                   
-                    <label for="startDate">Fecha de Inicio</label>
-                    <input type="date" id="startDate" readonly>
+                    <hr>
 
-                    <label for="endDate">Fecha de Fin</label>
-                    <input type="date" id="endDate" readonly>
+                    <h3>Contenido del Curso</h3>
+                    <ul id="contents-list" class="info-list">
+                        <li>Cargando contenido...</li>
+                    </ul>
 
-                    <button type="submit" class="btn-primary">Unirse a Curso</button>
+                    <h3>Quizzes del Curso</h3>
+                    <ul id="quizzes-list" class="info-list">
+                        <li>Cargando quizzes...</li>
+                    </ul>
 
-                </form>
+                    <div class="join-actions">
+
+                        <button id="join-button" class="btn-primary">Cargando...</button>
+                        <button id="drop-button" class="btn-danger" style="display:none;">
+                            Darse de baja del curso
+                        </button>
+
+                    </div>
+
+
+                </div>
 
             </section>
 
         </div>
-    </div>
 
+    </div>
+    <script src="../../app/sidebarNavigation.js"></script>
+</body>
 </body>
 </html>

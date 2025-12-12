@@ -1,51 +1,97 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld("api", {
-    login: (email, password) => 
-        ipcRenderer.invoke('perform-login', email, password),
-    
-    
-    signUp: (formData) => 
-        ipcRenderer.invoke('perform-signup', formData),
+/* =====================================================
+   INTERCEPTOR DE INVOKE PARA DEBUG
+===================================================== */
+const originalInvoke = ipcRenderer.invoke.bind(ipcRenderer);
 
-    verifyEmail: (email, code) => 
-        ipcRenderer.invoke('perform-verifyEmail', email, code),
+ipcRenderer.invoke = async (channel, ...args) => {
+    console.log(`IPC → ${channel}`, args);
+
+    try {
+        const result = await originalInvoke(channel, ...args);
+        console.log(`📥 IPC ← ${channel}`, result);
+        return result;
+    } catch (error) {
+        console.error(`❌ IPC ERROR ← ${channel}`, error);
+        throw error;
+    }
+};
+
+
+
+contextBridge.exposeInMainWorld("api", {
+    login: (email, password) =>
+        ipcRenderer.invoke("perform-login", email, password),
+
+    updateUserBasicProfile: (userId, data) =>
+    ipcRenderer.invoke("update-user-basic-profile", userId, data),
+
+    signUp: (formData) =>
+        ipcRenderer.invoke("perform-signup", formData),
+
+    verifyEmail: (email, code) =>
+        ipcRenderer.invoke("perform-verifyEmail", email, code),
+
+    getUserProfile: (email) =>
+        ipcRenderer.invoke("get-user-profile", email),
+
+    findUserByEmail: (email) =>
+        ipcRenderer.invoke("find-user-by-email", email),
+
+    findUserByEmailJSON: (email) =>
+        ipcRenderer.invoke("find-user-by-email-json", email),
+
+    getInstructorFromCourse: (courseId) =>
+        ipcRenderer.invoke("get-instructor-from-course", courseId),
+
+    joinCourse: (data) =>
+        ipcRenderer.invoke("join-course", data),
+
+    unenrollStudentFromCourse: (courseId, studentId) =>
+        ipcRenderer.invoke("unenroll-student-from-course", { courseId, studentId }),
+
+    getCoursesByStudent: (studentId) =>
+        ipcRenderer.invoke("get-courses-by-student", studentId),
+
+    getStudentCourses: (studentId) =>
+        ipcRenderer.invoke("get-student-courses", studentId),
 
     getCourses: (instructorId) =>
         ipcRenderer.invoke('get-instructor-courses', instructorId),
 
-    addCourse: (courseData) => 
-        ipcRenderer.invoke('perform-add-course', courseData),
+    getInstructorCoursesJSON: (instructorId) =>
+        ipcRenderer.invoke("get-instructor-courses-json", instructorId),
 
-    getCourseDetails: (courseId) => 
-        ipcRenderer.invoke('get-course-details', courseId),
+    addCourse: (courseData) =>
+        ipcRenderer.invoke("perform-add-course", courseData),
 
-    updateCourse: (courseData) => 
-        ipcRenderer.invoke('update-course', courseData),
+    getCourseDetails: (courseId) =>
+        ipcRenderer.invoke("get-course-details", courseId),
 
-    setState: (courseId, newState) => 
-        ipcRenderer.invoke('change-course-state', courseId, newState),
+    updateCourse: (courseData) =>
+        ipcRenderer.invoke("update-course", courseData),
 
-    getCourseContent: (courseId) => 
-        ipcRenderer.invoke('get-course-content', courseId),
+    changeCourseState: (courseId, newState) =>
+        ipcRenderer.invoke("change-course-state", courseId, newState),
 
-    updateModuleContent: (contentId, moduleData) => 
-        ipcRenderer.invoke('update-module-content', contentId, moduleData),
+    getAllCourses: () =>
+        ipcRenderer.invoke("get-all-courses"),
 
-    deleteContent: (contentId) => 
-        ipcRenderer.invoke('delete-module-content', contentId),
+    getCourseContent: (courseId) =>
+        ipcRenderer.invoke("get-course-content", courseId),
 
-    createContent: (moduleData) => 
-        ipcRenderer.invoke('create-content', moduleData), 
+    getQuizzesByCourse: (courseId) =>
+        ipcRenderer.invoke("get-quizzes-by-course", courseId),
 
-    uploadContent: (uploadData) => 
-        ipcRenderer.invoke('upload-content', uploadData),
+    updateQuestionnaire: (quizId, updatedData) =>
+        ipcRenderer.invoke("update-questionnaire", quizId, updatedData),
 
-    getFilesByContent: (contentId) => 
-        ipcRenderer.invoke('get-files-by-content', contentId),
+    getQuizDetailForUser: (quizId) =>
+        ipcRenderer.invoke("get-quiz-detail-for-user", quizId),
 
-    deleteContentFile: (fileId) => 
-        ipcRenderer.invoke('delete-content-file', fileId),
+    answerQuiz: (studentUserId, quizId, answers) =>
+        ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers),
 
     getQuizzesByCourse: (courseId) => 
         ipcRenderer.invoke('get-quizzes-by-course', courseId),
@@ -60,13 +106,46 @@ contextBridge.exposeInMainWorld("api", {
         from: (arrayBuffer) => Buffer.from(arrayBuffer)
     },
 
-    clearSession: () => {
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userPaternalSurname');
-        console.log("Sesión local limpiada por orden del Main Process.");
-    }
+    viewQuizResult: (quizId, studentUserId) =>
+        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId),
 
+    listQuizResponses: (quizId) =>
+        ipcRenderer.invoke("list-quiz-responses", quizId),
+
+    updateModuleContent: (contentId, moduleData) =>
+        ipcRenderer.invoke("update-module-content", contentId, moduleData),
+
+    deleteModuleContent: (contentId) =>
+        ipcRenderer.invoke("delete-module-content", contentId),
+
+    createContent: (moduleData) =>
+        ipcRenderer.invoke("create-content", moduleData),
+
+    uploadContent: (uploadData) =>
+        ipcRenderer.invoke("upload-content", uploadData),
+
+    getFilesByContent: (contentId) =>
+        ipcRenderer.invoke("get-files-by-content", contentId),
+
+    deleteContentFile: (fileId) =>
+        ipcRenderer.invoke("delete-content-file", fileId),
+
+    setState: (courseId, newState) => 
+        ipcRenderer.invoke('change-course-state', courseId, newState),
+
+
+    clearSession: () => {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userPaternalSurname");
+        console.log("🧹 Sesión local eliminada.");
+    }
 });
 
 
+/* =====================================================
+   NAVIGATION (renombrado a window.nav)
+===================================================== */
+contextBridge.exposeInMainWorld("nav", {
+    goTo: (page) => ipcRenderer.send("navigate-to", page)
+});

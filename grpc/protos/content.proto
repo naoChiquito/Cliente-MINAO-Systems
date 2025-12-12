@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package content;
+
+service ContentService {
+  rpc UploadContentFile (stream UploadContentFileChunk) returns (UploadContentFileResponse);
+  rpc GetFilesByContent (GetFilesByContentRequest) returns (GetFilesByContentResponse);
+  rpc DeleteFile (DeleteFileRequest) returns (DeleteFileResponse);
+}
+
+message UploadContentFileChunk {
+  int32 contentId = 1;
+  bytes data = 2;
+  string fileName = 3;
+  string fileType = 4;
+}
+
+
+message UploadContentFileResponse {
+  bool success = 1;
+  int32 fileId = 2;
+  string message = 3;
+}
+
+message GetFilesByContentRequest {
+  int32 contentId = 1;
+}
+
+message File {
+  int32 fileId = 1;
+  string url = 2;
+  string fileType = 3;
+}
+
+message GetFilesByContentResponse {
+  bool success = 1;
+  repeated File files = 2;
+  string message = 3;
+}
+
+message DeleteFileRequest {
+  int32 fileId = 1;
+}
+
+message DeleteFileResponse {
+  bool success = 1;
+  string message = 2;
+}
