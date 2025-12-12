@@ -19,6 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const editButton = document.getElementById('editInfoBtn');
     const contentButton = document.getElementById('contentBtn');
+    const quizzButton = document.getElementById('quizBtn');
     
     if (editButton) {
         editButton.addEventListener('click', () => {
@@ -42,6 +43,18 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("El botón 'contentBtn' no fue encontrado en el DOM.");
+    }
+
+    if (quizzButton) {
+        quizzButton.addEventListener('click', () => {
+            if (courseId) {
+                window.location.href = 'quizManagement.html'; 
+            } else {
+                alert("Error: No se pudo encontrar el ID del curso para ver sus quizes.");
+            }
+        });
+    } else {
+        console.error("El botón 'quiztBtn' no fue encontrado en el DOM.");
     }
 
 

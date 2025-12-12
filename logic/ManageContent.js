@@ -22,6 +22,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     loadCourseContent(courseId);
+
+     document.getElementById('createModuleBtn').addEventListener('click', () => {
+        window.location.href = 'addContent.html';
+   });
     
 
 });
@@ -99,7 +103,5 @@ function attachNavigationListeners(modules) {
         });
     });
     
-    document.getElementById('createModuleBtn').addEventListener('click', () => {
-        window.location.href = 'addContent.html';
-   });
+   
 }

@@ -1,0 +1,222 @@
+
+.quiz-form-container {
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.general-form hr {
+    margin: 25px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+    font-size: 0.95em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    font-size: 1em;
+}
+
+
+.question-block {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 6px;
+    border-left: 5px solid #007bff; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.question-block h4 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 10px;
+}
+
+.question-points {
+    width: 80px !important;
+    text-align: center;
+}
+
+
+.options-container h5 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 1em;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+.option-item:last-child {
+    border-bottom: none;
+}
+
+.option-radio {
+    margin-right: 10px;
+    transform: scale(1.2); 
+    cursor: pointer;
+}
+
+.option-item .radio-label {
+    font-weight: normal;
+    color: #4CAF50; 
+    width: 130px;
+    flex-shrink: 0; 
+    margin-right: 15px;
+}
+
+.option-item .option-text {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.question-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.btn-delete-q {
+    background-color: #dc3545; 
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.btn-delete-q:hover {
+    background-color: #c82333;
+}
+
+.status-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff3cd;
+    color: #856404;
+    text-align: center;
+    border: 1px solid #ffeeba;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 25px;
+}
+
+.quiz-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #1a4d7d; 
+    
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+
+    display: flex;
+    flex-direction: column;
+}
+
+.quiz-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.quiz-card .card-content {
+    cursor: pointer;
+    flex-grow: 1; 
+    padding: 0; 
+}
+
+.quiz-card .card-content:hover {
+    background-color: transparent; 
+}
+
+.quiz-card h4 {
+    color: #1a4d7d; 
+    font-size: 1.4em;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.quiz-metadata {
+    color: #555;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.quiz-description {
+    color: #555;
+    font-size: 0.95em;
+    line-height: 1.4;
+    height: 35px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-header {
+    padding: 0;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: flex-end; 
+    border: none;
+    background-color: transparent;
+}
+
+.quiz-status {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+.card-footer {
+    padding: 5px 0 0 0;
+    margin-top: 5px;
+    border-top: 1px solid #eee;
+    background-color: transparent;
+    text-align: right;
+}
+
+ .btn-answers {
+    background-color: #2e8ee2; 
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+} 
