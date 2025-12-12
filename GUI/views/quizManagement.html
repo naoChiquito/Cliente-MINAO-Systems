@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cuestionarios</title>
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <link rel="stylesheet" href="../styles/styleContent.css"> 
+    <link rel="stylesheet" href="../styles/styleQuiz.css"> 
+    <script src="../../logic/QuizManagement.js" defer></script> 
+</head>
+
+<body class="main-body">
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+             <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ChatView.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Cuestionarios del Curso: <span id="courseTitleDisplay">[Cargando Nombre...]</span></h1>
+                <p>Crea, edita o elimina los cuestionarios asociados a este curso.</p>
+                <a href="CourseManagement.html" class="btn-back">← Volver a Gestión del Curso</a>
+            </header>
+
+            <section class="creation-area">
+                <button id="createQuizBtn" class="btn-action btn-primary">+ Crear Nuevo Cuestionario</button>
+            </section>
+
+            <section class="quiz-cards-grid-area">
+                <h3>Cuestionarios Creados</h3>
+                <p id="loadingMessage">Cargando cuestionarios...</p>
+                
+                <div id="quizzesContainer" class="card-grid">
+                    </div>
+            </section>
+
+        </div>
+    </div>
+</body>
+</html>

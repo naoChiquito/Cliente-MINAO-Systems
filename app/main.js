@@ -45,14 +45,15 @@ const {
     getQuizDetailForUser,
     answerQuiz,
     viewQuizResult,
-    listQuizResponses
+    listQuizResponses,
+    createQuiz,
+    getQuizResponsesList
 } = require('../services/quizService');
 
 // -----------------------
 // GRPC SERVICES
 // -----------------------
 const { uploadContent, getFilesByContent, deleteContentFile } = require('../services/gRPCService');
-
 
 // -----------------------
 // WINDOW CREATION
@@ -71,8 +72,31 @@ function createWindow() {
         },
     });
 
+    // Cargar la página de login
+    mainWindow.loadFile('GUI/views/login.html'); 
+
+    //Habilitar las herramientas de desarrollo para la consola de la aplicación
+   mainWindow.webContents.openDevTools(); // Esto abre las DevTools automáticamente
+
+    // Evento de cierre de ventana
+    mainWindow.on('close', (event) => {
+        if (mainWindow) {
+            mainWindow.webContents.executeJavaScript('window.api.clearSession();', true)
+                .then(() => {
+                    console.log('Datos de sesión limpiados antes de cerrar.');
+                    mainWindow.destroy();
+                })
+                .catch(err => {
+                    console.error('Error al limpiar la sesión:', err);
+                    mainWindow.destroy(); 
+                });
+            event.preventDefault(); 
+        }
+    });
+
     mainWindow.loadFile(path.join(__dirname, "../GUI/views/login.html"));
     mainWindow.webContents.openDevTools();
+
 }
 
 
@@ -145,8 +169,6 @@ app.whenReady().then(() => {
             return { success: false, message: error.message };
         }
     });
-
-
 
 
     ipcMain.handle("find-user-by-email", async (event, email) => {
@@ -376,6 +398,50 @@ app.whenReady().then(() => {
         }
     });
 
+    ipcMain.handle('create-quiz', async (event, quizData) => {
+        try {
+            const result = await createQuiz(quizData);
+            return result; 
+        } catch (error) {
+            console.error('Error al crear quiz (REST):', error.message);
+            return { 
+                success: false, 
+                quizId: null,
+                message: error.message 
+            };
+        }
+    });
+
+
+    ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
+        try {
+            const result = await getQuizzesByCourse(courseId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener quizzes para curso ${courseId} (REST):`, error.message);
+            return { 
+                success: false, 
+                result: [], 
+                message: error.message 
+            };
+        }
+    });
+
+    ipcMain.handle('get-quiz-responses', async (event, quizId) => {
+        try {
+            const result = await getQuizResponsesList(quizId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener respuestas para quiz ${quizId}:`, error.message);
+            return { 
+                success: false, 
+                responses: [],
+                message: error.message 
+            };
+        }
+    });
+
+
     // -----------------------
     // GET ALL COURSES
     // -----------------------
@@ -389,94 +455,98 @@ app.whenReady().then(() => {
         }
     });
 
-});
 
 // =========================================================
 // GET QUIZZES BY COURSE
 // =========================================================
-ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
-    try {
-        const quizzes = await getQuizzesByCourse(courseId);
-        return quizzes;
-    } catch (error) {
-        console.error('Error fetching quizzes:', error);
-        return { success: false, message: error.message };
-    }
-});
+    ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
+        try {
+            const quizzes = await getQuizzesByCourse(courseId);
+            return quizzes;
+        } catch (error) {
+            console.error('Error fetching quizzes:', error);
+            return { success: false, message: error.message };
+        }
+    });
 
 // =========================================================
 // UPDATE QUESTIONNAIRE
 // =========================================================
-ipcMain.handle('update-questionnaire', async (event, quizId, updatedData) => {
-    try {
-        const result = await updateQuestionnaire(quizId, updatedData);
-        return result;
-    } catch (error) {
-        console.error('Error updating questionnaire:', error);
-        return { success: false, message: error.message };
-    }
-});
+    ipcMain.handle('update-questionnaire', async (event, quizId, updatedData) => {
+        try {
+            const result = await updateQuestionnaire(quizId, updatedData);
+            return result;
+        } catch (error) {
+            console.error('Error updating questionnaire:', error);
+            return { success: false, message: error.message };
+        }
+    });
 
 // =========================================================
 // GET QUIZ DETAIL FOR USER
 // =========================================================
-ipcMain.handle('get-quiz-detail-for-user', async (event, quizId) => {
-    try {
-        const quizDetail = await getQuizDetailForUser(quizId);
-        return quizDetail;
-    } catch (error) {
-        console.error('Error fetching quiz detail:', error);
-        return { success: false, message: error.message };
-    }
-});
+    ipcMain.handle('get-quiz-detail-for-user', async (event, quizId) => {
+        try {
+            const quizDetail = await getQuizDetailForUser(quizId);
+            return quizDetail;
+        } catch (error) {
+            console.error('Error fetching quiz detail:', error);
+            return { success: false, message: error.message };
+        }
+    });
 
 // =========================================================
 // ANSWER QUIZ
 // =========================================================
-ipcMain.handle('answer-quiz', async (event, studentUserId, quizId, answers) => {
-    try {
-        const result = await answerQuiz(studentUserId, quizId, answers);
-        return result;
-    } catch (error) {
-        console.error('Error answering quiz:', error);
-        return { success: false, message: error.message };
-    }
-});
+    ipcMain.handle('answer-quiz', async (event, studentUserId, quizId, answers) => {
+        try {
+            const result = await answerQuiz(studentUserId, quizId, answers);
+            return result;
+        } catch (error) {
+            console.error('Error answering quiz:', error);
+            return { success: false, message: error.message };
+        }
+    });
 
 // =========================================================
 // VIEW QUIZ RESULT
 // =========================================================
-ipcMain.handle('view-quiz-result', async (event, quizId, studentUserId) => {
-    try {
-        const result = await viewQuizResult(quizId, studentUserId);
-        return result;
-    } catch (error) {
-        console.error('Error viewing quiz result:', error);
-        return { success: false, message: error.message };
-    }
-});
+    ipcMain.handle('view-quiz-result', async (event, quizId, studentUserId) => {
+        try {
+            const result = await viewQuizResult(quizId, studentUserId);
+            return result;
+        } catch (error) {
+            console.error('Error viewing quiz result:', error);
+            return { success: false, message: error.message };
+        }
+    });
 
 // =========================================================
 // LIST QUIZ RESPONSES
 // =========================================================
-ipcMain.handle('list-quiz-responses', async (event, quizId) => {
-    try {
-        const responses = await listQuizResponses(quizId);
-        return responses;
-    } catch (error) {
-        console.error('Error listing quiz responses:', error);
-        return { success: false, message: error.message };
-    }
+    ipcMain.handle('list-quiz-responses', async (event, quizId) => {
+        try {
+            const responses = await listQuizResponses(quizId);
+            return responses;
+        } catch (error) {
+            console.error('Error listing quiz responses:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+
+
 });
-
-
+    
 // -----------------------
 // APP EVENTS
 // -----------------------
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
-});
+    app.on('window-all-closed', () => {
+        if (process.platform !== 'darwin') app.quit();
+    });
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-});
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+
+

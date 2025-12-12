@@ -6,7 +6,6 @@ const { GRPC_HOST } = require('../app/config');
 const PROTO_PATH = path.join(process.cwd(), 'grpc', 'protos', 'content.proto');
 
 
-
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
     longs: String,

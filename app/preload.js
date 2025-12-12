@@ -1,12 +1,12 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 /* =====================================================
-   🎯 INTERCEPTOR DE INVOKE PARA DEBUG
+   INTERCEPTOR DE INVOKE PARA DEBUG
 ===================================================== */
 const originalInvoke = ipcRenderer.invoke.bind(ipcRenderer);
 
 ipcRenderer.invoke = async (channel, ...args) => {
-    console.log(`📤 IPC → ${channel}`, args);
+    console.log(`IPC → ${channel}`, args);
 
     try {
         const result = await originalInvoke(channel, ...args);
@@ -19,9 +19,7 @@ ipcRenderer.invoke = async (channel, ...args) => {
 };
 
 
-/* =====================================================
-   🌐 API DISPONIBLE EN EL RENDERER (window.api)
-===================================================== */
+
 contextBridge.exposeInMainWorld("api", {
     login: (email, password) =>
         ipcRenderer.invoke("perform-login", email, password),
@@ -95,6 +93,19 @@ contextBridge.exposeInMainWorld("api", {
     answerQuiz: (studentUserId, quizId, answers) =>
         ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers),
 
+    getQuizzesByCourse: (courseId) => 
+        ipcRenderer.invoke('get-quizzes-by-course', courseId),
+        
+    createQuiz: (quizData) => 
+        ipcRenderer.invoke('create-quiz', quizData),
+
+    getQuizResponses: (quizId) => 
+        ipcRenderer.invoke('get-quiz-responses', quizId),
+
+    Buffer: {
+        from: (arrayBuffer) => Buffer.from(arrayBuffer)
+    },
+
     viewQuizResult: (quizId, studentUserId) =>
         ipcRenderer.invoke("view-quiz-result", quizId, studentUserId),
 
@@ -102,7 +113,7 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("list-quiz-responses", quizId),
 
     updateModuleContent: (contentId, moduleData) =>
-        ipcRenderer.invoke("update-module-content", contentId),
+        ipcRenderer.invoke("update-module-content", contentId, moduleData),
 
     deleteModuleContent: (contentId) =>
         ipcRenderer.invoke("delete-module-content", contentId),
@@ -119,6 +130,10 @@ contextBridge.exposeInMainWorld("api", {
     deleteContentFile: (fileId) =>
         ipcRenderer.invoke("delete-content-file", fileId),
 
+    setState: (courseId, newState) => 
+        ipcRenderer.invoke('change-course-state', courseId, newState),
+
+
     clearSession: () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("userName");
@@ -129,7 +144,7 @@ contextBridge.exposeInMainWorld("api", {
 
 
 /* =====================================================
-   🌐 NAVIGATION (renombrado a window.nav)
+   NAVIGATION (renombrado a window.nav)
 ===================================================== */
 contextBridge.exposeInMainWorld("nav", {
     goTo: (page) => ipcRenderer.send("navigate-to", page)
