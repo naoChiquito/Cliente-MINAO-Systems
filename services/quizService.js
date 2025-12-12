@@ -1,9 +1,7 @@
 
 const BASE_URL = "http://localhost:8000/minao_systems/quizzes";
 
-/* ============================================================
-   ✔  GET QUIZZES BY COURSE
-============================================================ */
+
 async function getQuizzesByCourse(courseId) {
     try {
         const response = await fetch(
@@ -32,35 +30,12 @@ async function getQuizzesByCourse(courseId) {
         return parsed;
 
     } catch (err) {
-        console.error("❌ ERROR EN getQuizzesByCourse:", err);
+        console.error("ERROR EN getQuizzesByCourse:", err);
         return { success: false, message: err.message };
     }
 }
 
-/* ============================================================
-   ✔  UPDATE QUESTIONNAIRE
-============================================================ */
-async function updateQuestionnaire(quizId, updatedData) {
-    try {
-        const response = await fetch(
-            `${BASE_URL}/updateQuiz/${encodeURIComponent(quizId)}`,
-            {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedData) // Sending updated quiz data
-            }
-        );
 
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.message || "Error al actualizar cuestionario");
-
-        return { success: true, data };
-    } catch (err) {
-        console.error("❌ ERROR EN updateQuestionnaire:", err);
-        return { success: false, message: err.message };
-    }
-}
 
 /* ============================================================
    ✔  GET QUIZ DETAIL FOR USER
@@ -141,13 +116,13 @@ async function viewQuizResult(quizId, studentUserId) {
         );
 
         const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
+        console.log("RAW RESPONSE FROM SERVER:", raw);
 
         let parsed;
         try {
             parsed = JSON.parse(raw);
         } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
+            console.error(" No se pudo parsear JSON:", err);
             throw new Error("El servidor devolvió una respuesta NO JSON.");
         }
 
@@ -158,7 +133,7 @@ async function viewQuizResult(quizId, studentUserId) {
         return parsed;
 
     } catch (err) {
-        console.error("❌ ERROR EN viewQuizResult:", err);
+        console.error(" ERROR EN viewQuizResult:", err);
         return { success: false, message: err.message };
     }
 }
@@ -177,13 +152,13 @@ async function listQuizResponses(quizId) {
         );
 
         const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
+        console.log("RAW RESPONSE FROM SERVER:", raw);
 
         let parsed;
         try {
             parsed = JSON.parse(raw);
         } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
+            console.error("No se pudo parsear JSON:", err);
             throw new Error("El servidor devolvió una respuesta NO JSON.");
         }
 
@@ -194,7 +169,7 @@ async function listQuizResponses(quizId) {
         return parsed;
 
     } catch (err) {
-        console.error("❌ ERROR EN listQuizResponses:", err);
+        console.error("ERROR EN listQuizResponses:", err);
         return { success: false, message: err.message };
     }
 }
@@ -314,21 +289,31 @@ async function getQuizResponsesList(quizId) {
         });
         
         clearTimeout(id); 
-        const responseText = await response.text(); 
+        const responseText = await response.text();
 
         if (!response.ok) {
-             const errorData = await response.json().catch(() => ({}));
-             throw new Error(errorData.message || `Fallo al obtener respuestas. Código: ${response.status}`);
+            try {
+                const errorData = JSON.parse(responseText); 
+                throw new Error(errorData.message || `Fallo al obtener respuestas. Código: ${response.status}`);
+            } catch (e) {
+                throw new Error(`Error al obtener respuestas. Código: ${response.status}. Respuesta: ${responseText.substring(0, 50)}`);
+            }
         }
         
-        const responseData = await response.json().catch(() => ({ responses: [] }));
-        
+        let responseData = {};
+        try {
+            responseData = JSON.parse(responseText); 
+        } catch (e) {
+            console.warn("Respuesta 200/204 sin contenido JSON.");
+            responseData = {}; 
+        }
+
         const responsesArray = responseData.responses || responseData.data || responseData.result || [];
 
         return { 
-            success: true, 
+            success: responseData.success || true, 
             responses: responsesArray, 
-            message: responseData.message 
+            message: responseData.message || "Resultados obtenidos."
         };
 
     } catch (err) {
@@ -370,6 +355,87 @@ async function deleteQuiz(quizId) {
     }
 }
 
+async function getQuizDetails(quizId) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://localhost:5050/minao_systems/quizzes/getQuizForUpdate/${quizId}`; 
+        
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal, 
+            headers: { "Content-Type": "application/json" }
+        });
+        
+        clearTimeout(id); 
+        const responseText = await response.text(); 
+
+        if (!response.ok) {
+            try {
+                const errorData = JSON.parse(responseText);
+                throw new Error(errorData.message || `Fallo al obtener detalles del cuestionario. Código: ${response.status}`);
+            } catch (e) {
+                throw new Error(`Error al obtener detalles del cuestionario. Código: ${response.status}. Respuesta: ${responseText.substring(0, 50)}`);
+            }
+        }
+        
+        let responseData = {};
+        try {
+            responseData = JSON.parse(responseText);
+            if (!responseData.result) {
+                throw new Error("Respuesta del servidor incompleta.");
+            }
+            return responseData; 
+
+        } catch (e) {
+            console.warn("Respuesta 200/204 sin contenido JSON. Quiz no encontrado.");
+            throw new Error("Detalles del Quiz no encontrados o formato inválido.");
+        }
+
+    } catch (err) {
+        clearTimeout(id); 
+        if (err.name === 'AbortError') {
+            throw new Error(`La conexión ha expirado (Timeout de ${FETCH_TIMEOUT / 1000}s).`);
+        }
+        throw err;
+    }
+}
+
+async function updateQuestionnaire(quizId, quizData) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+    
+    try {
+        const url = `http://localhost:5050/minao_systems/quizzes/updateQuiz/${quizId}`; 
+        
+        const response = await fetch(url, {
+            method: "PUT",
+            signal: controller.signal,
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(quizData) 
+        });
+        
+        clearTimeout(id); 
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})); 
+            throw new Error(errorData.message || `Error de validación al actualizar el cuestionario. Código: ${response.status}`);
+        }
+        
+        const data = await response.json().catch(() => ({ success: true, message: "Cuestionario actualizado exitosamente." })); 
+        return data;
+
+    } catch (err) {
+        clearTimeout(id); 
+        if (err.name === 'AbortError') {
+            throw new Error(`La conexión ha expirado (Timeout de ${FETCH_TIMEOUT / 1000}s).`);
+        }
+        throw err;
+    }
+}
 
 module.exports = {
     getQuizzesByCourse,
@@ -381,6 +447,7 @@ module.exports = {
     getQuizzesByCourse, 
     createQuiz, 
     getQuizResponsesList, 
-    deleteQuiz
+    deleteQuiz,
+    getQuizDetails
 };
 

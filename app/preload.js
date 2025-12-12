@@ -10,10 +10,10 @@ ipcRenderer.invoke = async (channel, ...args) => {
 
     try {
         const result = await originalInvoke(channel, ...args);
-        console.log(`📥 IPC ← ${channel}`, result);
+        console.log(`IPC ← ${channel}`, result);
         return result;
     } catch (error) {
-        console.error(`❌ IPC ERROR ← ${channel}`, error);
+        console.error(`IPC ERROR ← ${channel}`, error);
         throw error;
     }
 };
@@ -132,6 +132,15 @@ contextBridge.exposeInMainWorld("api", {
 
     setState: (courseId, newState) => 
         ipcRenderer.invoke('change-course-state', courseId, newState),
+
+    getQuizDetails: (quizId) => 
+        ipcRenderer.invoke('get-details-quiz', quizId),
+
+    deleteQuiz: (quizId) =>
+        ipcRenderer.invoke('delete-quiz', quizId),
+
+    getStudentsByCourse: (courseId) => 
+        ipcRenderer.invoke('get-students-by-course', courseId),
 
 
     clearSession: () => {

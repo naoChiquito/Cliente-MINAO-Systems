@@ -281,9 +281,7 @@ async function setState(courseId, newState) {
     }
 }
 
-/* ============================================================
-   Obtener TODOS los cursos (solo si lo sigues usando)
-============================================================ */
+
 async function getAllCourses() {
     const { controller, timeoutId } = withTimeout();
 
@@ -327,6 +325,47 @@ async function getAllCourses() {
     }
 }
 
+async function getStudentsByCourse(courseId) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
+    
+    try {
+        const url = `http://localhost:8000/minao_systems/student/${courseId}/students/average`; 
+        
+        
+        const response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal, 
+            headers: { "Content-Type": "application/json" }
+        });
+        
+        clearTimeout(id); 
+        const responseText = await response.text(); 
+
+        if (!response.ok) {
+             const errorData = JSON.parse(responseText);
+             throw new Error(errorData.message || `Error al cargar estudiantes. Código: ${response.status}`);
+        }
+        
+        const responseData = JSON.parse(responseText);
+        
+        const studentsArray = responseData.students || [];
+
+        return { 
+            success: responseData.success || true, 
+            students: studentsArray, 
+            courseId: responseData.courseId
+        };
+
+    } catch (err) {
+        clearTimeout(id); 
+        if (err.name === 'AbortError') {
+            throw new Error(`La conexión ha expirado (Timeout).`);
+        }
+        throw err;
+    }
+}
+
 module.exports = { 
     getCoursesByInstructor,
     getCoursesByInstructorJSON,
@@ -335,5 +374,6 @@ module.exports = {
     updateCourse, 
     setState, 
     getCoursesByStudent,
-    getAllCourses
+    getAllCourses,
+    getStudentsByCourse
 };

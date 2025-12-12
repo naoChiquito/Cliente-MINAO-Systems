@@ -66,7 +66,7 @@ function renderQuizzes(quizzes, containerElement) {
     let html = '';
     
     quizzes.forEach(quiz => {
-        const quizId = quiz.quizId || quiz.id;
+        const quizId = quiz.quizId;
         const statusText = quiz.numberQuestion > 0 ? 'Activo' : 'Borrador';
         const statusClass = quiz.numberQuestion > 0 ? 'status-published' : 'status-draft';
         const formattedDate = quiz.creationDate 
@@ -76,7 +76,7 @@ function renderQuizzes(quizzes, containerElement) {
         html += `
         <div class="quiz-card clickable-card" data-quiz-id="${quizId}">
             
-            <div class="card-content" onclick="handleCardClick('${quizId}')">
+            <div class="card-content" onclick="handleCardClick('${quizId}', '${quiz.title}')">
                 <div class="card-header">
                     <span class="quiz-status ${statusClass}">${statusText}</span>
                 </div>
@@ -125,6 +125,8 @@ async function handleDeleteQuiz(quizId, quizTitle) {
 
 
 async function handleAnswers(quizId, quizTitle) {
+    localStorage.setItem('CurrentQuizId', quizId);
+    localStorage.setItem('CurrentQuizTitle', quizTitle);
     window.location.href = 'studentsAnswersQuiz.html';
     
 }

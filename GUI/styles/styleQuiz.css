@@ -220,3 +220,52 @@
     border-radius: 5px;
     cursor: pointer;
 } 
+
+.results-table-area {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.95em;
+}
+
+
+.data-table thead th {
+    background-color: #1a4d7d; 
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+
+.data-table tbody tr {
+    border-bottom: 1px solid #eeeeee;
+    transition: background-color 0.15s;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; 
+}
+
+.data-table tbody tr:hover {
+    background-color: #f0f8ff; 
+}
+
+.data-table tbody td {
+    padding: 12px 15px;
+    color: #333;
+}
+
+
+.data-table tbody td strong {
+    color: #fca311; 
+    font-weight: bold;
+}
