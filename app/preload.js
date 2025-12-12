@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("perform-login", email, password),
 
     updateUserBasicProfile: (userId, data) =>
-    ipcRenderer.invoke("update-user-basic-profile", userId, data),
+        ipcRenderer.invoke("update-user-basic-profile", userId, data),
 
     signUp: (formData) =>
         ipcRenderer.invoke("perform-signup", formData),
@@ -102,7 +102,7 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("list-quiz-responses", quizId),
 
     updateModuleContent: (contentId, moduleData) =>
-        ipcRenderer.invoke("update-module-content", contentId),
+        ipcRenderer.invoke("update-module-content", contentId, moduleData),
 
     deleteModuleContent: (contentId) =>
         ipcRenderer.invoke("delete-module-content", contentId),

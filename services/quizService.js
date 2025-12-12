@@ -1,7 +1,29 @@
 const BASE_URL = "http://localhost:8000/minao_systems/quizzes";
 
 /* ============================================================
-   ✔  GET QUIZZES BY COURSE
+   Parseo seguro de respuestas
+============================================================ */
+async function safeParseResponse(response) {
+    const raw = await response.text();
+    console.log("📥 RAW RESPONSE FROM SERVER:", raw);
+
+    let parsed;
+    try {
+        parsed = raw ? JSON.parse(raw) : {};
+    } catch (err) {
+        console.error("❌ No se pudo parsear JSON:", err);
+        throw new Error("El servidor devolvió una respuesta NO JSON.");
+    }
+
+    if (!response.ok) {
+        throw new Error(parsed.message || `Error HTTP ${response.status}`);
+    }
+
+    return parsed;
+}
+
+/* ============================================================
+   GET QUIZZES BY COURSE
 ============================================================ */
 async function getQuizzesByCourse(courseId) {
     try {
@@ -13,31 +35,20 @@ async function getQuizzesByCourse(courseId) {
             }
         );
 
-        const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
+        const parsed = await safeParseResponse(response);
+        const quizzes = normalizeQuizListResponse(parsed);
 
-        let parsed;
-        try {
-            parsed = JSON.parse(raw);
-        } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
-            throw new Error("El servidor devolvió una respuesta NO JSON.");
-        }
-
-        if (!response.ok) {
-            throw new Error(parsed.message || "Error obteniendo cuestionarios.");
-        }
-
-        return parsed;
+        return { success: true, data: quizzes };
 
     } catch (err) {
-        console.error("❌ ERROR EN getQuizzesByCourse:", err);
+        console.error("ERROR EN getQuizzesByCourse:", err);
         return { success: false, message: err.message };
     }
 }
 
+
 /* ============================================================
-   ✔  UPDATE QUESTIONNAIRE
+   UPDATE QUESTIONNAIRE
 ============================================================ */
 async function updateQuestionnaire(quizId, updatedData) {
     try {
@@ -46,15 +57,13 @@ async function updateQuestionnaire(quizId, updatedData) {
             {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedData) // Sending updated quiz data
+                body: JSON.stringify(updatedData)
             }
         );
 
-        const data = await response.json();
+        const parsed = await safeParseResponse(response);
+        return { success: true, data: parsed };
 
-        if (!response.ok) throw new Error(data.message || "Error al actualizar cuestionario");
-
-        return { success: true, data };
     } catch (err) {
         console.error("❌ ERROR EN updateQuestionnaire:", err);
         return { success: false, message: err.message };
@@ -74,22 +83,7 @@ async function getQuizDetailForUser(quizId) {
             }
         );
 
-        const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
-
-        let parsed;
-        try {
-            parsed = JSON.parse(raw);
-        } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
-            throw new Error("El servidor devolvió una respuesta NO JSON.");
-        }
-
-        if (!response.ok) {
-            throw new Error(parsed.message || "Error obteniendo detalle del cuestionario.");
-        }
-
-        return parsed;
+        return await safeParseResponse(response);
 
     } catch (err) {
         console.error("❌ ERROR EN getQuizDetailForUser:", err);
@@ -115,11 +109,9 @@ async function answerQuiz(studentUserId, quizId, answers) {
             }
         );
 
-        const data = await response.json();
+        const parsed = await safeParseResponse(response);
+        return { success: true, data: parsed };
 
-        if (!response.ok) throw new Error(data.message || "Error al contestar el cuestionario");
-
-        return { success: true, data };
     } catch (err) {
         console.error("❌ ERROR EN answerQuiz:", err);
         return { success: false, message: err.message };
@@ -139,22 +131,7 @@ async function viewQuizResult(quizId, studentUserId) {
             }
         );
 
-        const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
-
-        let parsed;
-        try {
-            parsed = JSON.parse(raw);
-        } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
-            throw new Error("El servidor devolvió una respuesta NO JSON.");
-        }
-
-        if (!response.ok) {
-            throw new Error(parsed.message || "Error obteniendo resultado del cuestionario.");
-        }
-
-        return parsed;
+        return await safeParseResponse(response);
 
     } catch (err) {
         console.error("❌ ERROR EN viewQuizResult:", err);
@@ -163,7 +140,7 @@ async function viewQuizResult(quizId, studentUserId) {
 }
 
 /* ============================================================
-   ✔  LIST QUIZ RESPONSES
+   LIST QUIZ RESPONSES
 ============================================================ */
 async function listQuizResponses(quizId) {
     try {
@@ -175,22 +152,7 @@ async function listQuizResponses(quizId) {
             }
         );
 
-        const raw = await response.text();
-        console.log("📥 RAW RESPONSE FROM SERVER:", raw);
-
-        let parsed;
-        try {
-            parsed = JSON.parse(raw);
-        } catch (err) {
-            console.error("❌ No se pudo parsear JSON:", err);
-            throw new Error("El servidor devolvió una respuesta NO JSON.");
-        }
-
-        if (!response.ok) {
-            throw new Error(parsed.message || "Error obteniendo respuestas del cuestionario.");
-        }
-
-        return parsed;
+        return await safeParseResponse(response);
 
     } catch (err) {
         console.error("❌ ERROR EN listQuizResponses:", err);
@@ -198,11 +160,25 @@ async function listQuizResponses(quizId) {
     }
 }
 
+function normalizeQuizListResponse(parsed) {
+    if (parsed && parsed.success === true && Array.isArray(parsed.data)) {
+        return parsed.data;
+    }
+
+    if (Array.isArray(parsed)) {
+        return parsed;
+    }
+
+    return [];
+}
+
+
 module.exports = {
     getQuizzesByCourse,
     updateQuestionnaire,
     getQuizDetailForUser,
     answerQuiz,
     viewQuizResult,
-    listQuizResponses
+    listQuizResponses,
+    normalizeQuizListResponse
 };

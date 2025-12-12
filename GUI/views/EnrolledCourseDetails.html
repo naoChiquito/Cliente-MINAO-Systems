@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Curso Inscrito</title>
+
+ 
+    <link rel="stylesheet" href="../styles/styleContent.css">
+    <link rel="stylesheet" href="../styles/styleMainMenu.css">
+
+    <script src="../../logic/enrolledCourseDetails.js" defer></script>
+</head>
+
+<body class="main-body">
+
+<div class="main-wrapper">
+
+  
+    <div class="sidebar-card">
+        <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+        <h2 class="sidebar-title">
+            Alumno: <span id="studentNameDisplay">[Nombre]</span>
+        </h2>
+
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item"><button id="navMisCursos" class="nav-link">Mis Cursos</button></li>
+                <li class="nav-item"><a id="navVerCursos" class="nav-link">Ver Cursos</a></li>
+                <li class="nav-item"><a id="navChat" class="nav-link">Chat</a></li>
+                <li class="nav-item"><a id="navPerfil" class="nav-link">Perfil</a></li>
+                <li class="nav-item logout"><a id="navLogout" class="nav-link">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </div>
+
+   
+    <div class="main-content-area">
+
+        <header class="content-header">
+            <h1 id="course-title">Curso</h1>
+            <p id="course-description"></p>
+        </header>
+
+        
+        <section class="module-list-section">
+            <h2>Contenido del Curso</h2>
+            <div id="contents-container" class="card-grid"></div>
+        </section>
+
+        
+        <section class="module-list-section">
+            <h2>Quizzes del Curso</h2>
+            <div id="quizzes-container" class="card-grid"></div>
+        </section>
+
+    </div>
+</div>
+
+<script src="../../app/sidebarNavigation.js"></script>
+</body>
+</html>
