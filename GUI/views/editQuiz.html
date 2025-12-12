@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cuestionario</title>
+    <link rel="stylesheet" href="../styles/styleMainMenu.css"> 
+    <link rel="stylesheet" href="../styles/styleQuiz.css"> 
+    <script src="../../logic/editQuiz.js" defer></script> 
+</head>
+
+<body class="main-body">
+    <div class="main-wrapper">
+
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a></li>
+                    <li class="nav-item"><a href="addCourse.html" class="nav-link">Crear Curso</a></li>
+                    <li class="nav-item"><a href="ChatView.html" class="nav-link">Chat</a></li>
+                    <li class="nav-item"><a href="ProfileView.html" class="nav-link">Perfil</a></li>
+                    <li class="nav-item logout"><a href="Login.html" class="nav-link">Cerrar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content-area">
+            
+            <header class="content-header">
+                <h1>Editar Cuestionario: <span id="quizTitleDisplay">[Cargando...]</span></h1>
+                <p>Modifica la estructura, preguntas y opciones del cuestionario. ID: <span id="quizIdDisplay">N/D</span></p>
+                <a href="QuizManagement.html" class="btn-back">← Volver a Quizzes</a>
+            </header>
+
+            <section class="quiz-form-container">
+                
+                <form id="quizEditForm" class="general-form">
+                    
+                    <div class="metadata-grid">
+                        <div class="form-group">
+                            <label for="quizTitle">Título del Cuestionario:</label>
+                            <input type="text" id="quizTitle" required>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quizDescription">Descripción (Opcional):</label>
+                        <textarea id="quizDescription" rows="3"></textarea>
+                    </div>
+
+                    <hr>
+
+                    <h3>Preguntas del Cuestionario</h3>
+                    <div id="questionsContainer">
+                        </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="addQuestionBtn" class="btn-action btn-secondary">
+                            + Añadir Nueva Pregunta
+                        </button>
+                        
+                        <button type="submit" class="btn-action btn-primary">
+                            Actualizar Cuestionario
+                        </button>
+                        
+                        <button type="button" id="deleteQuizBtn" class="btn-action btn-danger">
+                            Eliminar Cuestionario
+                        </button>
+                    </div>
+
+                    <p id="formStatus" class="status-message"></p>
+
+                </form>
+            </section>
+        </div>      
+    </div>
+</body>
+</html>

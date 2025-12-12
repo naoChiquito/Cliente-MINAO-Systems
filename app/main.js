@@ -26,7 +26,8 @@ const {
     getCourseDetails, 
     updateCourse, 
     setState, 
-    getCoursesByStudent
+    getCoursesByStudent,
+    getStudentsByCourse
 } = require('../services/courseService');
 
 // -----------------------
@@ -47,7 +48,9 @@ const {
     viewQuizResult,
     listQuizResponses,
     createQuiz,
-    getQuizResponsesList
+    getQuizResponsesList, 
+    getQuizDetails,
+    deleteQuiz
 } = require('../services/quizService');
 
 // -----------------------
@@ -76,7 +79,7 @@ function createWindow() {
     mainWindow.loadFile('GUI/views/login.html'); 
 
     //Habilitar las herramientas de desarrollo para la consola de la aplicación
-   mainWindow.webContents.openDevTools(); // Esto abre las DevTools automáticamente
+   //mainWindow.webContents.openDevTools(); Esto abre las DevTools automáticamente
 
     // Evento de cierre de ventana
     mainWindow.on('close', (event) => {
@@ -118,7 +121,7 @@ app.whenReady().then(() => {
         console.log("➡ Loading page:", fullPath);
 
         mainWindow.loadFile(fullPath).catch(err => {
-            console.error("❌ Error loading page:", err);
+            console.error("Error loading page:", err);
         });
     });
 
@@ -328,6 +331,20 @@ app.whenReady().then(() => {
         }
     });
 
+    ipcMain.handle('get-students-by-course', async (event, courseId) => {
+        try {
+            const result = await getStudentsByCourse(courseId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener estudiantes para curso ${courseId}:`, error.message);
+            return { 
+                success: false, 
+                students: [],
+                message: error.message 
+            };
+        }
+    });
+
 
     // -----------------------
     // CONTENT IPC
@@ -456,31 +473,18 @@ app.whenReady().then(() => {
     });
 
 
-// =========================================================
-// GET QUIZZES BY COURSE
-// =========================================================
-    ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
-        try {
-            const quizzes = await getQuizzesByCourse(courseId);
-            return quizzes;
-        } catch (error) {
-            console.error('Error fetching quizzes:', error);
-            return { success: false, message: error.message };
-        }
-    });
-
-// =========================================================
-// UPDATE QUESTIONNAIRE
-// =========================================================
     ipcMain.handle('update-questionnaire', async (event, quizId, updatedData) => {
         try {
             const result = await updateQuestionnaire(quizId, updatedData);
             return result;
         } catch (error) {
-            console.error('Error updating questionnaire:', error);
-            return { success: false, message: error.message };
+            console.error('Error al actualizar quiz (REST):', error.message);
+            return { 
+                success: false, 
+                message: error.message 
+            };
         }
-    });
+     });
 
 // =========================================================
 // GET QUIZ DETAIL FOR USER
@@ -534,7 +538,33 @@ app.whenReady().then(() => {
         }
     });
 
+    ipcMain.handle('get-details-quiz', async (event, quizId) => {
+        try {
+            const result = await getQuizDetails(quizId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener detalles del quiz ${quizId}:`, error.message);
+            return { 
+                success: false, 
+                result: null,
+                message: error.message 
+            };
+        }
+    });
 
+    ipcMain.handle('delete-quiz', async (event, quizId) => {
+        try {
+            const result = await deleteQuiz(quizId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al eliminar el quiz ${quizId}:`, error.message);
+            return { 
+                success: false, 
+                result: null,
+                message: error.message 
+            };
+        }
+    });
 
 });
     

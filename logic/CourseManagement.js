@@ -20,6 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const editButton = document.getElementById('editInfoBtn');
     const contentButton = document.getElementById('contentBtn');
     const quizzButton = document.getElementById('quizBtn');
+    const studentButton = document.getElementById('studentBtn');
     
     if (editButton) {
         editButton.addEventListener('click', () => {
@@ -55,6 +56,18 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("El botón 'quiztBtn' no fue encontrado en el DOM.");
+    }
+
+    if (studentButton) {
+        studentButton.addEventListener('click', () => {
+            if (courseId) {
+                window.location.href = 'studentsByCourse.html'; 
+            } else {
+                alert("Error: No se pudo encontrar el ID del curso para ver sus estudiantes.");
+            }
+        });
+    } else {
+        console.error("El botón 'studentBtn' no fue encontrado en el DOM.");
     }
 
 
