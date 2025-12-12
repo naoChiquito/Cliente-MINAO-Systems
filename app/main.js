@@ -137,14 +137,15 @@ app.whenReady().then(() => {
         }
     });
 
-    ipcMain.handle("update-user-basic-profile", async (event, userId, formData) => {
+    ipcMain.handle("update-user-basic-profile", async (event, userId, profileData) => {
         try {
-            const result = await updateUserBasicProfile(userId, formData);
+            const result = await updateUserBasicProfile(userId, profileData);
             return { success: true, data: result };
         } catch (error) {
             return { success: false, message: error.message };
         }
     });
+
 
 
 
@@ -195,6 +196,8 @@ app.whenReady().then(() => {
         }
     });
 
+
+    
     ipcMain.handle('perform-add-course', async (event, courseData) => {
         try {
             const result = await addCourse(courseData);
