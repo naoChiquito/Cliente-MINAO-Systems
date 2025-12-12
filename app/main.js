@@ -6,6 +6,7 @@ const { verifyEmail } = require('../services/verifyEmailService');
 const { getCoursesByInstructor, addCourse, getCourseDetails, updateCourse, setState } = require('../services/courseService');
 const { getCourseContent, updateModuleContent, deleteContent, createContent } = require('../services/contentService');
 const { uploadContent, getFilesByContent, deleteContentFile } = require('../services/gRPCService');
+const { createQuiz, getQuizzesByCourse, getQuizResponsesList } = require('../services/quizService');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -22,7 +23,7 @@ function createWindow() {
     mainWindow.loadFile('GUI/views/login.html'); 
 
     // Habilitar las herramientas de desarrollo para la consola de la aplicación
-    mainWindow.webContents.openDevTools(); // Esto abre las DevTools automáticamente
+   // mainWindow.webContents.openDevTools(); // Esto abre las DevTools automáticamente
 
     // Evento de cierre de ventana
     mainWindow.on('close', (event) => {
@@ -192,6 +193,49 @@ app.whenReady().then(() => {
         } catch (error) {
             console.error('Error al eliminar archivo gRPC:', error.message);
             return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('create-quiz', async (event, quizData) => {
+        try {
+            const result = await createQuiz(quizData);
+            return result; 
+        } catch (error) {
+            console.error('Error al crear quiz (REST):', error.message);
+            return { 
+                success: false, 
+                quizId: null,
+                message: error.message 
+            };
+        }
+    });
+
+
+    ipcMain.handle('get-quizzes-by-course', async (event, courseId) => {
+        try {
+            const result = await getQuizzesByCourse(courseId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener quizzes para curso ${courseId} (REST):`, error.message);
+            return { 
+                success: false, 
+                result: [], 
+                message: error.message 
+            };
+        }
+    });
+
+    ipcMain.handle('get-quiz-responses', async (event, quizId) => {
+        try {
+            const result = await getQuizResponsesList(quizId);
+            return result; 
+        } catch (error) {
+            console.error(`Error al obtener respuestas para quiz ${quizId}:`, error.message);
+            return { 
+                success: false, 
+                responses: [],
+                message: error.message 
+            };
         }
     });
 

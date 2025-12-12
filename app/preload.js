@@ -47,6 +47,15 @@ contextBridge.exposeInMainWorld("api", {
     deleteContentFile: (fileId) => 
         ipcRenderer.invoke('delete-content-file', fileId),
 
+    getQuizzesByCourse: (courseId) => 
+        ipcRenderer.invoke('get-quizzes-by-course', courseId),
+        
+    createQuiz: (quizData) => 
+        ipcRenderer.invoke('create-quiz', quizData),
+
+    getQuizResponses: (quizId) => 
+        ipcRenderer.invoke('get-quiz-responses', quizId),
+
     Buffer: {
         from: (arrayBuffer) => Buffer.from(arrayBuffer)
     },
