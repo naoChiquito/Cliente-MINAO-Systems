@@ -32,7 +32,7 @@ const {
 } = require("../services/courseService");
 
 // -----------------------
-// CONTENT SERVICES (✅ este import faltaba en HEAD)
+// CONTENT SERVICES
 // -----------------------
 const {
   getCourseContent,
@@ -42,7 +42,7 @@ const {
 } = require("../services/contentService");
 
 // -----------------------
-// QUIZ SERVICES (✅ mergeamos lo extra de HEAD)
+// QUIZ SERVICES
 // -----------------------
 const {
   getQuizzesByCourse,
@@ -52,7 +52,7 @@ const {
   viewQuizResult,
   listQuizResponses,
 
-  // extras de HEAD
+  // extras
   createQuiz,
   getQuizResponsesList,
   getQuizDetails,
@@ -92,7 +92,7 @@ function createWindow() {
   // DevTools (déjalo si lo necesitas)
   mainWindow.webContents.openDevTools();
 
-  // ✅ Limpieza de sesión al cerrar (opcional, pero sin duplicar ventanas)
+  // ✅ Limpieza de sesión al cerrar
   mainWindow.on("close", async (event) => {
     if (isClosing) return;
     isClosing = true;
@@ -100,7 +100,6 @@ function createWindow() {
     event.preventDefault();
 
     try {
-      // Limpiar localStorage directamente (no depende de window.api)
       await mainWindow.webContents.executeJavaScript(`
         try {
           localStorage.removeItem("userId");
@@ -180,7 +179,6 @@ app.whenReady().then(() => {
   // =====================================================
   ipcMain.handle("get-user-profile", async (event, email) => {
     try {
-      // ✅ HEAD tenía findUser(email) que no existe
       const user = await findUserByEmail(email);
       return { success: true, data: user };
     } catch (error) {
@@ -206,10 +204,9 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ PERFIL BÁSICO (SIN FOTO) — NO CAMBIAR FIRMA (preload manda 2 args)
+  // ✅ PERFIL BÁSICO (SIN FOTO) — NO CAMBIAR FIRMA
   ipcMain.handle("update-user-basic-profile", async (event, userId, data) => {
     try {
-      // data: { userName, paternalSurname, maternalSurname, token? }
       const result = await updateUserBasicProfile(userId, data);
       return { success: true, data: result };
     } catch (error) {
@@ -295,20 +292,17 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ extra HEAD: estudiantes inscritos en un curso
   ipcMain.handle("get-students-by-course", async (event, courseId) => {
     try {
       const result = await getStudentsByCourse(courseId);
-      return result; // lo devolvemos tal cual lo entregue el service
+      return result;
     } catch (error) {
       console.error(`Error get-students-by-course (${courseId}):`, error.message);
       return { success: false, students: [], message: error.message };
     }
   });
 
-  // =========================
-  // GET INSTRUCTOR FROM COURSE
-  // =========================
+
   ipcMain.handle("get-instructor-from-course", async (event, courseId) => {
     try {
       const url = `http://127.0.0.1:8000/minao_systems/instructor/${courseId}/instructor`;
@@ -321,9 +315,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =========================
-  // JOIN COURSE
-  // =========================
+
   ipcMain.handle("join-course", async (event, data) => {
     try {
       const url = "http://127.0.0.1:8000/minao_systems/courses/join";
@@ -341,9 +333,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =========================
-  // UNENROLL STUDENT FROM COURSE
-  // =========================
+  
   ipcMain.handle("unenroll-student-from-course", async (event, data) => {
     try {
       const url = `http://127.0.0.1:8000/minao_systems/courses/${data.courseId}/students/${data.studentId}/unenroll`;
@@ -356,9 +346,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // CONTENT IPC
-  // =====================================================
+
   ipcMain.handle("get-course-content", async (event, courseId) => {
     try {
       const contentData = await getCourseContent(courseId);
@@ -395,9 +383,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // GRPC UPLOADS
-  // =====================================================
+  
   ipcMain.handle("upload-content", async (event, uploadData) => {
     try {
       const result = await uploadContent(uploadData);
@@ -425,9 +411,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // GET ALL COURSES
-  // =====================================================
+
   ipcMain.handle("get-all-courses", async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/minao_systems/courses/all");
@@ -438,9 +422,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // QUIZZES (mantengo lo de Lilly + extras HEAD)
-  // =====================================================
+  
   ipcMain.handle("get-quizzes-by-course", async (event, courseId) => {
     try {
       const result = await getQuizzesByCourse(courseId);
@@ -461,9 +443,10 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("get-quiz-detail-for-user", async (event, quizId) => {
+  
+  ipcMain.handle("get-quiz-detail-for-user", async (event, quizId, token) => {
     try {
-      const quizDetail = await getQuizDetailForUser(quizId);
+      const quizDetail = await getQuizDetailForUser(quizId, token);
       return quizDetail;
     } catch (error) {
       console.error("Error get-quiz-detail-for-user:", error);
@@ -471,9 +454,10 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("answer-quiz", async (event, studentUserId, quizId, answers) => {
+  
+  ipcMain.handle("answer-quiz", async (event, studentUserId, quizId, answers, token) => {
     try {
-      const result = await answerQuiz(studentUserId, quizId, answers);
+      const result = await answerQuiz(studentUserId, quizId, answers, token);
       return result;
     } catch (error) {
       console.error("Error answer-quiz:", error);
@@ -481,9 +465,10 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId) => {
+
+  ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId, token) => {
     try {
-      const result = await viewQuizResult(quizId, studentUserId);
+      const result = await viewQuizResult(quizId, studentUserId, token);
       return result;
     } catch (error) {
       console.error("Error view-quiz-result:", error);
@@ -491,9 +476,9 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("list-quiz-responses", async (event, quizId) => {
+  ipcMain.handle("list-quiz-responses", async (event, quizId, token) => {
     try {
-      const responses = await listQuizResponses(quizId);
+      const responses = await listQuizResponses(quizId, token);
       return responses;
     } catch (error) {
       console.error("Error list-quiz-responses:", error);
@@ -501,7 +486,8 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ extras HEAD
+
+
   ipcMain.handle("create-quiz", async (event, quizData) => {
     try {
       const result = await createQuiz(quizData);
@@ -543,9 +529,7 @@ app.whenReady().then(() => {
   });
 });
 
-// =====================================================
-// APP EVENTS
-// =====================================================
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });

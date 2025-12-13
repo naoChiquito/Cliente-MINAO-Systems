@@ -1,8 +1,4 @@
 const { contextBridge, ipcRenderer } = require("electron");
-
-/* =====================================================
-   INTERCEPTOR DE INVOKE PARA DEBUG
-===================================================== */
 const originalInvoke = ipcRenderer.invoke.bind(ipcRenderer);
 
 ipcRenderer.invoke = async (channel, ...args) => {
@@ -17,7 +13,6 @@ ipcRenderer.invoke = async (channel, ...args) => {
         throw error;
     }
 };
-
 
 
 contextBridge.exposeInMainWorld("api", {
@@ -87,30 +82,30 @@ contextBridge.exposeInMainWorld("api", {
     updateQuestionnaire: (quizId, updatedData) =>
         ipcRenderer.invoke("update-questionnaire", quizId, updatedData),
 
-    getQuizDetailForUser: (quizId) =>
-        ipcRenderer.invoke("get-quiz-detail-for-user", quizId),
 
-    answerQuiz: (studentUserId, quizId, answers) =>
-        ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers),
+    getQuizDetailForUser: (quizId, token) =>
+        ipcRenderer.invoke("get-quiz-detail-for-user", quizId, token),
 
-    getQuizzesByCourse: (courseId) => 
-        ipcRenderer.invoke('get-quizzes-by-course', courseId),
-        
-    createQuiz: (quizData) => 
-        ipcRenderer.invoke('create-quiz', quizData),
+    answerQuiz: (studentUserId, quizId, answers, token) =>
+        ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers, token),
 
-    getQuizResponses: (quizId) => 
-        ipcRenderer.invoke('get-quiz-responses', quizId),
+    viewQuizResult: (quizId, studentUserId, token) =>
+        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId, token),
+
+    createQuiz: (quizData) =>
+        ipcRenderer.invoke("create-quiz", quizData),
+
+    getQuizResponses: (quizId) =>
+        ipcRenderer.invoke("get-quiz-responses", quizId),
+
+    listQuizResponses: (quizId, token) =>
+        ipcRenderer.invoke("list-quiz-responses", quizId, token),
+
 
     Buffer: {
         from: (arrayBuffer) => Buffer.from(arrayBuffer)
     },
 
-    viewQuizResult: (quizId, studentUserId) =>
-        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId),
-
-    listQuizResponses: (quizId) =>
-        ipcRenderer.invoke("list-quiz-responses", quizId),
 
     updateModuleContent: (contentId, moduleData) =>
         ipcRenderer.invoke("update-module-content", contentId, moduleData),
@@ -152,9 +147,6 @@ contextBridge.exposeInMainWorld("api", {
 });
 
 
-/* =====================================================
-   NAVIGATION (renombrado a window.nav)
-===================================================== */
 contextBridge.exposeInMainWorld("nav", {
     goTo: (page) => ipcRenderer.send("navigate-to", page)
 });

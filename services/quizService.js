@@ -8,6 +8,15 @@ const BASE_URLS_TO_TRY = [
   LEGACY_BASE_URL 
 ];
 
+function buildAuthHeaders(token, extra = {}) {
+  const headers = { ...extra };
+  if (token && String(token).trim()) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+
 async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
@@ -185,13 +194,20 @@ async function updateQuestionnaire(quizId, updatedData) {
 
 
 
-async function getQuizDetailForUser(quizId) {
+async function getQuizDetailForUser(quizId, token) {
   try {
+    const headers = { "Content-Type": "application/json" };
+
+    // ✅ Solo agrega Authorization si token existe
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const res = await requestJsonWithFallback(
       `/${encodeURIComponent(quizId)}/view`,
       {
         method: "GET",
-        headers: { "Content-Type": "application/json" }
+        headers
       }
     );
 
@@ -200,7 +216,7 @@ async function getQuizDetailForUser(quizId) {
       return { success: false, message: res.message };
     }
 
-    // mantenemos el tipo de retorno que tenías: devuelve el JSON tal cual
+    // ✅ mantenemos el tipo de retorno que tenías: devuelve el JSON tal cual
     return res.parsed;
 
   } catch (err) {
@@ -209,14 +225,13 @@ async function getQuizDetailForUser(quizId) {
   }
 }
 
-
-async function answerQuiz(studentUserId, quizId, answers) {
+async function answerQuiz(studentUserId, quizId, answers, token) {
   try {
     const res = await requestJsonWithFallback(
       `/answerQuiz`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: buildAuthHeaders(token, { "Content-Type": "application/json" }),
         body: JSON.stringify({
           studentUserId,
           quizId,
@@ -226,7 +241,7 @@ async function answerQuiz(studentUserId, quizId, answers) {
     );
 
     if (!res.success) {
-      console.error("❌ ERROR EN answerQuiz:", res.message);
+      console.error("❌ ERROR EN answerQuiz:", res.message, "URL:", res._url);
       return { success: false, message: res.message };
     }
 
@@ -237,6 +252,7 @@ async function answerQuiz(studentUserId, quizId, answers) {
     return { success: false, message: err.message };
   }
 }
+
 
 
 async function viewQuizResult(quizId, studentUserId) {
@@ -263,13 +279,19 @@ async function viewQuizResult(quizId, studentUserId) {
 }
 
 
-async function listQuizResponses(quizId) {
+async function listQuizResponses(quizId, token) {
   try {
+    const headers = { "Content-Type": "application/json" };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const res = await requestJsonWithFallback(
       `/${encodeURIComponent(quizId)}/responses`,
       {
         method: "GET",
-        headers: { "Content-Type": "application/json" }
+        headers
       }
     );
 
@@ -285,6 +307,7 @@ async function listQuizResponses(quizId) {
     return { success: false, message: err.message };
   }
 }
+
 
 
 
@@ -455,5 +478,6 @@ module.exports = {
   getQuizDetails,
 
 
-  normalizeQuizListResponse
+  normalizeQuizListResponse,
+  safeParseResponse
 };
