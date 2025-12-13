@@ -56,7 +56,7 @@ const {
   createQuiz,
   getQuizResponsesList,
   getQuizDetails,
-  deleteQuiz, 
+  deleteQuiz,
   getStudentsAttempts
 } = require("../services/quizService");
 
@@ -145,11 +145,6 @@ app.whenReady().then(() => {
     });
   });
 
-
-
-
-
-
   // =====================================================
   // STUDENT ATTEMPTS (NEW) ✅ SOLO UNA VEZ AQUÍ
   // =====================================================
@@ -171,6 +166,8 @@ app.whenReady().then(() => {
   // Backward compatible:
   // - old: (quizId, studentUserId, token)
   // - new: (quizId, studentUserId, attemptNumber, token)
+  //
+  // ✅ IMPORTANTE: ESTE ES EL ÚNICO HANDLER "view-quiz-result"
   // =====================================================
   ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId, attemptOrToken, tokenMaybe) => {
     try {
@@ -191,8 +188,6 @@ app.whenReady().then(() => {
       return { success: false, message: error.message };
     }
   });
-
-
 
   // =====================================================
   // AUTH IPC
@@ -352,7 +347,6 @@ app.whenReady().then(() => {
     }
   });
 
-
   ipcMain.handle("get-instructor-from-course", async (event, courseId) => {
     try {
       const url = `http://127.0.0.1:8000/minao_systems/instructor/${courseId}/instructor`;
@@ -364,7 +358,6 @@ app.whenReady().then(() => {
       return { success: false, message: error.message };
     }
   });
-
 
   ipcMain.handle("join-course", async (event, data) => {
     try {
@@ -383,7 +376,6 @@ app.whenReady().then(() => {
     }
   });
 
-  
   ipcMain.handle("unenroll-student-from-course", async (event, data) => {
     try {
       const url = `http://127.0.0.1:8000/minao_systems/courses/${data.courseId}/students/${data.studentId}/unenroll`;
@@ -395,7 +387,6 @@ app.whenReady().then(() => {
       return { success: false, message: error.message };
     }
   });
-
 
   ipcMain.handle("get-course-content", async (event, courseId) => {
     try {
@@ -433,7 +424,6 @@ app.whenReady().then(() => {
     }
   });
 
-  
   ipcMain.handle("upload-content", async (event, uploadData) => {
     try {
       const result = await uploadContent(uploadData);
@@ -461,7 +451,6 @@ app.whenReady().then(() => {
     }
   });
 
-
   ipcMain.handle("get-all-courses", async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/minao_systems/courses/all");
@@ -472,7 +461,9 @@ app.whenReady().then(() => {
     }
   });
 
-  
+  // =====================================================
+  // QUIZ IPC
+  // =====================================================
   ipcMain.handle("get-quizzes-by-course", async (event, courseId) => {
     try {
       const result = await getQuizzesByCourse(courseId);
@@ -493,7 +484,6 @@ app.whenReady().then(() => {
     }
   });
 
-  
   ipcMain.handle("get-quiz-detail-for-user", async (event, quizId, token) => {
     try {
       const quizDetail = await getQuizDetailForUser(quizId, token);
@@ -504,7 +494,6 @@ app.whenReady().then(() => {
     }
   });
 
-  
   ipcMain.handle("answer-quiz", async (event, studentUserId, quizId, answers, token) => {
     try {
       const result = await answerQuiz(studentUserId, quizId, answers, token);
@@ -515,28 +504,23 @@ app.whenReady().then(() => {
     }
   });
 
-
-  ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId, token) => {
+  // ✅ RESULTADOS (lista por quizId)
+  ipcMain.handle("get-quiz-responses", async (event, quizId) => {
     try {
-      const result = await viewQuizResult(quizId, studentUserId, token);
-      return result;
+      const rows = await getQuizResponsesList(quizId);
+
+      return {
+        success: true,
+        count: Array.isArray(rows) ? rows.length : 0,
+        responses: rows,
+        result: rows,
+        data: rows
+      };
     } catch (error) {
-      console.error("Error view-quiz-result:", error);
-      return { success: false, message: error.message };
+      console.error(`Error get-quiz-responses (quizId=${quizId}):`, error.message);
+      return { success: false, responses: [], result: [], data: [], count: 0, message: error.message };
     }
   });
-
-  ipcMain.handle("list-quiz-responses", async (event, quizId, token) => {
-    try {
-      const responses = await listQuizResponses(quizId, token);
-      return responses;
-    } catch (error) {
-      console.error("Error list-quiz-responses:", error);
-      return { success: false, message: error.message };
-    }
-  });
-
-
 
   ipcMain.handle("create-quiz", async (event, quizData) => {
     try {
@@ -548,23 +532,21 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("get-quiz-responses", async (event, quizId) => {
-    try {
-      const result = await getQuizResponsesList(quizId);
-      return result;
-    } catch (error) {
-      console.error(`Error get-quiz-responses (${quizId}):`, error.message);
-      return { success: false, responses: [], message: error.message };
-    }
-  });
-
+  // ✅ NORMALIZADO: si getQuizDetails devuelve “crudo”, lo envolvemos
   ipcMain.handle("get-details-quiz", async (event, quizId) => {
     try {
-      const result = await getQuizDetails(quizId);
-      return result;
+      const raw = await getQuizDetails(quizId);
+
+      // Si ya viene en formato {success:...} lo respetamos
+      if (raw && typeof raw === "object" && "success" in raw) {
+        return raw;
+      }
+
+      // Si viene “directo” (objeto quiz), lo normalizamos
+      return { success: true, result: raw, data: raw };
     } catch (error) {
       console.error(`Error get-details-quiz (${quizId}):`, error.message);
-      return { success: false, result: null, message: error.message };
+      return { success: false, result: null, data: null, message: error.message };
     }
   });
 
@@ -578,9 +560,6 @@ app.whenReady().then(() => {
     }
   });
 });
-
-
-
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
