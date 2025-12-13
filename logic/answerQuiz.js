@@ -16,14 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // ✅ Conservado: si tu backend exige token, lo seguimos pidiendo
+  
   if (!token) {
     alert("No hay token de sesión. Inicia sesión nuevamente.");
     goToLogin();
     return;
   }
 
-  // Sidebar: nombre alumno
+  
   const studentName = (localStorage.getItem("userName") || "").trim();
   const paternalSurname = (localStorage.getItem("userPaternalSurname") || "").trim();
   const nameEl = document.getElementById("studentNameDisplay");
@@ -37,22 +37,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Aseguramos estilos mínimos para revisión (sin depender de CSS externo)
+  
   injectReviewStylesOnce();
 
   try {
-    // =========================================================
-    // 1) Primero: ¿ya lo contestó? -> viewQuizResult
-    // =========================================================
-   // =========================================================
-// =========================================================
-// 1) ¿Cuántos intentos tiene? (source of truth)
-// =========================================================
+    
+    
+    
+   
+
+
+
 const att = await getAttemptsInfoSafe(quizId, studentUserId, token);
-const isContestato = att.attemptsCount > 1; // tu regla
+const isContestato = att.attemptsCount > 1; 
 
 if (isContestato && att.maxAttempt > 0) {
-  // ✅ MODO REVISIÓN basado 100% en getStudentsAttempts + quiz detail
+  
 
   const detail = await window.api.getQuizDetailForUser(quizId, token);
   const quiz = normalizeQuizDetail(detail);
@@ -62,7 +62,7 @@ if (isContestato && att.maxAttempt > 0) {
     (localStorage.getItem("selectedQuizTitle") || "").trim() ||
     "Cuestionario";
 
-  // Construimos modelo de revisión
+  
   const reviewModel = buildReviewModelFromAttempts({
     quiz,
     attemptsRows: att.rows,
@@ -74,17 +74,17 @@ if (isContestato && att.maxAttempt > 0) {
   renderAnsweredQuiz(reviewModel, quizContainer);
 
   if (submitBtn) {
-    submitBtn.style.display = "none";   // ✅ no aparece botón
+    submitBtn.style.display = "none";   
     submitBtn.disabled = true;
     submitBtn.onclick = null;
   }
 
-  return; // 🔴 IMPORTANTÍSIMO: no debe caer al modo “contestar”
+  return; 
 }
 
-    // =========================================================
-    // 2) Si NO hay resultado: cargar quiz para contestar
-    // =========================================================
+    
+    
+    
     const detail = await window.api.getQuizDetailForUser(quizId, token);
     console.log("📥 getQuizDetailForUser:", detail);
 
@@ -94,8 +94,8 @@ if (isContestato && att.maxAttempt > 0) {
       return;
     }
 
-    // Tu DAO getQuizForStudent regresa algo como:
-    // { quizId, title, description, questions: [{questionId, questionText, points, options:[{optionId, optionText}]}] }
+    
+    
     const quiz = normalizeQuizDetail(detail);
 
     const title =
@@ -117,7 +117,6 @@ if (isContestato && att.maxAttempt > 0) {
       return;
     }
 
-    // Render (tu render original, sin perder estructura)
     quizContainer.innerHTML = "";
     questions.forEach((q, idx) => {
       const questionId = q.questionId;
@@ -160,7 +159,7 @@ if (isContestato && att.maxAttempt > 0) {
     if (submitBtn) {
       submitBtn.disabled = false;
 
-      // ✅ IMPORTANTE: evitamos duplicar listeners si por algo recargan/inyectan
+      
       submitBtn.onclick = async () => {
         submitBtn.disabled = true;
         const oldText = submitBtn.textContent;
@@ -170,15 +169,13 @@ if (isContestato && att.maxAttempt > 0) {
           const answers = collectAnswersForBackend(questions);
           console.log("📤 Payload answers (DAO expects):", answers);
 
-          // Validación: todas contestadas
+       
           if (answers.some((a) => !a.optionId)) {
             alert("Responde todas las preguntas antes de enviar.");
             submitBtn.disabled = false;
             submitBtn.textContent = oldText;
             return;
           }
-
-          // ✅ ahora mandamos token (como ya lo traes)
           const result = await window.api.answerQuiz(studentUserId, quizId, answers, token);
           console.log("📥 answerQuiz:", result);
 
@@ -206,12 +203,9 @@ if (isContestato && att.maxAttempt > 0) {
   }
 });
 
-/* =========================================================
-   Helpers (NO se elimina nada importante)
-========================================================= */
+
 
 function collectAnswersForBackend(questions) {
-  // Regla del DAO: answers = [{ questionId, optionId }, ...]
   return questions.map((q) => {
     const questionId = q.questionId;
     const selected = document.querySelector(`input[name="q_${questionId}"]:checked`);
@@ -247,18 +241,13 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-/* =========================================================
-   Normalizadores (para no tronarnos con distintos formatos)
-========================================================= */
+
 
 function normalizeQuizDetail(detail) {
-  // compat: detail.result / detail.data / detail.quiz / detail directo
   return detail?.result || detail?.data || detail?.quiz || detail;
 }
 
 function normalizeQuizResult(result) {
-  // Esperado por tu backend getQuizResult:
-  // { quizId, title, totalWeighing, scoreObtained, questions:[{ options:[{isCorrect}], selectedOptionId }] }
 
   if (!result) return null;
   if (result.success === false) return null;
@@ -269,7 +258,7 @@ function normalizeQuizResult(result) {
   const scoreObtained = r.scoreObtained;
   const totalWeighing = r.totalWeighing;
 
-  // Si no viene eso, asumimos "no contestado" (o endpoint devolvió algo diferente)
+
   const answered =
     Array.isArray(questions) &&
     typeof scoreObtained === "number" &&
@@ -288,9 +277,7 @@ function normalizeQuizResult(result) {
   };
 }
 
-/* =========================================================
-   Render header (mantiene tu estructura)
-========================================================= */
+
 
 function renderHeader(title, description) {
   const headerH1 = document.querySelector(".content-header h1");
@@ -299,18 +286,63 @@ function renderHeader(title, description) {
   if (headerP) headerP.textContent = description;
 }
 
-/* =========================================================
-   Modo revisión: deshabilitado + correctas en verde + ✅/❌
-========================================================= */
+
 
 function renderAnsweredQuiz(normalizedResult, container) {
   const { scoreObtained, totalWeighing, questions } = normalizedResult;
 
+
+  let correctCount = 0;
+  let wrongCount = 0;
+  let unansweredCount = 0;
+
+  (questions || []).forEach((q) => {
+    const options = Array.isArray(q.options) ? q.options : [];
+    const selectedOptionId = q.selectedOptionId ?? null;
+
+    const correctOpt = options.find(o => o.isCorrect === 1 || o.isCorrect === true);
+    const correctId = correctOpt ? Number(correctOpt.optionId) : null;
+
+    if (!selectedOptionId || Number(selectedOptionId) === 0) {
+      unansweredCount++;
+      return;
+    }
+
+    if (correctId !== null && Number(selectedOptionId) === correctId) correctCount++;
+    else wrongCount++;
+  });
+
+  const totalQuestions = Array.isArray(questions) ? questions.length : 0;
+
+  
+  const percentByPoints =
+    Number(totalWeighing) > 0
+      ? (Number(scoreObtained) / Number(totalWeighing)) * 100
+      : 0;
+
+
+  const percentByQuestions =
+    totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+
+
   container.innerHTML = `
-    <div style="margin: 10px 0 25px 0;">
-      <span class="score-pill">✅ Calificación: <strong>${escapeHtml(scoreObtained)}</strong> / ${escapeHtml(totalWeighing)}</span>
+    <div style="margin: 10px 0 25px 0; display:flex; flex-direction:column; gap:10px;">
+      <span class="score-pill">
+        ✅ Calificación: <strong>${escapeHtml(scoreObtained)}</strong> / ${escapeHtml(totalWeighing)}
+      </span>
+
+      <span class="score-pill">
+        ✅ Buenas: <strong>${correctCount}</strong> &nbsp; | &nbsp;
+        ❌ Malas: <strong>${wrongCount}</strong>
+        ${unansweredCount > 0 ? ` &nbsp; | &nbsp; ⏳ Sin responder: <strong>${unansweredCount}</strong>` : ""}
+      </span>
+
+      <span class="score-pill">
+        📊 Porcentaje: <strong>${percentByPoints.toFixed(2)}%</strong>
+      </span>
     </div>
   `;
+
 
   questions.forEach((q, idx) => {
     const questionId = q.questionId;
@@ -320,7 +352,6 @@ function renderAnsweredQuiz(normalizedResult, container) {
     const options = Array.isArray(q.options) ? q.options : [];
     const selectedOptionId = q.selectedOptionId;
 
-    // Correcta: isCorrect puede venir 1/0 o true/false
     const correctOpt = options.find(o => o.isCorrect === 1 || o.isCorrect === true);
     const correctId = correctOpt ? correctOpt.optionId : null;
 
@@ -342,10 +373,9 @@ function renderAnsweredQuiz(normalizedResult, container) {
       ].filter(Boolean).join(" ");
 
       let icon = "";
-if (isCorrect && isSelected) icon = "✅";
-else if (isCorrect && !isSelected) icon = "✅";
-else if (!isCorrect && isSelected) icon = "❌";
-
+      if (isCorrect && isSelected) icon = "✅";
+      else if (isCorrect && !isSelected) icon = "✅";
+      else if (!isCorrect && isSelected) icon = "❌";
 
       return `
         <label class="${classes}">
@@ -369,9 +399,8 @@ else if (!isCorrect && isSelected) icon = "❌";
   });
 }
 
-/* =========================================================
-   Estilos mínimos para revisión (una sola vez)
-========================================================= */
+
+
 
 function injectReviewStylesOnce() {
   if (document.getElementById("quizReviewStyles")) return;
@@ -454,7 +483,7 @@ async function getAttemptsInfoSafe(quizId, studentUserId, token) {
 function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, title }) {
   const questions = Array.isArray(quiz?.questions) ? quiz.questions : [];
 
-  // 1) selectedOptionId por pregunta (del ÚLTIMO intento)
+  
   const selectedByQuestion = new Map();
   for (const r of attemptsRows) {
     const qid = Number(r.questionId);
@@ -462,13 +491,13 @@ function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, t
     const opt = Number(r.optionId);
 
     if (att === Number(lastAttemptNumber)) {
-      // OJO: si optionId=0 lo tratamos como “sin respuesta”
+      
       selectedByQuestion.set(qid, opt > 0 ? opt : null);
     }
   }
 
-  // 2) correctOptionId por pregunta (inferido: cualquier fila con isCorrect=1)
-  //    Si el estudiante alguna vez acertó esa pregunta, ya sabemos cuál opción era correcta.
+  
+  
   const correctByQuestion = new Map();
   for (const r of attemptsRows) {
     const qid = Number(r.questionId);
@@ -480,7 +509,7 @@ function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, t
     }
   }
 
-  // 3) Calculamos calificación simple (puntos)
+  
   let totalWeighing = 0;
   let scoreObtained = 0;
 
@@ -492,7 +521,7 @@ function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, t
     const selectedOptionId = selectedByQuestion.get(qid) ?? null;
     const correctOptionId = correctByQuestion.get(qid) ?? null;
 
-    // Si no pudimos inferir correctOptionId, no sumamos aunque haya seleccionado algo.
+    
     const isCorrect = correctOptionId && selectedOptionId === correctOptionId;
     if (isCorrect) scoreObtained += points;
 
@@ -502,7 +531,6 @@ function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, t
       return {
         ...opt,
         optionId,
-        // 👇 marcamos la correcta para que renderAnsweredQuiz la pinte
         isCorrect: correctOptionId !== null && optionId === correctOptionId ? 1 : 0
       };
     });

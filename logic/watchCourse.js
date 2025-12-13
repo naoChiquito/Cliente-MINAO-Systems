@@ -3,9 +3,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     const coursesContainer = document.getElementById('coursesContainer');
     const courseSearchInput = document.getElementById('courseSearch');
 
-    /* ============================
-       1. Mostrar nombre del alumno
-    ============================ */
+   
     const userName = localStorage.getItem('userName');
     const userPaternalSurname = localStorage.getItem('userPaternalSurname');
 
@@ -13,11 +11,9 @@ document.addEventListener("DOMContentLoaded", async function() {
         studentNameDisplay.textContent = `${userName} ${userPaternalSurname}`;
     }
 
-    let allCourses = []; // lista para buscador
+    let allCourses = []; 
 
-    /* ============================
-       2. Cargar todos los cursos
-    ============================ */
+   
     const loadCourses = async () => {
         try {
             console.log("📡 Solicitando TODOS los cursos...");
@@ -37,9 +33,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         }
     };
 
-    /* ============================
-       3. Mostrar cursos en pantalla
-    ============================ */
+   
     const displayCourses = (courses) => {
         coursesContainer.innerHTML = "";
 
@@ -76,28 +70,26 @@ document.addEventListener("DOMContentLoaded", async function() {
             coursesContainer.appendChild(div);
         });
 
-        // ================================
-        //  IMPLEMENTACIÓN SOLICITADA
-        // ================================
+        
+        
+        
         document.querySelectorAll(".ver-detalles").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = e.target.dataset.courseid;
 
-                // Guardar ID para la nueva vista
+                
                 localStorage.setItem("selectedCourseId", id);
 
                 console.log("➡ Guardado selectedCourseId:", id);
 
-                // Redirigir a SignUpView.html (según tu solicitud)
+                
                 window.nav.goTo("JoinCourse");
             });
         });
     };
 
 
-    /* ============================
-       4. Recortar el formato de fecha
-    ============================ */
+   
     function formatDate(dateString) {
         if (!dateString) return "";
         const date = new Date(dateString);
@@ -107,9 +99,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         return `${year}/${month}/${day}`;
     }
 
-    /* ============================
-       5. Buscador en vivo
-    ============================ */
+   
     courseSearchInput.addEventListener("input", () => {
         const text = courseSearchInput.value.trim().toLowerCase();
 
@@ -121,9 +111,7 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
     
 
-    /* ============================
-       6. Inicializar página
-    ============================ */
+   
     loadCourses();
 });
 
@@ -140,5 +128,4 @@ document.querySelectorAll(".ver-detalles").forEach(btn => {
 });
 
 
-// serena_mg450@outlook.com
-// A59307azul
+
