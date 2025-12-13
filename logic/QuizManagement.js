@@ -1,34 +1,40 @@
 window.addEventListener('DOMContentLoaded', () => {
-    
-    const courseId = localStorage.getItem('CourseId');
-    const instructorName = localStorage.getItem('userName') + ' ' + localStorage.getItem('userPaternalSurname');
-    const courseName = localStorage.getItem('CourseName');
 
+    const courseId = (localStorage.getItem('CourseId') || '').trim();
+
+    const name = (localStorage.getItem('userName') || '').trim();
+    const surname = (localStorage.getItem('userPaternalSurname') || '').trim();
+    const instructorName = `${name} ${surname}`.trim();
+
+    const courseName = (localStorage.getItem('CourseName') || '').trim();
 
     if (!courseId) {
         alert('Error: ID del curso no encontrado. Volviendo al menú principal.');
         window.location.href = 'InstructorMainMenu.html';
         return;
     }
-    
+
+    if (!courseName) {
+        console.warn("⚠ CourseName no está en localStorage. Mostrando placeholder.");
+    }
+
     const instructorNameDisplay = document.getElementById('instructorNameDisplay');
     if (instructorNameDisplay) {
-        instructorNameDisplay.textContent = instructorName.trim();
+        instructorNameDisplay.textContent = instructorName || "[Nombre]";
     }
 
     const courseNameDisplay = document.getElementById('courseTitleDisplay');
     if (courseNameDisplay) {
-        courseNameDisplay.textContent = courseName.trim();
+        courseNameDisplay.textContent = courseName || "Curso";
     }
 
-    loadQuizzes(courseId);    
+    loadQuizzes(courseId);
 
     document.getElementById('createQuizBtn').addEventListener('click', () => {
         window.location.href = 'addQuiz.html';
-   });
-    
-
+    });
 });
+
 
 
 
