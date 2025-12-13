@@ -126,3 +126,19 @@ document.addEventListener("DOMContentLoaded", async function() {
     ============================ */
     loadCourses();
 });
+
+
+document.querySelectorAll(".ver-detalles").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.courseid;
+
+        localStorage.setItem("selectedCourseId", id);
+        localStorage.setItem("courseOrigin", "watchCourses");
+
+        window.nav.goTo("JoinCourse");
+    });
+});
+
+
+// serena_mg450@outlook.com
+// A59307azul

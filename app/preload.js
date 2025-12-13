@@ -25,7 +25,7 @@ contextBridge.exposeInMainWorld("api", {
         ipcRenderer.invoke("perform-login", email, password),
 
     updateUserBasicProfile: (userId, data) =>
-    ipcRenderer.invoke("update-user-basic-profile", userId, data),
+        ipcRenderer.invoke("update-user-basic-profile", userId, data),
 
     signUp: (formData) =>
         ipcRenderer.invoke("perform-signup", formData),

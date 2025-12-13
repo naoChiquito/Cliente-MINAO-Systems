@@ -27,6 +27,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 // Guardar datos del usuario en localStorage
                 localStorage.setItem('userId', data.userId);
                 localStorage.setItem('userName', data.name);
+                localStorage.setItem('token', data.token);
                 localStorage.setItem('userPaternalSurname', data.paternalSurname);
                 localStorage.setItem("userEmail", response.data.email);
 

@@ -39,26 +39,35 @@ async function findUserByEmailJSON(email) {
 /* ============================================================
    ✔  UPDATE USER BASIC PROFILE
 ============================================================ */
-async function updateUserBasicProfile(userId, formData) {
+async function updateUserBasicProfile(userId, updatedData) {
     try {
         const response = await fetch(
-            `${BASE_URL}/users/${encodeURIComponent(userId)}`,
+            `${BASE_URL}/updateBasicProfile/${encodeURIComponent(userId)}`,
             {
                 method: "PUT",
-                body: formData // 🚨 Usamos formData para enviar el archivo junto con los datos
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedData)
             }
         );
 
         const data = await response.json();
 
-        if (!response.ok) throw new Error(data.message);
+        if (!response.ok) {
+            throw new Error(data.message || "Error al actualizar el perfil.");
+        }
 
-        return { success: true, data };
+        return data;
+
     } catch (err) {
         console.error("❌ ERROR EN updateUserBasicProfile:", err);
         return { success: false, message: err.message };
     }
 }
+
+
+
 
 
 module.exports = {
