@@ -144,7 +144,7 @@ async function loadCourseQuizzes(courseId) {
             const attInfo = attemptsMap[quizId];
 
             const attemptsCount = attInfo?.attemptsCount ?? 0;
-            const isContestato = attemptsCount > 2; // ✅ regla solicitada
+            const isContestato = attemptsCount > 1; // ✅ regla solicitada
 
             const card = document.createElement("div");
             card.className = "module-card";
@@ -159,7 +159,7 @@ async function loadCourseQuizzes(courseId) {
                     </div>
                 `;
 
-                card.style.cursor = "not-allowed";
+                card.style.cursor = "pointer"; 
                 card.style.opacity = "0.85";
             } else {
                 statusLine = `
@@ -181,18 +181,21 @@ async function loadCourseQuizzes(courseId) {
                 ${statusLine}
             `;
 
-            card.addEventListener("click", () => {
-                if (isContestato) return;
+           card.addEventListener("click", () => {
+  localStorage.setItem("selectedQuizId", String(quizId));
+  localStorage.setItem("selectedQuizTitle", quiz.title || "Cuestionario");
 
-                localStorage.setItem("selectedQuizId", String(quizId));
-                localStorage.setItem("selectedQuizTitle", quiz.title || "Cuestionario");
+  // ✅ opcional: guardar si entra en modo revisión
+  localStorage.setItem("quizReviewMode", isContestato ? "1" : "0");
+  localStorage.setItem("quizMaxAttempt", String(attInfo?.maxAttempt ?? 0));
 
-                if (window.nav && typeof window.nav.goTo === "function") {
-                    window.nav.goTo("AnswerQuiz");
-                } else {
-                    window.location.href = "AnswerQuiz.html";
-                }
-            });
+  if (window.nav && typeof window.nav.goTo === "function") {
+    window.nav.goTo("AnswerQuiz");
+  } else {
+    window.location.href = "AnswerQuiz.html";
+  }
+});
+
 
             container.appendChild(card);
         });

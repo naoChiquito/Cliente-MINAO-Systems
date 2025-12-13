@@ -44,29 +44,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =========================================================
     // 1) Primero: ¿ya lo contestó? -> viewQuizResult
     // =========================================================
-    let existingResult = null;
+   // =========================================================
+// =========================================================
+// 1) ¿Cuántos intentos tiene? (source of truth)
+// =========================================================
+const att = await getAttemptsInfoSafe(quizId, studentUserId, token);
+const isContestato = att.attemptsCount > 1; // tu regla
 
-    try {
-      existingResult = await window.api.viewQuizResult(quizId, studentUserId, token);
-      console.log("📥 viewQuizResult:", existingResult);
-    } catch (e) {
-      console.warn("⚠ viewQuizResult falló (puede significar sin intento previo):", e?.message);
-      existingResult = null;
-    }
+if (isContestato && att.maxAttempt > 0) {
+  // ✅ MODO REVISIÓN basado 100% en getStudentsAttempts + quiz detail
 
-    const normalizedResult = normalizeQuizResult(existingResult);
+  const detail = await window.api.getQuizDetailForUser(quizId, token);
+  const quiz = normalizeQuizDetail(detail);
 
-    if (normalizedResult && normalizedResult.answered) {
-      // ✅ Modo revisión
-      renderHeader(normalizedResult.title, normalizedResult.description);
-      renderAnsweredQuiz(normalizedResult, quizContainer);
+  const title =
+    quiz.title ||
+    (localStorage.getItem("selectedQuizTitle") || "").trim() ||
+    "Cuestionario";
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Cuestionario ya contestado";
-      }
-      return;
-    }
+  // Construimos modelo de revisión
+  const reviewModel = buildReviewModelFromAttempts({
+    quiz,
+    attemptsRows: att.rows,
+    lastAttemptNumber: att.maxAttempt,
+    title
+  });
+
+  renderHeader(reviewModel.title, "Modo revisión: cuestionario contestado");
+  renderAnsweredQuiz(reviewModel, quizContainer);
+
+  if (submitBtn) {
+    submitBtn.style.display = "none";   // ✅ no aparece botón
+    submitBtn.disabled = true;
+    submitBtn.onclick = null;
+  }
+
+  return; // 🔴 IMPORTANTÍSIMO: no debe caer al modo “contestar”
+}
 
     // =========================================================
     // 2) Si NO hay resultado: cargar quiz para contestar
@@ -327,7 +341,11 @@ function renderAnsweredQuiz(normalizedResult, container) {
         isSelected && !isCorrect ? "option-wrong-selected" : ""
       ].filter(Boolean).join(" ");
 
-      const icon = isSelected ? (isCorrect ? "✅" : "❌") : "";
+      let icon = "";
+if (isCorrect && isSelected) icon = "✅";
+else if (isCorrect && !isSelected) icon = "✅";
+else if (!isCorrect && isSelected) icon = "❌";
+
 
       return `
         <label class="${classes}">
@@ -396,3 +414,115 @@ function injectReviewStylesOnce() {
   `;
   document.head.appendChild(style);
 }
+
+
+async function getAttemptsInfoSafe(quizId, studentUserId, token) {
+  try {
+    const res = await window.api.getStudentsAttempts(quizId, studentUserId, token);
+
+    if (!res || res.success === false) {
+      return { attemptsCount: 0, maxAttempt: 0, rows: [] };
+    }
+
+    const rows =
+      Array.isArray(res.attempts) ? res.attempts :
+      Array.isArray(res.data) ? res.data :
+      Array.isArray(res.result) ? res.result :
+      Array.isArray(res) ? res :
+      [];
+
+    if (!rows.length) {
+      return { attemptsCount: 0, maxAttempt: 0, rows: [] };
+    }
+
+    const attemptNums = rows
+      .map(r => Number(r.attemptNumber))
+      .filter(n => Number.isFinite(n) && n > 0);
+
+    const unique = new Set(attemptNums);
+    const attemptsCount = unique.size;
+    const maxAttempt = attemptNums.length ? Math.max(...attemptNums) : 0;
+
+    return { attemptsCount, maxAttempt, rows };
+  } catch (e) {
+    console.warn("⚠ getAttemptsInfoSafe falló:", e.message);
+    return { attemptsCount: 0, maxAttempt: 0, rows: [] };
+  }
+}
+
+
+function buildReviewModelFromAttempts({ quiz, attemptsRows, lastAttemptNumber, title }) {
+  const questions = Array.isArray(quiz?.questions) ? quiz.questions : [];
+
+  // 1) selectedOptionId por pregunta (del ÚLTIMO intento)
+  const selectedByQuestion = new Map();
+  for (const r of attemptsRows) {
+    const qid = Number(r.questionId);
+    const att = Number(r.attemptNumber);
+    const opt = Number(r.optionId);
+
+    if (att === Number(lastAttemptNumber)) {
+      // OJO: si optionId=0 lo tratamos como “sin respuesta”
+      selectedByQuestion.set(qid, opt > 0 ? opt : null);
+    }
+  }
+
+  // 2) correctOptionId por pregunta (inferido: cualquier fila con isCorrect=1)
+  //    Si el estudiante alguna vez acertó esa pregunta, ya sabemos cuál opción era correcta.
+  const correctByQuestion = new Map();
+  for (const r of attemptsRows) {
+    const qid = Number(r.questionId);
+    const opt = Number(r.optionId);
+    const ok = Number(r.isCorrect) === 1;
+
+    if (ok && opt > 0 && !correctByQuestion.has(qid)) {
+      correctByQuestion.set(qid, opt);
+    }
+  }
+
+  // 3) Calculamos calificación simple (puntos)
+  let totalWeighing = 0;
+  let scoreObtained = 0;
+
+  const normalizedQuestions = questions.map((q) => {
+    const qid = Number(q.questionId);
+    const points = Number(q.points ?? 1);
+    totalWeighing += points;
+
+    const selectedOptionId = selectedByQuestion.get(qid) ?? null;
+    const correctOptionId = correctByQuestion.get(qid) ?? null;
+
+    // Si no pudimos inferir correctOptionId, no sumamos aunque haya seleccionado algo.
+    const isCorrect = correctOptionId && selectedOptionId === correctOptionId;
+    if (isCorrect) scoreObtained += points;
+
+    const options = Array.isArray(q.options) ? q.options : [];
+    const normalizedOptions = options.map((opt) => {
+      const optionId = Number(opt.optionId);
+      return {
+        ...opt,
+        optionId,
+        // 👇 marcamos la correcta para que renderAnsweredQuiz la pinte
+        isCorrect: correctOptionId !== null && optionId === correctOptionId ? 1 : 0
+      };
+    });
+
+    return {
+      ...q,
+      questionId: qid,
+      points,
+      selectedOptionId,
+      options: normalizedOptions
+    };
+  });
+
+  return {
+    answered: true,
+    title,
+    description: "Modo revisión: cuestionario contestado",
+    scoreObtained,
+    totalWeighing,
+    questions: normalizedQuestions
+  };
+}
+
