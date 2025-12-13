@@ -239,3 +239,19 @@ window.addEventListener("DOMContentLoaded", async () => {
         console.error("❌ Error cargando datos del curso:", err);
     }
 });
+
+    const backButton = document.getElementById("backButton");
+
+if (backButton) {
+    backButton.addEventListener("click", () => {
+
+    
+        if (window.nav && typeof window.nav.goBack === "function") {
+            window.nav.goBack();
+            return;
+        }
+
+ 
+        window.history.back();
+    });
+}

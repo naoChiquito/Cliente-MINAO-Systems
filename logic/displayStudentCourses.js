@@ -129,3 +129,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         window.nav.goTo("EnrolledCourseDetails");
     });
 });
+
+    const backButton = document.getElementById("backButton");
+
+if (backButton) {
+    backButton.addEventListener("click", () => {
+
+    
+        if (window.nav && typeof window.nav.goBack === "function") {
+            window.nav.goBack();
+            return;
+        }
+
+ 
+        window.history.back();
+    });
+}
