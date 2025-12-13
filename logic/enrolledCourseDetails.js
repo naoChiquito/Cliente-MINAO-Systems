@@ -103,6 +103,9 @@ async function loadCourseQuizzes(courseId) {
     const container = document.getElementById("quizzes-container");
     container.innerHTML = "<p>Cargando cuestionarios...</p>";
 
+    const studentUserId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token"); 
+
     try {
         const response = await window.api.getQuizzesByCourse(courseId);
         container.innerHTML = "";
@@ -112,63 +115,61 @@ async function loadCourseQuizzes(courseId) {
             return;
         }
 
-   
-        const quizzes = Array.isArray(response.data)
-            ? response.data
-            : Array.isArray(response.result)
-                ? response.result
-                : Array.isArray(response)
-                    ? response
-                    : [];
+        const quizzes =
+            Array.isArray(response.result) ? response.result :
+            Array.isArray(response.data) ? response.data :
+            Array.isArray(response) ? response :
+            [];
 
         if (quizzes.length === 0) {
             container.innerHTML = "<p>No hay cuestionarios disponibles.</p>";
             return;
         }
 
-        quizzes.forEach((quiz) => {
-           
-            const quizId =
-                quiz.quizId ??
-                quiz.id ??
-                quiz.cuestionarioId ??
-                quiz.quiz_id ??
-                quiz.quizID ??
-                null;
+        const scoreMap = {};
+        await Promise.all(
+            quizzes.map(async (q) => {
+                const quizId = q.quizId;
+                const scoreInfo = await getStudentQuizScoreSafe(quizId, studentUserId, token);
+                if (scoreInfo) scoreMap[quizId] = scoreInfo;
+            })
+        );
 
-            const quizTitle = quiz.title || quiz.name || "Quiz";
-            const quizDesc = quiz.description || "";
+        quizzes.forEach((quiz) => {
+            const quizId = quiz.quizId;
+            const scoreInfo = scoreMap[quizId]; 
 
             const card = document.createElement("div");
             card.className = "module-card";
-            card.style.cursor = "pointer"; // UX
+            card.style.cursor = "pointer";
+
+            const scoreLine = scoreInfo
+                ? `<div class="module-link" style="margin-top:8px;">
+                       ✅ Calificación: <strong>${scoreInfo.score}</strong> / ${scoreInfo.total}
+                   </div>`
+                : `<div class="module-link" style="margin-top:8px;">
+                       📝 Sin contestar
+                   </div>`;
 
             card.innerHTML = `
                 <span class="module-id">Quiz</span>
-                <h2>${quizTitle}</h2>
+                <h2>${quiz.title}</h2>
                 <p class="module-desc">
-                    ${quizDesc || "Sin descripción."}
+                    ${quiz.description || "Sin descripción."}
                 </p>
                 <span class="module-link">
-                    Preguntas: ${quiz.numberQuestion ?? quiz.numQuestions ?? 0}
+                    Preguntas: ${quiz.numberQuestion ?? 0}
                 </span>
+                ${scoreLine}
             `;
 
-
             card.addEventListener("click", () => {
-                if (!quizId) {
-                    console.warn("⚠ Quiz sin quizId:", quiz);
-                    alert("No se pudo abrir el quiz (ID no encontrado).");
-                    return;
-                }
-
-                localStorage.setItem("selectedCourseId", String(courseId));
                 localStorage.setItem("selectedQuizId", String(quizId));
-                localStorage.setItem("selectedQuizTitle", quizTitle);
-                localStorage.setItem("selectedQuizDescription", quizDesc);
+                localStorage.setItem("selectedQuizTitle", quiz.title || "Cuestionario");
 
+   
                 if (window.nav && typeof window.nav.goTo === "function") {
-                    window.nav.goTo("AnswerQuiz"); 
+                    window.nav.goTo("AnswerQuiz");
                 } else {
                     window.location.href = "AnswerQuiz.html";
                 }
@@ -180,6 +181,26 @@ async function loadCourseQuizzes(courseId) {
     } catch (error) {
         console.error("❌ Error cargando cuestionarios:", error);
         container.innerHTML = "<p>Error al cargar cuestionarios.</p>";
+    }
+}
+
+
+async function getStudentQuizScoreSafe(quizId, studentUserId, token) {
+    try {
+        if (!studentUserId) return null;
+
+        const res = await window.api.viewQuizResult(quizId, studentUserId, token);
+
+        if (!res || res.success === false) return null;
+
+        const score = res.scoreObtained ?? res.data?.scoreObtained ?? res.result?.scoreObtained;
+        const total = res.totalWeighing ?? res.data?.totalWeighing ?? res.result?.totalWeighing;
+
+        if (typeof score !== "number" || typeof total !== "number") return null;
+
+        return { score, total };
+    } catch (e) {
+        return null; 
     }
 }
 
