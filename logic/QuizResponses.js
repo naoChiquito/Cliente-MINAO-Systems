@@ -30,15 +30,22 @@ async function loadQuizResponses(quizId) {
     try {
         const result = await window.api.getQuizResponses(quizId);
 
-        if (result.success && result.responses && result.responses.length > 0) {
-            renderResponsesTable(result.responses, container);
-            loadingMessage.style.display = 'none'; 
+        const responses =
+            Array.isArray(result?.responses) ? result.responses :
+            Array.isArray(result?.data?.responses) ? result.data.responses :
+            Array.isArray(result?.result?.responses) ? result.result.responses :
+            [];
+
+        if (result.success && responses.length > 0) {
+            renderResponsesTable(responses, container);
+            loadingMessage.style.display = 'none';
         } else if (result.success) {
             container.innerHTML = "<p class='info-message'>Aún no hay estudiantes que hayan respondido este cuestionario.</p>";
             loadingMessage.style.display = 'none';
         } else {
             container.innerHTML = `<p class='error'>Error al cargar resultados: ${result.message}</p>`;
         }
+
     } catch (error) {
         console.error("Error al obtener respuestas del quiz:", error);
         container.innerHTML = `<p class='error'>Fallo de conexión con el servicio de resultados.</p>`;

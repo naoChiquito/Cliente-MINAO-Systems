@@ -503,24 +503,53 @@ app.whenReady().then(() => {
       return { success: false, message: error.message };
     }
   });
+  
 
-  // ✅ RESULTADOS (lista por quizId)
   ipcMain.handle("get-quiz-responses", async (event, quizId) => {
-    try {
-      const rows = await getQuizResponsesList(quizId);
+  try {
+    const raw = await getQuizResponsesList(quizId);
 
+    if (raw && typeof raw === "object" && raw.success === false) {
       return {
-        success: true,
-        count: Array.isArray(rows) ? rows.length : 0,
-        responses: rows,
-        result: rows,
-        data: rows
+        success: false,
+        count: 0,
+        responses: [],
+        result: [],
+        data: [],
+        message: raw.message || "Error obteniendo respuestas."
       };
-    } catch (error) {
-      console.error(`Error get-quiz-responses (quizId=${quizId}):`, error.message);
-      return { success: false, responses: [], result: [], data: [], count: 0, message: error.message };
     }
-  });
+
+    const rows =
+      Array.isArray(raw) ? raw :
+      Array.isArray(raw?.responses) ? raw.responses :
+      Array.isArray(raw?.result) ? raw.result :
+      Array.isArray(raw?.data) ? raw.data :
+      Array.isArray(raw?.data?.responses) ? raw.data.responses :
+      Array.isArray(raw?.result?.responses) ? raw.result.responses :
+      [];
+
+    return {
+      success: true,
+      count: rows.length,
+      responses: rows,
+      result: rows,
+      data: rows,
+      message: raw?.message || "OK"
+    };
+  } catch (error) {
+    console.error(`Error get-quiz-responses (quizId=${quizId}):`, error.message);
+    return {
+      success: false,
+      count: 0,
+      responses: [],
+      result: [],
+      data: [],
+      message: error.message
+    };
+  }
+});
+
 
   ipcMain.handle("create-quiz", async (event, quizData) => {
     try {
