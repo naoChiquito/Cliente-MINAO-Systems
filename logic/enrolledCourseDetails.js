@@ -206,3 +206,18 @@ async function getStudentQuizScoreSafe(quizId, studentUserId, token) {
 
 
 // luis@example.com
+    const backButton = document.getElementById("backButton");
+
+if (backButton) {
+    backButton.addEventListener("click", () => {
+
+        // 🔥 si tienes navegación controlada
+        if (window.nav && typeof window.nav.goBack === "function") {
+            window.nav.goBack();
+            return;
+        }
+
+        // 🔙 fallback estándar
+        window.history.back();
+    });
+}
