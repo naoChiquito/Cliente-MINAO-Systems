@@ -248,6 +248,49 @@ if (backButton) {
             window.nav.goBack();
             return;
         }
+
+        
         window.history.back();
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const dropButton = document.getElementById("drop-course-btn");
+    const courseId = localStorage.getItem("selectedCourseId");
+    const userId = localStorage.getItem("userId");
+
+    if (!dropButton || !courseId || !userId) return;
+
+    dropButton.addEventListener("click", async () => {
+
+        const confirmDrop = confirm(
+            "¿Estás seguro de que deseas darte de baja del curso?\n\n" +
+            "Perderás acceso inmediato a los contenidos y quizzes."
+        );
+
+        if (!confirmDrop) return;
+
+        try {
+            const result = await window.api.unenrollStudentFromCourse(courseId, userId);
+
+            if (result.success) {
+                alert("Te has dado de baja del curso.");
+
+     
+                localStorage.removeItem("selectedCourseId");
+
+          
+             
+            } else {
+                alert(result.message || "No se pudo completar la acción.");
+            }
+
+        } catch (error) {
+            console.error("❌ Error al darse de baja:", error);
+            alert("Ocurrió un error inesperado.");
+        }
+
+           window.nav.goTo("displayStudentCourses");
+    });
+});
