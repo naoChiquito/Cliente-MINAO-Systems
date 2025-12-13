@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         nameEl.textContent = `${studentName} ${paternalSurname}`.trim();
     }
 
-
     loadCourseHeader(courseId);
     loadCourseContent(courseId);
     loadCourseQuizzes(courseId);
@@ -57,7 +56,6 @@ async function loadCourseHeader(courseId) {
     }
 }
 
-
 async function loadCourseContent(courseId) {
     const container = document.getElementById("contents-container");
     container.innerHTML = "<p>Cargando contenido...</p>";
@@ -98,13 +96,12 @@ async function loadCourseContent(courseId) {
     }
 }
 
-
 async function loadCourseQuizzes(courseId) {
     const container = document.getElementById("quizzes-container");
     container.innerHTML = "<p>Cargando cuestionarios...</p>";
 
-    const studentUserId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token"); 
+    const studentUserId = (localStorage.getItem("userId") || "").trim();
+    const token = (localStorage.getItem("token") || "").trim();
 
     try {
         const response = await window.api.getQuizzesByCourse(courseId);
@@ -126,30 +123,51 @@ async function loadCourseQuizzes(courseId) {
             return;
         }
 
-        const scoreMap = {};
+        // ==========================
+        // 1) Obtener attempts por quiz
+        // ==========================
+        const attemptsMap = {}; // { [quizId]: { attemptsCount, maxAttempt } }
+
         await Promise.all(
             quizzes.map(async (q) => {
                 const quizId = q.quizId;
-                const scoreInfo = await getStudentQuizScoreSafe(quizId, studentUserId, token);
-                if (scoreInfo) scoreMap[quizId] = scoreInfo;
+                const attInfo = await getStudentAttemptsCountSafe(quizId, studentUserId, token);
+                if (attInfo) attemptsMap[quizId] = attInfo;
             })
         );
 
+        // ==========================
+        // 2) Renderizar tarjetas
+        // ==========================
         quizzes.forEach((quiz) => {
             const quizId = quiz.quizId;
-            const scoreInfo = scoreMap[quizId]; 
+            const attInfo = attemptsMap[quizId];
+
+            const attemptsCount = attInfo?.attemptsCount ?? 0;
+            const isContestato = attemptsCount > 2; // ✅ regla solicitada
 
             const card = document.createElement("div");
             card.className = "module-card";
             card.style.cursor = "pointer";
 
-            const scoreLine = scoreInfo
-                ? `<div class="module-link" style="margin-top:8px;">
-                       ✅ Calificación: <strong>${scoreInfo.score}</strong> / ${scoreInfo.total}
-                   </div>`
-                : `<div class="module-link" style="margin-top:8px;">
-                       📝 Sin contestar
-                   </div>`;
+            let statusLine = "";
+
+            if (isContestato) {
+                statusLine = `
+                    <div class="module-link" style="margin-top:8px; font-weight:700;">
+                        ✅ CONTESTADO
+                    </div>
+                `;
+
+                card.style.cursor = "not-allowed";
+                card.style.opacity = "0.85";
+            } else {
+                statusLine = `
+                    <div class="module-link" style="margin-top:8px;">
+                        📝 Sin contestar
+                    </div>
+                `;
+            }
 
             card.innerHTML = `
                 <span class="module-id">Quiz</span>
@@ -160,14 +178,15 @@ async function loadCourseQuizzes(courseId) {
                 <span class="module-link">
                     Preguntas: ${quiz.numberQuestion ?? 0}
                 </span>
-                ${scoreLine}
+                ${statusLine}
             `;
 
             card.addEventListener("click", () => {
+                if (isContestato) return;
+
                 localStorage.setItem("selectedQuizId", String(quizId));
                 localStorage.setItem("selectedQuizTitle", quiz.title || "Cuestionario");
 
-   
                 if (window.nav && typeof window.nav.goTo === "function") {
                     window.nav.goTo("AnswerQuiz");
                 } else {
@@ -184,40 +203,51 @@ async function loadCourseQuizzes(courseId) {
     }
 }
 
-
-async function getStudentQuizScoreSafe(quizId, studentUserId, token) {
+async function getStudentAttemptsCountSafe(quizId, studentUserId, token) {
     try {
         if (!studentUserId) return null;
 
-        const res = await window.api.viewQuizResult(quizId, studentUserId, token);
+        const res = await window.api.getStudentsAttempts(quizId, studentUserId, token);
 
         if (!res || res.success === false) return null;
 
-        const score = res.scoreObtained ?? res.data?.scoreObtained ?? res.result?.scoreObtained;
-        const total = res.totalWeighing ?? res.data?.totalWeighing ?? res.result?.totalWeighing;
+        const rows =
+            Array.isArray(res.attempts) ? res.attempts :
+            Array.isArray(res.data) ? res.data :
+            Array.isArray(res.result) ? res.result :
+            Array.isArray(res) ? res :
+            [];
 
-        if (typeof score !== "number" || typeof total !== "number") return null;
+        if (!Array.isArray(rows) || rows.length === 0) {
+            return { attemptsCount: 0, maxAttempt: 0 };
+        }
 
-        return { score, total };
+        const attemptNumbers = rows
+            .map(r => r.attemptNumber)
+            .filter(n => typeof n === "number" || (typeof n === "string" && String(n).trim()));
+
+        const unique = new Set(attemptNumbers.map(n => Number(n)));
+        const attemptsCount = unique.size;
+
+        let maxAttempt = 0;
+        unique.forEach(n => { if (n > maxAttempt) maxAttempt = n; });
+
+        return { attemptsCount, maxAttempt };
+
     } catch (e) {
-        return null; 
+        console.warn("⚠ getStudentAttemptsCountSafe falló:", e.message);
+        return null;
     }
 }
 
-
-// luis@example.com
-    const backButton = document.getElementById("backButton");
-
+// Back button
+const backButton = document.getElementById("backButton");
 if (backButton) {
     backButton.addEventListener("click", () => {
-
-        // 🔥 si tienes navegación controlada
         if (window.nav && typeof window.nav.goBack === "function") {
             window.nav.goBack();
             return;
         }
-
-        // 🔙 fallback estándar
         window.history.back();
     });
 }

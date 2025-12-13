@@ -56,7 +56,8 @@ const {
   createQuiz,
   getQuizResponsesList,
   getQuizDetails,
-  deleteQuiz
+  deleteQuiz, 
+  getStudentsAttempts
 } = require("../services/quizService");
 
 // -----------------------
@@ -143,6 +144,55 @@ app.whenReady().then(() => {
       console.error("❌ Error loading page:", err);
     });
   });
+
+
+
+
+
+
+  // =====================================================
+  // STUDENT ATTEMPTS (NEW) ✅ SOLO UNA VEZ AQUÍ
+  // =====================================================
+  ipcMain.handle("get-students-attempts", async (event, quizId, studentUserId, token) => {
+    try {
+      const result = await getStudentsAttempts(quizId, studentUserId, token);
+      return result;
+    } catch (error) {
+      console.error(
+        `Error get-students-attempts (quizId=${quizId}, studentUserId=${studentUserId}):`,
+        error.message
+      );
+      return { success: false, message: error.message };
+    }
+  });
+
+  // =====================================================
+  // VIEW QUIZ RESULT (FIX: attemptNumber)
+  // Backward compatible:
+  // - old: (quizId, studentUserId, token)
+  // - new: (quizId, studentUserId, attemptNumber, token)
+  // =====================================================
+  ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId, attemptOrToken, tokenMaybe) => {
+    try {
+      let attemptNumber = null;
+      let token = null;
+
+      if (typeof tokenMaybe !== "undefined") {
+        attemptNumber = attemptOrToken; // 3er arg
+        token = tokenMaybe;             // 4to arg
+      } else {
+        token = attemptOrToken;         // firma vieja
+      }
+
+      const result = await viewQuizResult(quizId, studentUserId, attemptNumber, token);
+      return result;
+    } catch (error) {
+      console.error("Error view-quiz-result:", error);
+      return { success: false, message: error.message };
+    }
+  });
+
+
 
   // =====================================================
   // AUTH IPC
@@ -528,6 +578,8 @@ app.whenReady().then(() => {
     }
   });
 });
+
+
 
 
 app.on("window-all-closed", () => {

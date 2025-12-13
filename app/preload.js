@@ -89,8 +89,9 @@ contextBridge.exposeInMainWorld("api", {
     answerQuiz: (studentUserId, quizId, answers, token) =>
         ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers, token),
 
-    viewQuizResult: (quizId, studentUserId, token) =>
-        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId, token),
+  viewQuizResult: (quizId, studentUserId, attemptNumberOrToken, tokenMaybe) =>
+  ipcRenderer.invoke("view-quiz-result", quizId, studentUserId, attemptNumberOrToken, tokenMaybe),
+
 
     createQuiz: (quizData) =>
         ipcRenderer.invoke("create-quiz", quizData),
@@ -100,6 +101,9 @@ contextBridge.exposeInMainWorld("api", {
 
     listQuizResponses: (quizId, token) =>
         ipcRenderer.invoke("list-quiz-responses", quizId, token),
+
+      getStudentsAttempts: (quizId, studentUserId, token) =>
+        ipcRenderer.invoke("get-students-attempts", quizId, studentUserId, token),
 
 
     Buffer: {

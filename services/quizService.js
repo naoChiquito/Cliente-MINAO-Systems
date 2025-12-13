@@ -255,28 +255,33 @@ async function answerQuiz(studentUserId, quizId, answers, token) {
 
 
 
-async function viewQuizResult(quizId, studentUserId) {
+async function viewQuizResult(quizId, studentUserId, attemptNumber, token) {
   try {
+    // backend exige attemptNumber, así que si no viene, devolvemos error claro
+    if (!attemptNumber) {
+      return { success: false, message: "attemptNumber is required to view quiz result" };
+    }
+
+    const headers = { "Content-Type": "application/json" };
+    if (token && String(token).trim()) headers.Authorization = `Bearer ${token}`;
+
     const res = await requestJsonWithFallback(
-      `/quizResult?quizId=${encodeURIComponent(quizId)}&studentUserId=${encodeURIComponent(studentUserId)}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      }
+      `/quizResult?quizId=${encodeURIComponent(quizId)}&studentUserId=${encodeURIComponent(studentUserId)}&attemptNumber=${encodeURIComponent(attemptNumber)}`,
+      { method: "GET", headers }
     );
 
     if (!res.success) {
-      console.error("ERROR EN viewQuizResult:", res.message);
+      console.error("ERROR EN viewQuizResult:", res.message, "URL:", res._url);
       return { success: false, message: res.message };
     }
 
     return res.parsed;
-
   } catch (err) {
     console.error("ERROR EN viewQuizResult:", err);
     return { success: false, message: err.message };
   }
 }
+
 
 
 async function listQuizResponses(quizId, token) {
@@ -462,6 +467,47 @@ async function getQuizDetails(quizId) {
 }
 
 
+
+
+async function getStudentsAttempts(quizId, studentUserId, token) {
+  try {
+    if (!quizId || !String(quizId).trim()) {
+      return { success: false, message: "quizId is required" };
+    }
+
+    if (!studentUserId || !String(studentUserId).trim()) {
+      return { success: false, message: "studentUserId is required" };
+    }
+
+    const headers = { "Content-Type": "application/json" };
+
+    
+    if (token && String(token).trim()) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const path = `/${encodeURIComponent(quizId)}/students/${encodeURIComponent(studentUserId)}/attempts`;
+
+    const res = await requestJsonWithFallback(path, {
+      method: "GET",
+      headers
+    });
+
+    if (!res.success) {
+      console.error("❌ ERROR EN getStudentsAttempts:", res.message, "URL:", res._url);
+      return { success: false, message: res.message };
+    }
+
+    
+    return res.parsed;
+
+  } catch (err) {
+    console.error("❌ ERROR EN getStudentsAttempts:", err);
+    return { success: false, message: err.message };
+  }
+}
+
+
 module.exports = {
 
   getQuizzesByCourse,
@@ -479,5 +525,8 @@ module.exports = {
 
 
   normalizeQuizListResponse,
-  safeParseResponse
+  safeParseResponse, 
+
+
+    getStudentsAttempts
 };
