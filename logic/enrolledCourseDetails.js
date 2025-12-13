@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    /* ============================
-       Mostrar nombre del alumno
-    ============================ */
     const studentName = localStorage.getItem("userName") || "";
     const paternalSurname = localStorage.getItem("userPaternalSurname") || "";
     const nameEl = document.getElementById("studentNameDisplay");
@@ -17,17 +14,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         nameEl.textContent = `${studentName} ${paternalSurname}`.trim();
     }
 
-    /* ============================
-       Cargar datos del curso
-    ============================ */
+
     loadCourseHeader(courseId);
     loadCourseContent(courseId);
     loadCourseQuizzes(courseId);
 });
 
-/* =====================================================
-   CABECERA DEL CURSO
-===================================================== */
 async function loadCourseHeader(courseId) {
     try {
         const response = await window.api.getCourseDetails(courseId);
@@ -65,9 +57,7 @@ async function loadCourseHeader(courseId) {
     }
 }
 
-/* =====================================================
-   CONTENIDO DEL CURSO
-===================================================== */
+
 async function loadCourseContent(courseId) {
     const container = document.getElementById("contents-container");
     container.innerHTML = "<p>Cargando contenido...</p>";
@@ -108,9 +98,7 @@ async function loadCourseContent(courseId) {
     }
 }
 
-/* =====================================================
-   QUIZZES DEL CURSO
-===================================================== */
+
 async function loadCourseQuizzes(courseId) {
     const container = document.getElementById("quizzes-container");
     container.innerHTML = "<p>Cargando cuestionarios...</p>";
@@ -124,31 +112,67 @@ async function loadCourseQuizzes(courseId) {
             return;
         }
 
+   
         const quizzes = Array.isArray(response.data)
             ? response.data
-            : Array.isArray(response)
-                ? response
-                : [];
+            : Array.isArray(response.result)
+                ? response.result
+                : Array.isArray(response)
+                    ? response
+                    : [];
 
         if (quizzes.length === 0) {
             container.innerHTML = "<p>No hay cuestionarios disponibles.</p>";
             return;
         }
 
-        quizzes.forEach(quiz => {
+        quizzes.forEach((quiz) => {
+           
+            const quizId =
+                quiz.quizId ??
+                quiz.id ??
+                quiz.cuestionarioId ??
+                quiz.quiz_id ??
+                quiz.quizID ??
+                null;
+
+            const quizTitle = quiz.title || quiz.name || "Quiz";
+            const quizDesc = quiz.description || "";
+
             const card = document.createElement("div");
             card.className = "module-card";
+            card.style.cursor = "pointer"; // UX
 
             card.innerHTML = `
                 <span class="module-id">Quiz</span>
-                <h2>${quiz.title}</h2>
+                <h2>${quizTitle}</h2>
                 <p class="module-desc">
-                    ${quiz.description || "Sin descripción."}
+                    ${quizDesc || "Sin descripción."}
                 </p>
                 <span class="module-link">
-                    Preguntas: ${quiz.numberQuestion}
+                    Preguntas: ${quiz.numberQuestion ?? quiz.numQuestions ?? 0}
                 </span>
             `;
+
+
+            card.addEventListener("click", () => {
+                if (!quizId) {
+                    console.warn("⚠ Quiz sin quizId:", quiz);
+                    alert("No se pudo abrir el quiz (ID no encontrado).");
+                    return;
+                }
+
+                localStorage.setItem("selectedCourseId", String(courseId));
+                localStorage.setItem("selectedQuizId", String(quizId));
+                localStorage.setItem("selectedQuizTitle", quizTitle);
+                localStorage.setItem("selectedQuizDescription", quizDesc);
+
+                if (window.nav && typeof window.nav.goTo === "function") {
+                    window.nav.goTo("AnswerQuiz"); 
+                } else {
+                    window.location.href = "AnswerQuiz.html";
+                }
+            });
 
             container.appendChild(card);
         });
@@ -158,3 +182,4 @@ async function loadCourseQuizzes(courseId) {
         container.innerHTML = "<p>Error al cargar cuestionarios.</p>";
     }
 }
+
