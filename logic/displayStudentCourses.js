@@ -6,9 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const userEmail = localStorage.getItem("userEmail");
     const studentId = localStorage.getItem("userId");
 
-    /* ============================
-       1. Mostrar nombre del alumno
-    ============================ */
+
     async function loadStudentName() {
         try {
             if (!userEmail) {
@@ -39,9 +37,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let allCourses = [];
 
-    /* ============================
-       2. Cargar cursos DEL ESTUDIANTE
-    ============================ */
     async function loadCourses() {
         try {
             if (!studentId) {
@@ -64,9 +59,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    /* ============================
-       3. Mostrar cursos en pantalla
-    ============================ */
     function displayCourses(courses) {
         coursesContainer.innerHTML = "";
 
@@ -104,18 +96,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    /* ============================
-       4. Recortar el formato de fecha
-    ============================ */
+  
     function formatDate(dateString) {
         if (!dateString) return "";
         const date = new Date(dateString);
         return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
     }
 
-    /* ============================
-       5. Buscador en vivo
-    ============================ */
+    
     courseSearchInput.addEventListener("input", () => {
         const text = courseSearchInput.value.trim().toLowerCase();
         const filtered = allCourses.filter(c =>
@@ -124,14 +112,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         displayCourses(filtered);
     });
 
-    /* ============================
-       6. Inicializar página
-    ============================ */
+   
     loadCourses();
 
-    /* ============================
-       7. Navegación a detalle
-    ============================ */
+
     document.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-courseid]");
         if (!button) return;

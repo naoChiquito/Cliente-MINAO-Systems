@@ -5,6 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contestar Cuestionario</title>
+    <style>
+        .option-row { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; margin:6px 0; }
+        .option-correct { background: rgba(0, 200, 0, 0.12); border: 1px solid rgba(0, 200, 0, 0.35); }
+        .option-wrong-selected { background: rgba(255, 0, 0, 0.10); border: 1px solid rgba(255, 0, 0, 0.25); }
+        .option-icon { margin-left:auto; font-size:18px; }
+        .score-pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#f2f2f2; }
+    </style>
+
 
     <link rel="stylesheet" href="../styles/styleMainMenu.css">
     <script src="../../logic/answerQuiz.js" defer></script>
@@ -51,21 +59,17 @@
         <div class="main-content-area">
 
             <header class="content-header">
-                <h1>Cuestionario</h1>
-                <p>Responde todas las preguntas del cuestionario</p>
+                <h1 id="quizTitle">Cuestionario</h1>
+                <p id="quizSubtitle">Responde todas las preguntas del cuestionario</p>
             </header>
 
-            <section id="quizContainer">
-                <p id="loadingQuizMsg">Cargando cuestionario...</p>
-            </section>
-
-
-
+            <section id="quizContainer"></section>
 
             <button id="submitQuizBtn" class="btn-primary"
                 style="width: 100%; max-width: 400px; display: block; margin: 40px auto;">
                 Contestar cuestionario
             </button>
+
 
         </div>
     </div>

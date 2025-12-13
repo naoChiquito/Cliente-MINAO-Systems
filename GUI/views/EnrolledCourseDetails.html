@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
+  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -26,7 +28,7 @@
 
         <nav class="main-nav">
             <ul class="nav-list">
-                <li class="nav-item"><button id="navMisCursos" class="nav-link">Mis Cursos</button></li>
+                <li class="nav-item"><a id="navMisCursos " class="nav-link active">Mis Cursos</a></li>
                 <li class="nav-item"><a id="navVerCursos" class="nav-link">Ver Cursos</a></li>
                 <li class="nav-item"><a id="navChat" class="nav-link">Chat</a></li>
                 <li class="nav-item"><a id="navPerfil" class="nav-link">Perfil</a></li>
@@ -39,6 +41,9 @@
     <div class="main-content-area">
 
         <header class="content-header">
+                <div class="back-button" id="backButton" title="Volver">
+        ←
+    </div>
             <h1 id="course-title">Curso</h1>
             <p id="course-description"></p>
         </header>
