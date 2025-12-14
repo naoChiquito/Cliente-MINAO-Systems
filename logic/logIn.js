@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
 
-        if (errorMessageElement) errorMessageElement.textContent = ''; // Limpiar el mensaje de error
+        if (errorMessageElement) errorMessageElement.textContent = ''; 
 
         try {
             const response = await window.api.login(email, password);
@@ -21,23 +21,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 console.log("Login exitoso:", data);
 
-                // Alerta de bienvenida
+                
                 alert("Bienvenido " + data.name + " " + data.paternalSurname);
                 
-                // Guardar datos del usuario en localStorage
+                
                 localStorage.setItem('userId', data.userId);
                 localStorage.setItem('userName', data.name);
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userPaternalSurname', data.paternalSurname);
                 localStorage.setItem("userEmail", response.data.email);
 
-                // Redirigir según el rol del usuario
+                
                 if (data.role.toLowerCase() === "instructor") {
                     window.location.href = 'InstructorMainMenu.html'; 
                 } else if (data.role.toLowerCase() === "student") {
                     window.location.href = 'WatchCourse.html'; 
                 } else {
-                    // En caso de que el rol no sea ni instructor ni estudiante
+                    
                     console.error("Rol desconocido:", data.role);
                     alert("Error: Rol desconocido.");
                 }

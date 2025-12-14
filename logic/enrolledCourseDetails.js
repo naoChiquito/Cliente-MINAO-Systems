@@ -123,10 +123,10 @@ async function loadCourseQuizzes(courseId) {
             return;
         }
 
-        // ==========================
-        // 1) Obtener attempts por quiz
-        // ==========================
-        const attemptsMap = {}; // { [quizId]: { attemptsCount, maxAttempt } }
+        
+        
+        
+        const attemptsMap = {}; 
 
         await Promise.all(
             quizzes.map(async (q) => {
@@ -136,15 +136,15 @@ async function loadCourseQuizzes(courseId) {
             })
         );
 
-        // ==========================
-        // 2) Renderizar tarjetas
-        // ==========================
+        
+        
+        
         quizzes.forEach((quiz) => {
             const quizId = quiz.quizId;
             const attInfo = attemptsMap[quizId];
 
             const attemptsCount = attInfo?.attemptsCount ?? 0;
-            const isContestato = attemptsCount > 1; // ✅ regla solicitada
+            const isContestato = attemptsCount > 1; 
 
             const card = document.createElement("div");
             card.className = "module-card";
@@ -185,7 +185,7 @@ async function loadCourseQuizzes(courseId) {
   localStorage.setItem("selectedQuizId", String(quizId));
   localStorage.setItem("selectedQuizTitle", quiz.title || "Cuestionario");
 
-  // ✅ opcional: guardar si entra en modo revisión
+  
   localStorage.setItem("quizReviewMode", isContestato ? "1" : "0");
   localStorage.setItem("quizMaxAttempt", String(attInfo?.maxAttempt ?? 0));
 
@@ -243,7 +243,7 @@ async function getStudentAttemptsCountSafe(quizId, studentUserId, token) {
     }
 }
 
-// Back button
+
 const backButton = document.getElementById("backButton");
 if (backButton) {
     backButton.addEventListener("click", () => {

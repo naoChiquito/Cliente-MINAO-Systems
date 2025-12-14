@@ -1,8 +1,6 @@
 window.addEventListener("DOMContentLoaded", async () => {
 
-    /* ============================================================
-       MOSTRAR NOMBRE DEL ALUMNO EN EL SIDEBAR
-    ============================================================ */
+   
     const sidebarName = document.getElementById("studentNameDisplay");
     const userName = localStorage.getItem("userName");
     const userSurname = localStorage.getItem("userPaternalSurname");
@@ -11,9 +9,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         sidebarName.textContent = `${userName} ${userSurname}`;
 
 
-    /* ============================================================
-    NAVEGACIÓN DEL SIDEBAR
-    ============================================================ */
+   
 
     document.getElementById("navMisCursos")?.addEventListener("click", (e) => {
         e.preventDefault();
@@ -47,9 +43,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 
 
-    /* ============================================================
-       DATOS DEL CURSO
-    ============================================================ */
+   
     const courseId = localStorage.getItem("selectedCourseId");
     if (!courseId) {
         alert("No se recibió ID de curso.");
@@ -67,25 +61,21 @@ window.addEventListener("DOMContentLoaded", async () => {
     const contentsList = document.getElementById("contents-list");
     const quizzesList = document.getElementById("quizzes-list");
 
-    /* BOTONES */
+   
     const joinButton = document.getElementById("join-button");
     const dropButton = document.getElementById("drop-button");
     joinButton.textContent = "Unirme al curso";
     dropButton.style.display = "none";
 
     try {
-        /* ================================
-           1. Obtener información del curso
-        ================================= */
+       
         const courseResponse = await window.api.getCourseDetails(courseId);
         const course = courseResponse.data?.result;
 
         if (!course) throw new Error("Formato inesperado en getCourseDetails");
 
 
-        /* ============================
-           Recortar el formato de fecha
-        ============================ */
+       
         function formatDate(dateString) {
             if (!dateString) return "";
             const date = new Date(dateString);
@@ -102,9 +92,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         datesEl.textContent = `Fechas: ${formatDate(course.startDate)} — ${formatDate(course.endDate)}`;
 
 
-        /* ================================
-           2. INSTRUCTOR DEL CURSO
-        ================================= */
+       
         const instructorResponse = await window.api.getInstructorFromCourse(courseId);
         const instructorList = instructorResponse.data?.instructor || [];
 
@@ -116,9 +104,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        /* ================================
-           3. CONTENIDOS
-        ================================= */
+       
         const contents = await window.api.getCourseContent(courseId);
         const contentArray = contents?.data?.results || [];
 
@@ -138,15 +124,11 @@ window.addEventListener("DOMContentLoaded", async () => {
         }
 
 
-        /* ================================
-           4. QUIZZES (AÚN NO IMPLEMENTADO)
-        ================================= */
+       
         quizzesList.innerHTML = "<li>No hay cuestionarios disponibles.</li>";
 
 
-        /* =======================================================
-        5. Validar inscripción
-        =========================================================== */
+       
 
         let enrolled = false;
 
@@ -155,9 +137,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
             console.log("FULL RESPONSE getCoursesByStudent:", enrolledResponse);
 
-            // 📌 Obtener lista real del backend
+            
             const list =
-                enrolledResponse?.data?.data ||  // ← ESTA es la correcta según tu log
+                enrolledResponse?.data?.data ||  
                 enrolledResponse?.data?.result ||
                 enrolledResponse?.data?.courses ||
                 [];
@@ -177,7 +159,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             } else {
                 dropButton.style.display = "none";
                 joinButton.style.display = "inline-block";
-                joinButton.textContent = "Unirme al curso";  // ← 🔥 siempre setear aquí
+                joinButton.textContent = "Unirme al curso";  
             }
         }
 
@@ -186,9 +168,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 
 
-        /* =======================================================
-           6. Acción botón UNIRSE
-        ======================================================== */
+       
         joinButton.addEventListener("click", async () => {
 
             if (!userId) {
@@ -211,9 +191,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         });
 
 
-        /* =======================================================
-           7. Acción botón DARSE DE BAJA
-        ======================================================== */
+       
         dropButton.addEventListener("click", async () => {
 
             const confirmDrop = confirm(

@@ -198,7 +198,6 @@ async function getQuizDetailForUser(quizId, token) {
   try {
     const headers = { "Content-Type": "application/json" };
 
-    // ✅ Solo agrega Authorization si token existe
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
@@ -216,7 +215,6 @@ async function getQuizDetailForUser(quizId, token) {
       return { success: false, message: res.message };
     }
 
-    // ✅ mantenemos el tipo de retorno que tenías: devuelve el JSON tal cual
     return res.parsed;
 
   } catch (err) {
@@ -257,7 +255,7 @@ async function answerQuiz(studentUserId, quizId, answers, token) {
 
 async function viewQuizResult(quizId, studentUserId, attemptNumber, token) {
   try {
-    // backend exige attemptNumber, así que si no viene, devolvemos error claro
+   
     if (!attemptNumber) {
       return { success: false, message: "attemptNumber is required to view quiz result" };
     }

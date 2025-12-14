@@ -1,25 +1,25 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
-// -----------------------
-// USER SERVICES
-// -----------------------
+
+
+
 const {
   findUserByEmail,
   findUserByEmailJSON,
   updateUserBasicProfile
 } = require("../services/userService");
 
-// -----------------------
-// AUTH SERVICES
-// -----------------------
+
+
+
 const { login } = require("../services/loginservice");
 const { signUp } = require("../services/signUpservice");
 const { verifyEmail } = require("../services/verifyEmailService");
 
-// -----------------------
-// COURSE SERVICES
-// -----------------------
+
+
+
 const {
   getCoursesByInstructor,
   getCoursesByInstructorJSON,
@@ -28,12 +28,12 @@ const {
   updateCourse,
   setState,
   getCoursesByStudent,
-  getStudentsByCourse // ✅ viene de HEAD
+  getStudentsByCourse
 } = require("../services/courseService");
 
-// -----------------------
-// CONTENT SERVICES
-// -----------------------
+
+
+
 const {
   getCourseContent,
   updateModuleContent,
@@ -41,9 +41,9 @@ const {
   createContent
 } = require("../services/contentService");
 
-// -----------------------
-// QUIZ SERVICES
-// -----------------------
+
+
+
 const {
   getQuizzesByCourse,
   updateQuestionnaire,
@@ -52,7 +52,7 @@ const {
   viewQuizResult,
   listQuizResponses,
 
-  // extras
+  
   createQuiz,
   getQuizResponsesList,
   getQuizDetails,
@@ -60,18 +60,18 @@ const {
   getStudentsAttempts
 } = require("../services/quizService");
 
-// -----------------------
-// GRPC SERVICES
-// -----------------------
+
+
+
 const {
   uploadContent,
   getFilesByContent,
   deleteContentFile
 } = require("../services/gRPCService");
 
-// -----------------------
-// MAIN WINDOW (GLOBAL)
-// -----------------------
+
+
+
 let mainWindow;
 let isClosing = false;
 
@@ -87,13 +87,13 @@ function createWindow() {
     }
   });
 
-  // ✅ Login por ruta absoluta segura
+  
   mainWindow.loadFile(path.join(__dirname, "../GUI/views/login.html"));
 
-  // DevTools (déjalo si lo necesitas)
+  
   mainWindow.webContents.openDevTools();
 
-  // ✅ Limpieza de sesión al cerrar
+  
   mainWindow.on("close", async (event) => {
     if (isClosing) return;
     isClosing = true;
@@ -119,16 +119,16 @@ function createWindow() {
   });
 }
 
-// =====================================================
-// APP READY
-// =====================================================
+
+
+
 app.whenReady().then(() => {
   createWindow();
 
-  // -----------------------
-  // NAVIGATION (robusto)
-  // window.nav.goTo("login") o window.nav.goTo("login.html")
-  // -----------------------
+  
+  
+  
+  
   ipcMain.on("navigate-to", (event, page) => {
     if (!mainWindow) return;
 
@@ -145,9 +145,9 @@ app.whenReady().then(() => {
     });
   });
 
-  // =====================================================
-  // STUDENT ATTEMPTS (NEW) ✅ SOLO UNA VEZ AQUÍ
-  // =====================================================
+  
+  
+  
   ipcMain.handle("get-students-attempts", async (event, quizId, studentUserId, token) => {
     try {
       const result = await getStudentsAttempts(quizId, studentUserId, token);
@@ -161,24 +161,24 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // VIEW QUIZ RESULT (FIX: attemptNumber)
-  // Backward compatible:
-  // - old: (quizId, studentUserId, token)
-  // - new: (quizId, studentUserId, attemptNumber, token)
-  //
-  // ✅ IMPORTANTE: ESTE ES EL ÚNICO HANDLER "view-quiz-result"
-  // =====================================================
+  
+  
+  
+  
+  
+  
+  
+  
   ipcMain.handle("view-quiz-result", async (event, quizId, studentUserId, attemptOrToken, tokenMaybe) => {
     try {
       let attemptNumber = null;
       let token = null;
 
       if (typeof tokenMaybe !== "undefined") {
-        attemptNumber = attemptOrToken; // 3er arg
-        token = tokenMaybe;             // 4to arg
+        attemptNumber = attemptOrToken; 
+        token = tokenMaybe;             
       } else {
-        token = attemptOrToken;         // firma vieja
+        token = attemptOrToken;         
       }
 
       const result = await viewQuizResult(quizId, studentUserId, attemptNumber, token);
@@ -189,9 +189,9 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // AUTH IPC
-  // =====================================================
+  
+  
+  
   ipcMain.handle("perform-login", async (event, email, password) => {
     try {
       const userData = await login(email, password);
@@ -219,9 +219,9 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // USER IPC
-  // =====================================================
+  
+  
+  
   ipcMain.handle("get-user-profile", async (event, email) => {
     try {
       const user = await findUserByEmail(email);
@@ -249,7 +249,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ PERFIL BÁSICO (SIN FOTO) — NO CAMBIAR FIRMA
+  
   ipcMain.handle("update-user-basic-profile", async (event, userId, data) => {
     try {
       const result = await updateUserBasicProfile(userId, data);
@@ -260,9 +260,9 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // COURSE IPC
-  // =====================================================
+  
+  
+  
   ipcMain.handle("get-instructor-courses", async (event, instructorId) => {
     try {
       const courses = await getCoursesByInstructor(instructorId);
@@ -327,7 +327,7 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("get-courses-by-student", async (event, studentId) => {
+    ipcMain.handle("get-courses-by-student", async (event, studentId) => {
     try {
       const courses = await getCoursesByStudent(studentId);
       return { success: true, data: courses };
@@ -461,9 +461,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // =====================================================
-  // QUIZ IPC
-  // =====================================================
   ipcMain.handle("get-quizzes-by-course", async (event, courseId) => {
     try {
       const result = await getQuizzesByCourse(courseId);
@@ -503,53 +500,51 @@ app.whenReady().then(() => {
       return { success: false, message: error.message };
     }
   });
-  
 
   ipcMain.handle("get-quiz-responses", async (event, quizId) => {
-  try {
-    const raw = await getQuizResponsesList(quizId);
+    try {
+      const raw = await getQuizResponsesList(quizId);
 
-    if (raw && typeof raw === "object" && raw.success === false) {
+      if (raw && typeof raw === "object" && raw.success === false) {
+        return {
+          success: false,
+          count: 0,
+          responses: [],
+          result: [],
+          data: [],
+          message: raw.message || "Error obteniendo respuestas."
+        };
+      }
+
+      const rows =
+        Array.isArray(raw) ? raw :
+        Array.isArray(raw?.responses) ? raw.responses :
+        Array.isArray(raw?.result) ? raw.result :
+        Array.isArray(raw?.data) ? raw.data :
+        Array.isArray(raw?.data?.responses) ? raw.data.responses :
+        Array.isArray(raw?.result?.responses) ? raw.result.responses :
+        [];
+
+      return {
+        success: true,
+        count: rows.length,
+        responses: rows,
+        result: rows,
+        data: rows,
+        message: raw?.message || "OK"
+      };
+    } catch (error) {
+      console.error(`Error get-quiz-responses (quizId=${quizId}):`, error.message);
       return {
         success: false,
         count: 0,
         responses: [],
         result: [],
         data: [],
-        message: raw.message || "Error obteniendo respuestas."
+        message: error.message
       };
     }
-
-    const rows =
-      Array.isArray(raw) ? raw :
-      Array.isArray(raw?.responses) ? raw.responses :
-      Array.isArray(raw?.result) ? raw.result :
-      Array.isArray(raw?.data) ? raw.data :
-      Array.isArray(raw?.data?.responses) ? raw.data.responses :
-      Array.isArray(raw?.result?.responses) ? raw.result.responses :
-      [];
-
-    return {
-      success: true,
-      count: rows.length,
-      responses: rows,
-      result: rows,
-      data: rows,
-      message: raw?.message || "OK"
-    };
-  } catch (error) {
-    console.error(`Error get-quiz-responses (quizId=${quizId}):`, error.message);
-    return {
-      success: false,
-      count: 0,
-      responses: [],
-      result: [],
-      data: [],
-      message: error.message
-    };
-  }
-});
-
+  });
 
   ipcMain.handle("create-quiz", async (event, quizData) => {
     try {
@@ -561,17 +556,14 @@ app.whenReady().then(() => {
     }
   });
 
-  // ✅ NORMALIZADO: si getQuizDetails devuelve “crudo”, lo envolvemos
   ipcMain.handle("get-details-quiz", async (event, quizId) => {
     try {
       const raw = await getQuizDetails(quizId);
 
-      // Si ya viene en formato {success:...} lo respetamos
       if (raw && typeof raw === "object" && "success" in raw) {
         return raw;
       }
 
-      // Si viene “directo” (objeto quiz), lo normalizamos
       return { success: true, result: raw, data: raw };
     } catch (error) {
       console.error(`Error get-details-quiz (${quizId}):`, error.message);

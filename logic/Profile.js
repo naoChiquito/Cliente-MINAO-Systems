@@ -18,9 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const studentNameDisplay = document.getElementById("studentNameDisplay");
 
-  /* ============================
-     1. Cargar perfil (LECTURA)
-  ============================ */
+ 
   async function loadProfile() {
     try {
       const response = await window.api.findUserByEmailJSON(email);
@@ -39,18 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
       emailInput.value = u.email || "";
       emailInput.disabled = true;
 
-      // Mostrar foto si existe (solo display)
+      
       if (u.profileImageUrl && profileImagePreview) {
         profileImagePreview.src = u.profileImageUrl;
       }
 
-      // Nombre en sidebar
+      
       const fullName = `${u.userName || ""} ${u.paternalSurname || ""}`.trim();
       if (studentNameDisplay) {
         studentNameDisplay.textContent = fullName || "[Nombre]";
       }
 
-      // Guardar en localStorage para otras vistas
+      
       localStorage.setItem("userName", u.userName || "");
       localStorage.setItem("userPaternalSurname", u.paternalSurname || "");
     } catch (error) {
@@ -60,10 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadProfile();
 
-  /* ============================
-     2. Vista previa de imagen (SOLO UI)
-     ⚠️ NO se sube al backend
-  ============================ */
+ 
   if (profileImageInput && profileImagePreview) {
     profileImageInput.addEventListener("change", () => {
       const file = profileImageInput.files?.[0];
@@ -77,23 +72,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ============================
-     3. Guardar cambios (SOLO TEXTO)
-  ============================ */
+ 
   const form = document.getElementById("profileForm");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // ✅ Solo campos de texto (como anoche)
+    
     const updatedData = {
       userName: nameInput.value,
       paternalSurname: patInput.value,
       maternalSurname: matInput.value,
 
-      // ✅ si tu backend requiere token, lo enviamos aquí
-      // (sin cambiar la firma del preload)
+      
+      
       token
     };
 

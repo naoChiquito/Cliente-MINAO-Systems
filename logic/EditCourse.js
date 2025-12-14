@@ -34,32 +34,113 @@ window.addEventListener('DOMContentLoaded', () => {
 
 });
 
-async function loadCourseDetails(courseId) {
-    try {
-        const response = await window.api.getCourseDetails(courseId);
-        
-        if (response.success) {
-            const serverResponse = response.data; 
-            const courseDetails = serverResponse.result && serverResponse.result.length > 0
-                                ? serverResponse.result[0]
-                                : null;
-            
-            if (courseDetails) {
-                renderCourseData(courseDetails); 
-            } else {
-                document.getElementById('courseTitleDisplay').textContent = 'Curso no encontrado';
-                document.getElementById('descriptionDisplay').textContent = 'El curso seleccionado no existe o no tiene datos.';
-            }
-        } else {
-            document.getElementById('courseTitleDisplay').textContent = 'Error al cargar detalles';
-            document.getElementById('descriptionDisplay').textContent = response.message || 'Fallo de servidor al obtener curso.';
-        }
-    } catch (err) {
-        document.getElementById('courseTitleDisplay').textContent = 'Error de conexión';
-        document.getElementById('descriptionDisplay').textContent = 'No se pudo conectar con el microservicio de cursos.';
-        console.error("Fallo de red:", err);
+
+function safeSetText(idList, text) {
+  const ids = Array.isArray(idList) ? idList : [idList];
+
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = text;
+      return true;
     }
+  }
+
+  console.warn("⚠ No se encontró ningún elemento para setText. IDs probados:", ids);
+  return false;
 }
+
+
+function normalizeCourseFromIPCResponse(resp) {
+  if (!resp) return null;
+
+  
+  const root = resp.data ?? resp;
+
+  
+  
+  
+  
+
+  const unwrap = (obj) => {
+    if (!obj) return null;
+
+    
+    if (
+      typeof obj === "object" &&
+      (obj.cursoId || obj.courseId || obj.name || obj.title || obj.description)
+    ) {
+      return obj;
+    }
+
+    
+    if (Array.isArray(obj)) {
+      return obj.length ? unwrap(obj[0]) : null;
+    }
+
+    
+    if (obj.result !== undefined) {
+      
+      if (Array.isArray(obj.result)) return obj.result.length ? unwrap(obj.result[0]) : null;
+      
+      if (obj.result && typeof obj.result === "object") return unwrap(obj.result);
+    }
+
+    
+    if (obj.data !== undefined) {
+      return unwrap(obj.data);
+    }
+
+    
+    if (obj.results !== undefined) {
+      if (Array.isArray(obj.results)) return obj.results.length ? unwrap(obj.results[0]) : null;
+      if (obj.results && typeof obj.results === "object") return unwrap(obj.results);
+    }
+
+    return null;
+  };
+
+  return unwrap(root);
+}
+
+async function loadCourseDetails(courseId) {
+  
+  const TITLE_IDS = ["courseTitleDisplay", "course-title", "courseTitle", "course-title-display"];
+  const DESC_IDS  = ["descriptionDisplay", "course-description", "courseDescription", "course-desc-display"];
+
+  try {
+    const response = await window.api.getCourseDetails(courseId);
+    console.log("📥 getCourseDetails response:", response);
+
+    if (!response || response.success === false) {
+      safeSetText(TITLE_IDS, "Error al cargar detalles");
+      safeSetText(DESC_IDS, response?.message || "Fallo de servidor al obtener curso.");
+      return;
+    }
+
+    const courseDetails = normalizeCourseFromIPCResponse(response);
+    console.log("🧩 courseDetails normalizado:", courseDetails);
+
+    if (courseDetails) {
+      
+      if (typeof renderCourseData === "function") {
+        renderCourseData(courseDetails);
+      } else {
+        
+        safeSetText(TITLE_IDS, courseDetails.name || courseDetails.title || "Curso");
+        safeSetText(DESC_IDS, courseDetails.description || "Sin descripción");
+      }
+    } else {
+      safeSetText(TITLE_IDS, "Curso no encontrado");
+      safeSetText(DESC_IDS, "El curso seleccionado no existe o no tiene datos.");
+    }
+  } catch (err) {
+    safeSetText(TITLE_IDS, "Error de conexión");
+    safeSetText(DESC_IDS, "No se pudo conectar con el microservicio de cursos.");
+    console.error("❌ Fallo de red:", err);
+  }
+}
+
 
 function renderCourseData(course) {
     if (!course) return;

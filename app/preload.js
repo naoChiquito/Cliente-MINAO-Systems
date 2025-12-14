@@ -89,8 +89,8 @@ contextBridge.exposeInMainWorld("api", {
     answerQuiz: (studentUserId, quizId, answers, token) =>
         ipcRenderer.invoke("answer-quiz", studentUserId, quizId, answers, token),
 
-  viewQuizResult: (quizId, studentUserId, attemptNumberOrToken, tokenMaybe) =>
-  ipcRenderer.invoke("view-quiz-result", quizId, studentUserId, attemptNumberOrToken, tokenMaybe),
+    viewQuizResult: (quizId, studentUserId, attemptNumberOrToken, tokenMaybe) =>
+        ipcRenderer.invoke("view-quiz-result", quizId, studentUserId, attemptNumberOrToken, tokenMaybe),
 
 
     createQuiz: (quizData) =>
