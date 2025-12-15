@@ -80,9 +80,16 @@ async function loadCourseDetails(courseId) {
         
         if (response.success) {
             const serverResponse = response.data; 
-            const courseDetails = serverResponse.result && serverResponse.result.length > 0
-                                ? serverResponse.result[0]
-                                : null;
+            
+            let courseDetails = null;
+
+            if (serverResponse.result) {
+                if (Array.isArray(serverResponse.result) && serverResponse.result.length > 0) {
+                    courseDetails = serverResponse.result[0];
+                } else if (typeof serverResponse.result === 'object' && serverResponse.result !== null) {
+                    courseDetails = serverResponse.result; 
+                }
+            }
             
             if (courseDetails) {
                 renderCourseData(courseDetails); 

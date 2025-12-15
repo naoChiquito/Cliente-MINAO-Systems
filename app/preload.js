@@ -58,7 +58,7 @@ contextBridge.exposeInMainWorld("api", {
     getStudentCourses: (studentId) =>
         ipcRenderer.invoke("get-student-courses", studentId),
 
-    getCoursesByInstructor: (instructorId) =>
+    getCourses: (instructorId) =>
         ipcRenderer.invoke('get-instructor-courses', instructorId),
 
     getInstructorCoursesJSON: (instructorId) =>

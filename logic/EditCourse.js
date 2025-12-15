@@ -40,24 +40,31 @@ async function loadCourseDetails(courseId) {
         
         if (response.success) {
             const serverResponse = response.data; 
-            const courseDetails = serverResponse.result && serverResponse.result.length > 0
-                                ? serverResponse.result[0]
-                                : null;
+            let courseDetails = null;
+
+            if (serverResponse.result) {
+                if (Array.isArray(serverResponse.result) && serverResponse.result.length > 0) {
+                    courseDetails = serverResponse.result[0];
+                } else if (typeof serverResponse.result === 'object' && serverResponse.result !== null) {
+                    courseDetails = serverResponse.result; 
+                }
+            }
             
             if (courseDetails) {
                 renderCourseData(courseDetails); 
             } else {
-                document.getElementById('courseTitleDisplay').textContent = 'Curso no encontrado';
-                document.getElementById('descriptionDisplay').textContent = 'El curso seleccionado no existe o no tiene datos.';
+                alert('El curso seleccionado no existe o no tiene datos.');
             }
         } else {
-            document.getElementById('courseTitleDisplay').textContent = 'Error al cargar detalles';
-            document.getElementById('descriptionDisplay').textContent = response.message || 'Fallo de servidor al obtener curso.';
+            alert('Error al obtener el curso');
+            document.getElementById('name').value = '';
+            document.getElementById('description').value = ''; 
         }
     } catch (err) {
-        document.getElementById('courseTitleDisplay').textContent = 'Error de conexión';
-        document.getElementById('descriptionDisplay').textContent = 'No se pudo conectar con el microservicio de cursos.';
+        alert('No se pudo conectar con el microservicio de cursos.');
         console.error("Fallo de red:", err);
+        document.getElementById('name').value = '';
+        document.getElementById('description').value = '';
     }
 }
 

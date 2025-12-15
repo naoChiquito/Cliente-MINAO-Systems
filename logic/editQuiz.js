@@ -267,6 +267,7 @@ async function handleUpdateSubmit(e) {
         
         if (response.success) {
             alert(`Cuestionario actualizado exitosamente.`);
+            window.location.href = 'quizManagement.html'; 
         } else {
             alert(`Error al actualizar: ${response.message}`);
         }
