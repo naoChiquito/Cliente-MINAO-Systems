@@ -64,7 +64,9 @@ function renderStudentsTable(students, container) {
     `;
 
     students.forEach(student => {
-        const averageScore = student.average !== undefined ? student.average.toFixed(2) : 'N/A';
+
+        const numericAverage = parseFloat(student.average) || 0; 
+        const averageScore = numericAverage.toFixed(2);
         const studentName = student.name || 'Desconocido';
         localStorage.setItem('studentName', student.name);
         localStorage.setItem('studentId', student.studentId);

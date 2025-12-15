@@ -20,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
 async function getInstructorCourses(instructorId) {
     try {
 
-        const response = await window.api.getCourses(instructorId); 
+        const response = await window.api.getCoursesByInstructor(instructorId); 
 
         if (response.success) {
             const serverData = response.data; 

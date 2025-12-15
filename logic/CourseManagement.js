@@ -1,6 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
     
     const courseId = localStorage.getItem('CourseId');
+    console.log('id: ', courseId);
     const instructorName = localStorage.getItem('userName') + ' ' + localStorage.getItem('userPaternalSurname');
 
     if (!courseId) {
@@ -15,7 +16,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     loadCourseDetails(courseId);
-
 
     const editButton = document.getElementById('editInfoBtn');
     const contentButton = document.getElementById('contentBtn');

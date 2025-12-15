@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const { getCoursesByInstructor } = require("../services/courseService");
 
 /* =====================================================
    INTERCEPTOR DE INVOKE PARA DEBUG
@@ -57,7 +58,7 @@ contextBridge.exposeInMainWorld("api", {
     getStudentCourses: (studentId) =>
         ipcRenderer.invoke("get-student-courses", studentId),
 
-    getCourses: (instructorId) =>
+    getCoursesByInstructor: (instructorId) =>
         ipcRenderer.invoke('get-instructor-courses', instructorId),
 
     getInstructorCoursesJSON: (instructorId) =>
