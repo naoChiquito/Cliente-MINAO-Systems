@@ -242,7 +242,7 @@ function flushPromises() {
     expect(window.nav.goTo).toHaveBeenCalledWith("WatchCourse");
 
     document.getElementById("navChat").click();
-    expect(window.nav.goTo).toHaveBeenCalledWith("ChatView");
+    expect(window.nav.goTo).toHaveBeenCalledWith("UnderConstruction");
 
     document.getElementById("navPerfil").click();
     expect(window.nav.goTo).toHaveBeenCalledWith("Profile");

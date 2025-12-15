@@ -26,7 +26,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("navChat")?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        window.nav.goTo("ChatView");
+        window.nav.goTo("UnderConstruction");
     });
 
     document.getElementById("navPerfil")?.addEventListener("click", (e) => {

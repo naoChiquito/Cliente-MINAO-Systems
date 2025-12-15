@@ -12,7 +12,7 @@ console.log("🔥 sidebarNavigation LOADED");
 
     
     document.getElementById("navChat")?.addEventListener("click", () => {
-        window.nav.goTo("ChatView");
+        window.nav.goTo("UnderConstruction");
     });
 
     
