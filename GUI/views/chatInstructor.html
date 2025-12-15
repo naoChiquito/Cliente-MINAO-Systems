@@ -24,46 +24,45 @@
 
     <div class="sidebar-card">
         <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+            <h2 class="sidebar-title">Instructor: <span id="instructorNameDisplay">[Nombre]</span></h2>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">crear cursos</a>
+                    </li>
 
-        <h2 class="sidebar-title">
-            Alumno:
-            <span id="studentNameDisplay">[Nombre]</span>
-        </h2>
+                    <li class="nav-item">
+                        <a href="chatInstructor.html" class="nav-link">Chat</a>
+                    </li>
 
-        <nav class="main-nav">
-            <ul class="nav-list">
-
-                <li class="nav-item">
-                    <a id="navMisCursos" class="nav-link">Mis Cursos</a>
-                </li>
-
-                <li class="nav-item">
-                    <a id="navVerCursos" class="nav-link">Ver Cursos</a>
-                </li>
-
-                <li class="nav-item">
-                    <a id="navChat" class="nav-link">Chat</a>
-                </li>
-
-                <li class="nav-item">
-                    <a id="navPerfil" class="nav-link">Perfil</a>
-                </li>
-
-                <li class="nav-item logout">
-                    <a id="navLogout" class="nav-link">Cerrar Sesión</a>
-                </li>
-
-            </ul>
-        </nav>
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </nav>
     </div>
-    
+
+    <!-- ✅ CONTENIDO PRINCIPAL (solo icono + texto) -->
     <div class="main-content-area">
 
         <section class="construction-container">
+            <!-- ÍCONO (SVG inline, grande, centrado y con opacidad 50%) -->
             <div class="construction-visual" aria-hidden="true">
                 <svg class="construction-icon" viewBox="0 0 512 512" role="img">
+                    <!-- Fondo circular suave -->
                     <circle cx="256" cy="256" r="210"></circle>
 
+                    <!-- Cono / señal de construcción -->
                     <path d="M256 116
                              c-10 0-19 6-23 15
                              l-96 240
@@ -73,12 +72,15 @@
                              l-96-240
                              c-4-9-13-15-23-15z"></path>
 
+                    <!-- Franjas -->
                     <path d="M190 250h132l18 46H172l18-46z"></path>
                     <path d="M212 194h88l14 36H198l14-36z"></path>
 
+                    <!-- Base -->
                     <rect x="144" y="402" width="224" height="40" rx="10"></rect>
                 </svg>
 
+                <!-- Texto sobre el icono -->
                 <div class="construction-message">
                     Nuestros desarrolladores están trabajando, esta parte del sistema está en construcción
                 </div>
@@ -87,8 +89,3 @@
 
     </div>
 </div>
-
-<script src="../../app/sidebarNavigation.js"></script>
-
-</body>
-</html>

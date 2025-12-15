@@ -104,7 +104,7 @@ async function deleteContent(contentId) {
     }
     
     try {
-        const response = await window.api.deleteContent(contentId); 
+        const response = await window.api.deleteModuleContent(contentId); 
         
         if (response.success) {
             alert("Módulo eliminado exitosamente.");
