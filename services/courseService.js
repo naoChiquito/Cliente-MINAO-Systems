@@ -1,17 +1,11 @@
 const FETCH_TIMEOUT = 10000;
 
-/* ============================================================
-   Helper para timeouts con AbortController
-============================================================ */
 function withTimeout(ms = FETCH_TIMEOUT) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), ms);
     return { controller, timeoutId };
 }
 
-/* ============================================================
-   Cursos por instructor
-============================================================ */
 async function getCoursesByInstructorJSON(instructorId) {
     const { controller, timeoutId } = withTimeout();
 
@@ -38,7 +32,6 @@ async function getCoursesByInstructorJSON(instructorId) {
             throw new Error(errorMsg);
         }
 
-        // Backend devuelve { success, data }
         try {
             const json = JSON.parse(text);
             return {
@@ -104,9 +97,7 @@ async function getCoursesByInstructor(instructorId) {
     }
 }
 
-/* ============================================================
-   Cursos por estudiante — CORREGIDO Y OPTIMIZADO
-============================================================ */
+
 async function getCoursesByStudent(studentId) {
     const { controller, timeoutId } = withTimeout();
 
@@ -133,7 +124,7 @@ async function getCoursesByStudent(studentId) {
             throw new Error(errorMsg);
         }
 
-        // Backend correcto: { success, data: [] }
+
         try {
             const json = JSON.parse(text);
 
@@ -154,9 +145,6 @@ async function getCoursesByStudent(studentId) {
     }
 }
 
-/* ============================================================
-   Crear curso
-============================================================ */
 async function addCourse(courseData) {
     const { controller, timeoutId } = withTimeout();
 
@@ -186,9 +174,7 @@ async function addCourse(courseData) {
     }
 }
 
-/* ============================================================
-   Obtener detalles de curso
-============================================================ */
+
 async function getCourseDetails(courseId) {
     const { controller, timeoutId } = withTimeout();
 
@@ -217,9 +203,7 @@ async function getCourseDetails(courseId) {
     }
 }
 
-/* ============================================================
-   Actualizar curso
-============================================================ */
+
 async function updateCourse(courseData) {
     const { controller, timeoutId } = withTimeout();
 
@@ -249,9 +233,7 @@ async function updateCourse(courseData) {
     }
 }
 
-/* ============================================================
-   Cambiar estado del curso
-============================================================ */
+
 async function setState(courseId, newState) {
     const { controller, timeoutId } = withTimeout();
 
