@@ -143,6 +143,10 @@ async function loadCourseContent(courseId) {
         const contents = response.data?.results || [];
         container.innerHTML = "";
 
+        console.log("courseId:", courseId);
+        console.log("contents:", contents);
+        console.log("primer content:", contents[0]);
+
         if (contents.length === 0) {
             container.innerHTML = "<p>No hay contenido disponible.</p>";
             return;
@@ -175,6 +179,7 @@ async function loadCourseContent(courseId) {
                 filesBox.innerHTML = `<p style="margin-top:10px;">No se encontró ID del módulo.</p>`;
                 continue;
             }
+            console.log("moduleId detectado:", moduleId, "content obj:", content);
 
             await loadModuleFilesInto(filesBox, String(moduleId));
         }

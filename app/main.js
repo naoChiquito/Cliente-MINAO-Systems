@@ -440,6 +440,9 @@ app.whenReady().then(() => {
     try {
       const result = await getFilesByContent(contentId);
       return result; 
+      console.log("[IPC] get-files-by-content contentId:", contentId);
+      console.log("[ENV] GRPC_HOST:", process.env.GRPC_HOST);
+
       
     } catch (error) {
       return { success: false, message: error.message, files: [] };

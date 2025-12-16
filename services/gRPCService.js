@@ -72,7 +72,7 @@ function getFilesByContent(contentId) {
         const request = {
             contentId: parseInt(contentId) 
         };
-
+        console.log("GetFilesByContent request:", request, "host:", GRPC_HOST, "proto:", PROTO_PATH);
         client.GetFilesByContent(request, (error, response) => { 
             if (error) {
                 console.error('gRPC GetFilesByContent Error:', error);
