@@ -1,4 +1,4 @@
-console.log("🔥 sidebarNavigation LOADED");
+console.log("sidebarNavigation LOADED");
    
     
     document.getElementById("navMisCursos")?.addEventListener("click", () => {
