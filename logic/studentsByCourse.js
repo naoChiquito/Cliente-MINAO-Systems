@@ -63,9 +63,6 @@ function toNumberOrNull(value) {
 
 
 
-
-
-
 function normalizeStudentsByCourseResponse(resp) {
   if (!resp) return { success: false, students: [], message: "Respuesta vacía del IPC" };
 
@@ -136,11 +133,6 @@ function renderStudentsTable(students, container) {
     const avgNum = toNumberOrNull(student.average);
     const averageScore = avgNum !== null ? avgNum.toFixed(2) : 'N/A';
 
-    
-    
-    
-    localStorage.setItem('studentName', studentName);
-    localStorage.setItem('studentId', String(studentId));
 
     html += `
       <tr>
@@ -164,11 +156,12 @@ function renderStudentsTable(students, container) {
 
 
 function viewStudentReport(studentId, studentName) {
-  const courseId = localStorage.getItem('CourseId');
-
+  const courseId = localStorage.getItem('CourseId'); 
+  localStorage.setItem('ReportStudentId', String(studentId));
+  localStorage.setItem('ReportStudentName', String(studentName));
+  localStorage.setItem('ReportCourseId', courseId);
   
-  if (studentId !== undefined) localStorage.setItem('studentId', String(studentId));
-  if (studentName !== undefined) localStorage.setItem('studentName', String(studentName));
-
   alert(`Preparando para ver reporte detallado de ${studentName} (ID: ${studentId}) en el curso ${courseId}.`);
+  window.location.href = 'studentReportView.html';
+
 }

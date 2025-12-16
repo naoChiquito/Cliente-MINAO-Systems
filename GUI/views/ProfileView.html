@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' data:;
+                 script-src 'self';
+                 style-src 'self' 'unsafe-inline';">
+
+    <title>Mi Perfil</title>
+
+    <!-- ✅ ESTILO UNIFICADO -->
+    <link rel="stylesheet" href="../styles/styleMainMenu.css">
+
+    <!-- ✅ SCRIPTS -->
+    <script src="../../logic/Profile.js" defer></script>
+</head>
+
+<body class="main-body">
+
+    <div class="main-wrapper">
+
+        <!-- ✅ SIDEBAR DEL ESTUDIANTE -->
+        <div class="sidebar-card">
+            <img src="../resources/logo_light.png" alt="Logo" class="sidebar-logo">
+
+            <h2 class="sidebar-title">
+                Alumno:
+                <span id="studentNameDisplay">[Nombre]</span>
+            </h2>
+
+            <nav class="main-nav">
+                <ul class="nav-list">
+
+                     <li class="nav-item">
+                        <a href="InstructorMainMenu.html" class="nav-link">Mis Cursos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a href="addCourse.html" class="nav-link">Crear Curso</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="chatInstructor.html" class="nav-link">Chat</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="ProfileView.html" class="nav-link">Perfil</a>
+                    </li>
+                    
+                    <li class="nav-item logout">
+                        <a href="Login.html" class="nav-link">Cerrar Sesión</a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+
+        <!-- ✅ CONTENIDO PRINCIPAL -->
+        <div class="main-content-area">
+
+            <header class="content-header">
+                
+      <div class="back-button" id="backButton" title="Volver">
+        ←
+    </div>
+                <h1>Mi Perfil</h1>
+                <p>Consulta y actualiza tu información personal</p>
+            </header>
+
+            <section class="form-container">
+
+                <div class="profile-section">
+
+                    <!-- ✅ FOTO DE PERFIL -->
+                    <div class="profile-photo-block" style="text-align:center; margin-bottom:20px;">
+                        <img id="profileImagePreview"
+                             src="../resources/default_user.png"
+                             alt="Foto de perfil"
+                             class="profile-photo"
+                             style="width:120px; border-radius:50%; margin-bottom:10px;">
+                        <input type="file" id="profileImageInput" accept="image/*">
+                    </div>
+
+                    <!-- ✅ FORMULARIO -->
+                    <form id="profileForm" class="course-form">
+
+                        <label>Nombre:</label>
+                        <input type="text" id="userName">
+
+                        <label>Apellido Paterno:</label>
+                        <input type="text" id="paternalSurname">
+
+                        <label>Apellido Materno:</label>
+                        <input type="text" id="maternalSurname">
+
+                        <label>Correo electrónico:</label>
+                        <input type="text" id="email" >
+
+
+
+                        <button type="submit" class="btn-primary">
+                            Guardar cambios
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+        </div>
+    </div>
+
+    <!-- ✅ NAVEGACIÓN DEL SIDEBAR -->
+    <script src="../../app/sidebarNavigation.js"></script>
+
+</body>
+</html>

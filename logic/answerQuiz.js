@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const submitBtn = document.getElementById("submitQuizBtn");
 
   if (!quizContainer) {
-    console.error("❌ No existe #quizContainer en el DOM.");
+    console.error(" No existe #quizContainer en el DOM.");
     return;
   }
 
@@ -189,7 +189,7 @@ if (isContestato && att.maxAttempt > 0) {
           alert("¡Cuestionario enviado correctamente!");
           goBackToCourse(courseId);
         } catch (err) {
-          console.error("❌ Error enviando respuestas:", err);
+          console.error("Error enviando respuestas:", err);
           alert("Error al enviar respuestas. Revisa consola.");
           submitBtn.disabled = false;
           submitBtn.textContent = oldText;
@@ -197,7 +197,7 @@ if (isContestato && att.maxAttempt > 0) {
       };
     }
   } catch (error) {
-    console.error("❌ Error cargando cuestionario:", error);
+    console.error("Error cargando cuestionario:", error);
     quizContainer.innerHTML = "<p class='error'>Error al cargar el cuestionario.</p>";
     if (submitBtn) submitBtn.disabled = true;
   }
