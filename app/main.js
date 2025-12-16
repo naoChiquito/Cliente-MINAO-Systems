@@ -69,6 +69,8 @@ const {
   deleteContentFile
 } = require("../services/gRPCService");
 
+const { getStudentReportHtml } = require("../services/reportService");
+
 
 
 
@@ -141,7 +143,7 @@ app.whenReady().then(() => {
     console.log("➡ Loading page:", fullPath);
 
     mainWindow.loadFile(fullPath).catch((err) => {
-      console.error("❌ Error loading page:", err);
+      console.error("Error loading page:", err);
     });
   });
 
@@ -255,7 +257,7 @@ app.whenReady().then(() => {
       const result = await updateUserBasicProfile(userId, data);
       return { success: true, data: result };
     } catch (error) {
-      console.error("❌ IPC update-user-basic-profile error:", error);
+      console.error("IPC update-user-basic-profile error:", error);
       return { success: false, message: error.message };
     }
   });
@@ -580,6 +582,19 @@ app.whenReady().then(() => {
       return { success: false, result: null, message: error.message };
     }
   });
+});
+
+ipcMain.handle('get-student-report-html', async (event, userId, cursoId) => {
+    try {
+        const result = await getStudentReportHtml(userId, cursoId);
+        return result; 
+        
+    } catch (error) {
+        return { 
+            success: false, 
+            message: error.message 
+        };
+    }
 });
 
 app.on("window-all-closed", () => {
