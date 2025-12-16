@@ -438,11 +438,12 @@ app.whenReady().then(() => {
   ipcMain.handle("get-files-by-content", async (event, contentId) => {
     try {
       const result = await getFilesByContent(contentId);
-      return { success: true, files: result.files };
+      return result; 
+      
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: error.message, files: [] };
     }
-  });
+});
 
   ipcMain.handle("delete-content-file", async (event, fileId) => {
     try {

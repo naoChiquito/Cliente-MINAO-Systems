@@ -30,10 +30,10 @@ async function loadStudents(courseId) {
 
   try {
     const raw = await window.api.getStudentsByCourse(courseId);
-    console.log("📥 getStudentsByCourse raw:", raw);
+    console.log("getStudentsByCourse raw:", raw);
 
     const normalized = normalizeStudentsByCourseResponse(raw);
-    console.log("🧩 getStudentsByCourse normalized:", normalized);
+    console.log("getStudentsByCourse normalized:", normalized);
 
     if (normalized.success && normalized.students.length > 0) {
       renderStudentsTable(normalized.students, container);

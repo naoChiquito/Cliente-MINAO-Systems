@@ -49,9 +49,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 deleteContent(moduleId); 
             });
         }
-
+    loadModuleFiles(moduleId);
     setupUploadForm(moduleId);
-    loadModuleFiles(moduleId); 
+     
 
  });
 
@@ -190,12 +190,12 @@ async function loadModuleFiles(moduleId) {
 
     try {
         const response = await window.api.getFilesByContent(moduleId); 
-        
         if (response.success && response.files.length > 0) {
             
             let html = '<ul>';
             response.files.forEach(file => {
-                html += `<li>[${file.fileType}]
+                const fileName = file.originalName;
+                html += `<li>[${fileName}]
                             (<button onclick="deleteContentFile('${file.fileId}', '${moduleId}')">Eliminar</button>)</li>`;
             });
             html += '</ul>';
