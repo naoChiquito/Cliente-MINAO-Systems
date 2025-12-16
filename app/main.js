@@ -66,7 +66,8 @@ const {
 const {
   uploadContent,
   getFilesByContent,
-  deleteContentFile
+  deleteContentFile,
+  getFileViewUrl
 } = require("../services/gRPCService");
 
 const { getStudentReportHtml } = require("../services/reportService");
@@ -439,6 +440,9 @@ app.whenReady().then(() => {
     try {
       const result = await getFilesByContent(contentId);
       return result; 
+      console.log("[IPC] get-files-by-content contentId:", contentId);
+      console.log("[ENV] GRPC_HOST:", process.env.GRPC_HOST);
+
       
     } catch (error) {
       return { success: false, message: error.message, files: [] };
@@ -597,6 +601,35 @@ ipcMain.handle('get-student-report-html', async (event, userId, cursoId) => {
         };
     }
 });
+
+ipcMain.handle('view-file-window', async (event, fileUrl) => {
+    try {
+        const fullUrl = getFileViewUrl(fileUrl);
+
+        let viewWindow = new BrowserWindow({
+            width: 1000,
+            height: 800,
+            title: "Visor de Documentos - Minao Systems",
+            autoHideMenuBar: true,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true
+            }
+        });
+        viewWindow.loadURL(fullUrl);
+
+        viewWindow.on('closed', () => {
+            viewWindow = null;
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error al abrir la ventana de visor:", error);
+        return { success: false, message: error.message };
+    }
+});
+
+
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();

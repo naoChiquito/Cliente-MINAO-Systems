@@ -56,26 +56,103 @@ async function loadCourseHeader(courseId) {
     }
 }
 
+async function loadModuleFilesInto(containerEl, moduleId) {
+    if (!containerEl) return;
+
+    containerEl.innerHTML = `<p style="margin-top:10px;">Cargando archivos...</p>`;
+
+    try {
+        const response = await window.api.getFilesByContent(moduleId);
+
+        if (response?.success && Array.isArray(response.files) && response.files.length > 0) {
+            containerEl.innerHTML = "";
+
+            const title = document.createElement("div");
+            title.style.marginTop = "10px";
+            title.style.fontWeight = "700";
+            title.textContent = "Archivos:";
+            containerEl.appendChild(title);
+
+            const btnWrap = document.createElement("div");
+            btnWrap.style.display = "flex";
+            btnWrap.style.flexWrap = "wrap";
+            btnWrap.style.gap = "8px";
+            btnWrap.style.marginTop = "8px";
+
+            response.files.forEach((file) => {
+                const btn = document.createElement("button");
+                btn.className = "btn-sm btn-view";
+                btn.type = "button";
+                btn.textContent = file.originalName || "Ver archivo";
+
+                btn.addEventListener("click", async () => {
+                    const fileUrl = file.url;
+                    if (!fileUrl) {
+                        alert("La URL del archivo no es válida.");
+                        return;
+                    }
+
+                    const res = await window.api.viewFileWindow(fileUrl);
+                    if (!res?.success) {
+                        alert("Error al abrir el visor: " + (res?.message || ""));
+                    }
+                });
+
+                btnWrap.appendChild(btn);
+            });
+
+            containerEl.appendChild(btnWrap);
+
+        } else if (response?.success && Array.isArray(response.files) && response.files.length === 0) {
+            containerEl.innerHTML = `<p style="margin-top:10px;">No hay archivos para este contenido.</p>`;
+        } else {
+            containerEl.innerHTML = `<p style="margin-top:10px;">${response?.message || "No se pudieron cargar archivos."}</p>`;
+        }
+
+    } catch (error) {
+        console.error("❌ Error cargando archivos del módulo:", error);
+        containerEl.innerHTML = `<p style="margin-top:10px;">Error al cargar archivos.</p>`;
+    }
+}
+
+async function viewFile(fileUrl) {
+    if (!fileUrl) {
+        alert("La URL del archivo no es válida.");
+        return;
+    }
+
+    try {
+        const response = await window.api.viewFileWindow(fileUrl);
+        if (!response?.success) {
+            alert("Error al abrir el visor: " + (response?.message || ""));
+        }
+    } catch (error) {
+        console.error("Fallo al intentar abrir el visor:", error);
+        alert("Error de conexión al abrir el archivo.");
+    }
+}
+
 async function loadCourseContent(courseId) {
     const container = document.getElementById("contents-container");
     container.innerHTML = "<p>Cargando contenido...</p>";
 
     try {
         const response = await window.api.getCourseContent(courseId);
-
-        if (!response.success) {
-            throw new Error(response.message || "Error al cargar contenido");
-        }
+        if (!response.success) throw new Error(response.message || "Error al cargar contenido");
 
         const contents = response.data?.results || [];
         container.innerHTML = "";
+
+        console.log("courseId:", courseId);
+        console.log("contents:", contents);
+        console.log("primer content:", contents[0]);
 
         if (contents.length === 0) {
             container.innerHTML = "<p>No hay contenido disponible.</p>";
             return;
         }
 
-        contents.forEach(content => {
+        for (const content of contents) {
             const card = document.createElement("div");
             card.className = "module-card";
 
@@ -87,14 +164,32 @@ async function loadCourseContent(courseId) {
                 </p>
             `;
 
+            const filesBox = document.createElement("div");
+            filesBox.className = "module-files";
+            filesBox.innerHTML = `<p style="margin-top:10px;">Cargando archivos...</p>`;
+
+            card.appendChild(filesBox);
             container.appendChild(card);
-        });
+
+            const moduleId =
+                content.contentId ?? content.id ?? content.moduleId ?? content.cursoContentId;
+                console.log("CONTENT:", content);
+
+            if (!moduleId) {
+                filesBox.innerHTML = `<p style="margin-top:10px;">No se encontró ID del módulo.</p>`;
+                continue;
+            }
+            console.log("moduleId detectado:", moduleId, "content obj:", content);
+
+            await loadModuleFilesInto(filesBox, String(moduleId));
+        }
 
     } catch (error) {
         console.error("❌ Error cargando contenido:", error);
         container.innerHTML = "<p>Error al cargar contenido.</p>";
     }
 }
+
 
 async function loadCourseQuizzes(courseId) {
     const container = document.getElementById("quizzes-container");
