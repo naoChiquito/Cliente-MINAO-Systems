@@ -144,6 +144,9 @@ contextBridge.exposeInMainWorld("api", {
     getStudentReportHtml: (userId, cursoId) =>
         ipcRenderer.invoke('get-student-report-html', userId, cursoId),
 
+    viewFileWindow: (fileUrl) => 
+        ipcRenderer.invoke('view-file-window', fileUrl),
+
     clearSession: () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("userName");

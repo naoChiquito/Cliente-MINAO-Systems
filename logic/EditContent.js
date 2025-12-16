@@ -196,7 +196,10 @@ async function loadModuleFiles(moduleId) {
             response.files.forEach(file => {
                 const fileName = file.originalName;
                 html += `<li>[${fileName}]
-                            (<button onclick="deleteContentFile('${file.fileId}', '${moduleId}')">Eliminar</button>)</li>`;
+                            <div class="file-actions">
+                                <button class="btn-sm btn-view" onclick="viewFile('${file.url}')">Ver </button>
+                                <button class="btn-sm btn-danger" onclick="deleteContentFile('${file.fileId}', '${moduleId}')">Eliminar</button>
+                            </div></li>`;
             });
             html += '</ul>';
             fileListContainer.innerHTML = html;
@@ -235,5 +238,22 @@ async function deleteContentFile(fileId, moduleId) {
         statusElement.innerHTML = originalContent; 
         console.error('Fallo en la comunicación IPC para eliminar:', error);
         alert('Fallo de conexión o error interno al intentar eliminar.');
+    }
+}
+
+async function viewFile(fileUrl) {
+    if (!fileUrl) {
+        alert("La URL del archivo no es válida.");
+        return;
+    }
+    
+    try {
+        const response = await window.api.viewFileWindow(fileUrl);
+        if (!response.success) {
+            alert("Error al abrir el visor: " + response.message);
+        }
+    } catch (error) {
+        console.error("Fallo al intentar abrir el visor:", error);
+        alert("Error de conexión al abrir el archivo.");
     }
 }

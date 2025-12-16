@@ -17,11 +17,12 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const content_proto = grpc.loadPackageDefinition(packageDefinition).content; 
 const client = new content_proto.ContentService(GRPC_HOST, grpc.credentials.createInsecure());
 const CHUNK_SIZE = 1024 * 1024; 
+const BASE_URL_VIEW = "http://localhost:8000/minao_systems/content/files/view";
 
 
 function uploadContent(uploadData) {
     return new Promise((resolve, reject) => {
-        
+    
         const fileContentBuffer = uploadData.fileContent;
         const totalSize = fileContentBuffer.length;
         
@@ -106,6 +107,13 @@ function deleteContentFile(fileId) {
     });
 }
 
+function getFileViewUrl(fileUrl) {
+    if (!fileUrl) return "";
+
+    const filename = fileUrl.split('/').pop();
+    return `${BASE_URL_VIEW}/${encodeURIComponent(filename)}`;
+}
 
 
-module.exports = { uploadContent, getFilesByContent, deleteContentFile };
+
+module.exports = { uploadContent, getFilesByContent, deleteContentFile, getFileViewUrl };
