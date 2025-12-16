@@ -30,6 +30,7 @@ message File {
   int32 fileId = 1;
   string url = 2;
   string fileType = 3;
+  string originalName = 4;
 }
 
 message GetFilesByContentResponse {
