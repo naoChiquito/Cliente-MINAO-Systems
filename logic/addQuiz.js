@@ -92,6 +92,7 @@ async function handleFormSubmit(e) {
             QUIZ_CONTAINER.innerHTML = ''; 
             questionCounter = 0;
             addQuestionBlock();
+            window.location.href = 'quizManagement.html'; 
         } else {
             alert(`Error: ${response.message}`);
         }

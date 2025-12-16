@@ -1,0 +1,220 @@
+.creation-area {
+    margin-bottom: 25px;
+}
+
+.module-list-section h2 {
+    color: #1a4d7d;
+    border-bottom: 2px solid #fca311;
+    padding-bottom: 5px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.module-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s;
+}
+
+.module-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.module-header h3 {
+    margin: 0;
+    color: #1a4d7d;
+    font-size: 1.15em;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #fca311;
+}
+
+.lesson-list {
+    padding: 10px 15px;
+    border-top: 1px dashed #eee;
+}
+
+.lesson-list.hidden {
+    display: none; 
+}
+
+.lesson-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.lesson-item:last-child {
+    border-bottom: none;
+}
+
+.edit-lesson-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s;
+}
+
+.edit-lesson-btn:hover {
+    background-color: #0056b3;
+}
+
+.creation-area {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.module-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #1a4d7d; 
+    
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.module-card h2 {
+    color: #1a4d7d;
+    font-size: 1.4em;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.module-id {
+    display: block;
+    color: #fca311; 
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.module-desc {
+    color: #555;
+    font-size: 0.95em;
+    line-height: 1.4;
+    height: 60px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.module-link {
+    display: block;
+    margin-top: 15px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.content-split-layout {
+    display: grid;
+    grid-template-rows: 1fr 1fr; 
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.module-edit-panel, .file-management-panel {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.module-edit-panel h2, .file-management-panel h2 {
+    color: #1a4d7d;
+    border-bottom: 2px solid #fca311;
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* =========================================================
+   ✅ Estilos extra: Pantalla "En construcción"
+   ========================================================= */
+
+.construction-container {
+    /* ocupa el cuerpo completo del contenido */
+    height: 100%;
+    min-height: calc(100vh - 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.construction-visual {
+    position: relative;
+    width: min(720px, 85vw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* SVG grande y “dimmed” al 50% */
+.construction-icon {
+    width: min(520px, 70vw);
+    height: auto;
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+/* Colores del SVG (sin depender de recursos externos) */
+.construction-icon circle {
+    fill: rgba(26, 77, 125, 0.10);
+}
+.construction-icon path,
+.construction-icon rect {
+    fill: rgba(26, 77, 125, 0.95);
+}
+
+/* Texto encima de la imagen */
+.construction-message {
+    position: absolute;
+    max-width: 680px;
+    text-align: center;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    color: #1a4d7d;
+    font-size: 1.15rem;
+    line-height: 1.35;
+    font-weight: 700;
+}
