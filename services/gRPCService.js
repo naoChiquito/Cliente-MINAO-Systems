@@ -2,7 +2,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path'); 
 
-const { GRPC_HOST } = require('../app/config'); 
+const { GRPC_HOST, API_BASE_URL } = require('../app/config'); 
 const PROTO_PATH = path.join(__dirname, '../grpc/protos/content.proto');
 
 
@@ -17,7 +17,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const content_proto = grpc.loadPackageDefinition(packageDefinition).content; 
 const client = new content_proto.ContentService(GRPC_HOST, grpc.credentials.createInsecure());
 const CHUNK_SIZE = 1024 * 1024; 
-const BASE_URL_VIEW = "http://localhost:8000/minao_systems/content/files/view";
+const BASE_URL_VIEW = `${API_BASE_URL}/content/files/view`;
 
 
 function uploadContent(uploadData) {

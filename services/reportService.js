@@ -1,6 +1,7 @@
+const {API_BASE_URL} = require ("../app/config");
 async function getStudentReportHtml(userId, cursoId) {
     try {
-        const url = `http://localhost:5050/minao_systems/report/student/${userId}/course/${cursoId}/view`;
+        const url = `${API_BASE_URL}/report/student/${userId}/course/${cursoId}/view`;
 
         const response = await fetch(url, {
             method: "GET",

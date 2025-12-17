@@ -1,6 +1,7 @@
+const {API_BASE_URL} = require ("../app/config");
 async function login(email, password) {
     try {
-        const response = await fetch("http://localhost:3000/minao_systems/users/login", {
+        const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: email, userPassword: password })

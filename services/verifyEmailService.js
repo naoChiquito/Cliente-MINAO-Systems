@@ -1,6 +1,7 @@
+const {API_BASE_URL} = require ("../app/config");
 async function verifyEmail(email, code) {
     try {
-        const response = await fetch("http://localhost:3000/minao_systems/users/verify", {
+        const response = await fetch(`${API_BASE_URL}/users/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: email, verificationCode: code })

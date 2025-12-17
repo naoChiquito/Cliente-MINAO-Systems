@@ -125,10 +125,42 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 
        
-        quizzesList.innerHTML = "<li>No hay cuestionarios disponibles.</li>";
+
+        try {
+            const quizzesResponse = await window.api.getQuizzesByCourse(courseId);
+            const quizzes = quizzesResponse?.data || [];
+            quizzesList.innerHTML = "";
+            if (quizzes.length > 0) {
+                quizzesList.innerHTML = quizzes.map(q => `
+                    <li class="quiz-item">
+                        <b>${q.title}</b> — ${q.description || "Sin descripción"}<br>
+                        Preguntas: ${q.numberQuestion} <br>
+                        Creado: ${new Date(q.creationDate).toLocaleDateString()} <br>
+                        <button class="btn-view-quiz" data-quiz-id="${q.quizId}">Ver y contestar</button>
+                    </li>
+                `).join("");
 
 
-       
+                document.querySelectorAll(".btn-view-quiz").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const quizId = btn.getAttribute("data-quiz-id");
+                        if (window.nav && typeof window.nav.goTo === "function") {
+                            localStorage.setItem("selectedQuizId", quizId);
+                            window.nav.goTo("AnswerQuiz"); 
+                        } else {
+                            console.log("Quiz ID seleccionado:", quizId);
+                        }
+                    });
+                });
+
+            } else {
+                quizzesList.innerHTML = "<li>No hay cuestionarios disponibles.</li>";
+            }
+        } catch (err) {
+            console.error(" Error cargando quizzes:", err);
+            quizzesList.innerHTML = "<li>No se pudo cargar los quizzes.</li>";
+        }
+
 
         let enrolled = false;
 

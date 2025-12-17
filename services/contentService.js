@@ -1,10 +1,11 @@
+const {API_BASE_URL} = require ("../app/config");
 async function getCourseContent(courseId) {
     const FETCH_TIMEOUT = 10000;
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://localhost:8000/minao_systems/content/byCourse/${courseId}`;
+        const url = `${API_BASE_URL}/content/byCourse/${courseId}`;
         
         const response = await fetch(url, {
             method: "GET",
@@ -36,7 +37,7 @@ async function updateModuleContent(contentId, moduleData) {
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://localhost:8000/minao_systems/content/updateContent/${contentId}`;
+        const url = `${API_BASE_URL}/content/updateContent/${contentId}`;
         
         const response = await fetch(url, {
             method: "PATCH", 
@@ -71,7 +72,7 @@ async function deleteContent(contentId) {
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://localhost:8000/minao_systems/content/deleteContent/${contentId}`;
+        const url = `${API_BASE_URL}/content/deleteContent/${contentId}`;
         
         const response = await fetch(url, {
             method: "DELETE", 
@@ -102,7 +103,7 @@ async function createContent(moduleData) {
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://localhost:8000/minao_systems/content/createNewContent`;
+        const url = `${API_BASE_URL}/content/createNewContent`;
         
         const response = await fetch(url, {
             method: "POST", 

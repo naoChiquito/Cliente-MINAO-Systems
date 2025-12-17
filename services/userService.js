@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3000/minao_systems/users";
+const {API_BASE_URL} = require ("../app/config");
 
 /* ============================================================
    ✔  GET USER JSON BY EMAIL
@@ -6,7 +6,7 @@ const BASE_URL = "http://localhost:3000/minao_systems/users";
 async function findUserByEmailJSON(email) {
     try {
         const response = await fetch(
-            `${BASE_URL}/findUserByEmailJSON/${encodeURIComponent(email)}`,
+            `${API_BASE_URL}/users/findUserByEmailJSON/${encodeURIComponent(email)}`,
             {
                 method: "GET",
                 headers: { "Content-Type": "application/json" }
@@ -42,7 +42,7 @@ async function findUserByEmailJSON(email) {
 async function updateUserBasicProfile(userId, updatedData) {
     try {
         const response = await fetch(
-            `${BASE_URL}/updateBasicProfile/${encodeURIComponent(userId)}`,
+            `${API_BASE_URL}/users/updateBasicProfile/${encodeURIComponent(userId)}`,
             {
                 method: "PUT",
                 headers: {

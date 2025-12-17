@@ -1,3 +1,4 @@
+const {API_BASE_URL} = require ("../app/config");
 const FETCH_TIMEOUT = 10000;
 
 function withTimeout(ms = FETCH_TIMEOUT) {
@@ -10,7 +11,7 @@ async function getCoursesByInstructorJSON(instructorId) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://127.0.0.1:8000/minao_systems/courses/instructor/${instructorId}`;
+        const url = `${API_BASE_URL}/courses/instructor/${instructorId}`;
 
         const response = await fetch(url, {
             method: "GET",
@@ -55,7 +56,7 @@ async function getCoursesByInstructor(instructorId) {
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://127.0.0.1:8000/minao_systems/courses/instructor/${instructorId}`; 
+        const url = `${API_BASE_URL}/courses/instructor/${instructorId}`; 
         
         const response = await fetch(url, {
             method: "GET",
@@ -102,7 +103,7 @@ async function getCoursesByStudent(studentId) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://127.0.0.1:8000/minao_systems/courses/student/${studentId}`;
+        const url = `${API_BASE_URL}/courses/student/${studentId}`;
 
         const response = await fetch(url, {
             method: "GET",
@@ -149,7 +150,7 @@ async function addCourse(courseData) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = 'http://localhost:8000/minao_systems/courses/createCourse';
+        const url = `${API_BASE_URL}/courses/createCourse`;
 
         const response = await fetch(url, {
             method: "POST",
@@ -179,7 +180,7 @@ async function getCourseDetails(courseId) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://localhost:8000/minao_systems/courses/${courseId}`;
+        const url = `${API_BASE_URL}/courses/${courseId}`;
 
         const response = await fetch(url, {
             method: "GET",
@@ -208,7 +209,7 @@ async function updateCourse(courseData) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://localhost:8000/minao_systems/courses/updateCourse`;
+        const url = `${API_BASE_URL}/courses/updateCourse`;
 
         const response = await fetch(url, {
             method: "PATCH",
@@ -238,7 +239,7 @@ async function setState(courseId, newState) {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://localhost:8000/minao_systems/courses/setCourseState`;
+        const url = `${API_BASE_URL}/courses/setCourseState`;
 
         const response = await fetch(url, {
             method: "PATCH",
@@ -268,7 +269,7 @@ async function getAllCourses() {
     const { controller, timeoutId } = withTimeout();
 
     try {
-        const url = `http://127.0.0.1:8000/minao_systems/courses/all`;
+        const url = `${API_BASE_URL}/courses/all`;
 
         const response = await fetch(url, {
             method: "GET",
@@ -312,7 +313,7 @@ async function getStudentsByCourse(courseId) {
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
     
     try {
-        const url = `http://localhost:8000/minao_systems/student/${courseId}/students/average`; 
+        const url = `${API_BASE_URL}/student/${courseId}/students/average`; 
         
         
         const response = await fetch(url, {

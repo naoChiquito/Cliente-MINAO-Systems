@@ -1,11 +1,11 @@
 const FETCH_TIMEOUT = 60000; 
-
+const {API_BASE_URL} = require ("../app/config");
 async function signUp(formData) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT); 
 
     try {
-        const url = "http://localhost:3000/minao_systems/users/registerUser";
+        const url = `${API_BASE_URL}/users/registerUser`;
         
         const response = await fetch(url, {
             method: "POST",

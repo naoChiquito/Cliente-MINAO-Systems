@@ -1,99 +1,29 @@
-const BASE_URL = "http://localhost:5050/minao_systems/quizzes";
-const LEGACY_BASE_URL = "http://localhost:5050/minao_systems/quizzes";
+const { API_BASE_URL } = require("../app/config");
+const BASE_URL = `${API_BASE_URL}/quizzes`;
 const FETCH_TIMEOUT = 10000;
 
-const BASE_URLS_TO_TRY = [
-  BASE_URL, 
-  "http://localhost:3309/minao_systems/quizzes",
-  LEGACY_BASE_URL 
-];
+const BASE_URLS_TO_TRY = [BASE_URL];
 
 function buildAuthHeaders(token, extra = {}) {
   const headers = { ...extra };
-  if (token && String(token).trim()) {
-    headers.Authorization = `Bearer ${token}`;
-  }
+  if (token && String(token).trim()) headers.Authorization = `Bearer ${token}`;
   return headers;
 }
 
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = FETCH_TIMEOUT) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(id);
-    return response;
-  } catch (err) {
-    clearTimeout(id);
-    if (err.name === "AbortError") {
-      throw new Error(`La conexión ha expirado (Timeout de ${timeoutMs / 1000}s).`);
-    }
-    throw err;
-  }
-}
-
-
-async function safeParseResponse(response) {
-  const raw = await response.text();
-  console.log("📥 RAW RESPONSE FROM SERVER:", raw);
-
-  let parsed;
-  try {
-    parsed = raw ? JSON.parse(raw) : {};
-  } catch (err) {
-    console.error("❌ No se pudo parsear JSON:", err);
-    throw new Error("El servidor devolvió una respuesta NO JSON.");
-  }
-
-  if (!response.ok) {
-    throw new Error(parsed.message || `Error HTTP ${response.status}`);
-  }
-
-  return parsed;
-}
-
-
-function normalizeQuizListResponse(parsed) {
-  if (parsed && parsed.success === true && Array.isArray(parsed.data)) {
-    return parsed.data;
-  }
-
-  if (Array.isArray(parsed)) {
-    return parsed;
-  }
-
-  if (parsed && Array.isArray(parsed.result)) {
-    return parsed.result;
-  }
-
-  return [];
-}
-
-
 async function tryParseJsonOrReturnRaw(response) {
-  const raw = await response.text();
+  const text = await response.text();
   try {
-    const parsed = raw ? JSON.parse(raw) : {};
-    return { ok: true, parsed };
+    return { ok: true, parsed: JSON.parse(text) };
   } catch {
-    return { ok: false, raw };
+    return { ok: false, raw: text };
   }
 }
-
 
 async function requestJsonWithFallback(path, options = {}) {
   for (const base of BASE_URLS_TO_TRY) {
     const url = `${base}${path}`;
-
     try {
       const response = await fetch(url, options);
-
-   
       const { ok, parsed, raw } = await tryParseJsonOrReturnRaw(response);
 
       if (!ok) {
@@ -102,71 +32,32 @@ async function requestJsonWithFallback(path, options = {}) {
       }
 
       if (!response.ok) {
-        return {
-          success: false,
-          message: parsed.message || `Error HTTP ${response.status}`,
-          _url: url
-        };
+        return { success: false, message: parsed.message || `Error HTTP ${response.status}`, _url: url };
       }
 
       return { success: true, parsed, _url: url };
-
     } catch (err) {
-     
       console.warn("⚠ Fallo consultando:", url, err.message);
-  
     }
   }
 
-  return {
-    success: false,
-    message: "No se pudo obtener JSON desde ningún endpoint (8000/3309/5050)."
-  };
+  return { success: false, message: "No se pudo obtener JSON desde ningún endpoint." };
 }
 
+function normalizeQuizListResponse(parsed) {
+  if (parsed?.success && Array.isArray(parsed.data)) return parsed.data;
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed?.result && Array.isArray(parsed.result)) return parsed.result;
+  return [];
+}
 
 
 async function getQuizzesByCourse(courseId) {
-  try {
-    const res = await requestJsonWithFallback(
-      `/course/${encodeURIComponent(courseId)}`,
-      { method: "GET" }
-    );
-
-    if (!res.success) {
-      return {
-        success: false,
-        message: res.message || "No se pudo obtener JSON desde ningún endpoint de quizzes (8000/3309/5050).",
-        data: [],
-        result: [],
-        count: 0
-      };
-    }
-
-    const quizzes = normalizeQuizListResponse(res.parsed);
-
-    return {
-      success: true,
-      data: quizzes,
-      result: quizzes,
-      count: quizzes.length,
-      message: res.parsed?.message || "Cuestionarios cargados."
-    };
-
-  } catch (err) {
-    console.warn("⚠ Fallo consultando getQuizzesByCourse:", err.message);
-
-    return {
-      success: false,
-      message: err.message,
-      data: [],
-      result: [],
-      count: 0
-    };
-  }
+  const res = await requestJsonWithFallback(`/course/${encodeURIComponent(courseId)}`, { method: "GET" });
+  if (!res.success) return { success: false, message: res.message, data: [], result: [], count: 0 };
+  const quizzes = normalizeQuizListResponse(res.parsed);
+  return { success: true, data: quizzes, result: quizzes, count: quizzes.length, message: res.parsed?.message || "Cuestionarios cargados." };
 }
-
-
 
 async function updateQuestionnaire(quizId, updatedData) {
   try {
@@ -193,129 +84,45 @@ async function updateQuestionnaire(quizId, updatedData) {
 }
 
 
-
+// --- Funciones restantes ---
 async function getQuizDetailForUser(quizId, token) {
-  try {
-    const headers = { "Content-Type": "application/json" };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const res = await requestJsonWithFallback(
-      `/${encodeURIComponent(quizId)}/view`,
-      {
-        method: "GET",
-        headers
-      }
-    );
-
-    if (!res.success) {
-      console.error("❌ ERROR EN getQuizDetailForUser:", res.message);
-      return { success: false, message: res.message };
-    }
-
-    return res.parsed;
-
-  } catch (err) {
-    console.error("❌ ERROR EN getQuizDetailForUser:", err);
-    return { success: false, message: err.message };
-  }
+  const headers = buildAuthHeaders(token, { "Content-Type": "application/json" });
+  const res = await requestJsonWithFallback(`/${encodeURIComponent(quizId)}/view`, { method: "GET", headers });
+  if (!res.success) return { success: false, message: res.message };
+  return res.parsed;
 }
 
 async function answerQuiz(studentUserId, quizId, answers, token) {
-  try {
-    const res = await requestJsonWithFallback(
-      `/answerQuiz`,
-      {
-        method: "POST",
-        headers: buildAuthHeaders(token, { "Content-Type": "application/json" }),
-        body: JSON.stringify({
-          studentUserId,
-          quizId,
-          answers
-        })
-      }
-    );
-
-    if (!res.success) {
-      console.error("❌ ERROR EN answerQuiz:", res.message, "URL:", res._url);
-      return { success: false, message: res.message };
-    }
-
-    return { success: true, data: res.parsed };
-
-  } catch (err) {
-    console.error("❌ ERROR EN answerQuiz:", err);
-    return { success: false, message: err.message };
-  }
+  const headers = buildAuthHeaders(token, { "Content-Type": "application/json" });
+  const res = await requestJsonWithFallback(`/answerQuiz`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ studentUserId, quizId, answers }),
+  });
+  if (!res.success) return { success: false, message: res.message };
+  return { success: true, data: res.parsed };
 }
-
-
 
 async function viewQuizResult(quizId, studentUserId, attemptNumber, token) {
-  try {
-   
-    if (!attemptNumber) {
-      return { success: false, message: "attemptNumber is required to view quiz result" };
-    }
-
-    const headers = { "Content-Type": "application/json" };
-    if (token && String(token).trim()) headers.Authorization = `Bearer ${token}`;
-
-    const res = await requestJsonWithFallback(
-      `/quizResult?quizId=${encodeURIComponent(quizId)}&studentUserId=${encodeURIComponent(studentUserId)}&attemptNumber=${encodeURIComponent(attemptNumber)}`,
-      { method: "GET", headers }
-    );
-
-    if (!res.success) {
-      console.error("ERROR EN viewQuizResult:", res.message, "URL:", res._url);
-      return { success: false, message: res.message };
-    }
-
-    return res.parsed;
-  } catch (err) {
-    console.error("ERROR EN viewQuizResult:", err);
-    return { success: false, message: err.message };
-  }
+  if (!attemptNumber) return { success: false, message: "attemptNumber is required" };
+  const headers = buildAuthHeaders(token, { "Content-Type": "application/json" });
+  const res = await requestJsonWithFallback(
+    `/quizResult?quizId=${encodeURIComponent(quizId)}&studentUserId=${encodeURIComponent(studentUserId)}&attemptNumber=${encodeURIComponent(attemptNumber)}`,
+    { method: "GET", headers }
+  );
+  if (!res.success) return { success: false, message: res.message };
+  return res.parsed;
 }
-
-
 
 async function listQuizResponses(quizId, token) {
-  try {
-    const headers = { "Content-Type": "application/json" };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const res = await requestJsonWithFallback(
-      `/${encodeURIComponent(quizId)}/responses`,
-      {
-        method: "GET",
-        headers
-      }
-    );
-
-    if (!res.success) {
-      console.error("ERROR EN listQuizResponses:", res.message);
-      return { success: false, message: res.message };
-    }
-
-    return res.parsed;
-
-  } catch (err) {
-    console.error("ERROR EN listQuizResponses:", err);
-    return { success: false, message: err.message };
-  }
+  const headers = buildAuthHeaders(token, { "Content-Type": "application/json" });
+  const res = await requestJsonWithFallback(`/${encodeURIComponent(quizId)}/responses`, { method: "GET", headers });
+  if (!res.success) return { success: false, message: res.message };
+  return res.parsed;
 }
 
-
-
-
 async function createQuiz(quizData) {
-  const url = `${LEGACY_BASE_URL}/createQuiz`;
+  const url = `${BASE_URLS_TO_TRY}/createQuiz`;
 
   try {
     const response = await fetchWithTimeout(url, {
@@ -345,9 +152,8 @@ async function createQuiz(quizData) {
   }
 }
 
-
 async function getQuizResponsesList(quizId) {
-  const url = `${LEGACY_BASE_URL}/${quizId}/responses`;
+  const url = `${BASE_URLS_TO_TRY}/${quizId}/responses`;
 
   try {
     const response = await fetchWithTimeout(url, {
@@ -394,9 +200,8 @@ async function getQuizResponsesList(quizId) {
   }
 }
 
-
 async function deleteQuiz(quizId) {
-  const url = `${LEGACY_BASE_URL}/deleteQuiz/${quizId}`;
+  const url = `${BASE_URLS_TO_TRY}/deleteQuiz/${quizId}`;
 
   try {
     const response = await fetchWithTimeout(url, {
@@ -421,7 +226,7 @@ async function deleteQuiz(quizId) {
 
 
 async function getQuizDetails(quizId) {
-  const url = `${LEGACY_BASE_URL}/getQuizForUpdate/${quizId}`;
+  const url = `${BASE_URLS_TO_TRY}/getQuizForUpdate/${quizId}`;
 
   try {
     const response = await fetchWithTimeout(url, {
@@ -465,49 +270,18 @@ async function getQuizDetails(quizId) {
 }
 
 
-
-
 async function getStudentsAttempts(quizId, studentUserId, token) {
-  try {
-    if (!quizId || !String(quizId).trim()) {
-      return { success: false, message: "quizId is required" };
-    }
-
-    if (!studentUserId || !String(studentUserId).trim()) {
-      return { success: false, message: "studentUserId is required" };
-    }
-
-    const headers = { "Content-Type": "application/json" };
-
-    
-    if (token && String(token).trim()) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const path = `/${encodeURIComponent(quizId)}/students/${encodeURIComponent(studentUserId)}/attempts`;
-
-    const res = await requestJsonWithFallback(path, {
-      method: "GET",
-      headers
-    });
-
-    if (!res.success) {
-      console.error("❌ ERROR EN getStudentsAttempts:", res.message, "URL:", res._url);
-      return { success: false, message: res.message };
-    }
-
-    
-    return res.parsed;
-
-  } catch (err) {
-    console.error("❌ ERROR EN getStudentsAttempts:", err);
-    return { success: false, message: err.message };
-  }
+  const headers = buildAuthHeaders(token, { "Content-Type": "application/json" });
+  const res = await requestJsonWithFallback(
+    `/${encodeURIComponent(quizId)}/students/${encodeURIComponent(studentUserId)}/attempts`,
+    { method: "GET", headers }
+  );
+  if (!res.success) return { success: false, message: res.message };
+  return res.parsed;
 }
 
 
 module.exports = {
-
   getQuizzesByCourse,
   updateQuestionnaire,
   getQuizDetailForUser,
@@ -515,16 +289,13 @@ module.exports = {
   viewQuizResult,
   listQuizResponses,
 
-
   createQuiz,
   getQuizResponsesList,
   deleteQuiz,
   getQuizDetails,
 
-
   normalizeQuizListResponse,
-  safeParseResponse, 
-
-
-    getStudentsAttempts
+  requestJsonWithFallback,
+  getStudentsAttempts
 };
+
