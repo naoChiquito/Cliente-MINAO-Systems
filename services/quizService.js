@@ -125,7 +125,7 @@ async function createQuiz(quizData) {
   const url = `${BASE_URLS_TO_TRY}/createQuiz`;
 
   try {
-    const response = await fetchWithTimeout(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(quizData)
@@ -156,7 +156,7 @@ async function getQuizResponsesList(quizId) {
   const url = `${BASE_URLS_TO_TRY}/${quizId}/responses`;
 
   try {
-    const response = await fetchWithTimeout(url, {
+    const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
     });
@@ -204,7 +204,7 @@ async function deleteQuiz(quizId) {
   const url = `${BASE_URLS_TO_TRY}/deleteQuiz/${quizId}`;
 
   try {
-    const response = await fetchWithTimeout(url, {
+    const response = await fetch(url, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" }
     });
@@ -229,7 +229,7 @@ async function getQuizDetails(quizId) {
   const url = `${BASE_URLS_TO_TRY}/getQuizForUpdate/${quizId}`;
 
   try {
-    const response = await fetchWithTimeout(url, {
+    const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" }
     });

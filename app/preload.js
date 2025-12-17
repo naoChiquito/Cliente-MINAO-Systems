@@ -14,6 +14,86 @@ ipcRenderer.invoke = async (channel, ...args) => {
     }
 };
 
+/**
+ * =========================
+ * Helpers de blindaje (preload)
+ * =========================
+ * - No cambian URLs ni channels.
+ * - Convierten respuestas “raras” a {success,data,message}.
+ * - En caso de error, NO lanzan: regresan {success:false,...}
+ */
+const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+
+const ensureSuccessProp = (payload, defaultSuccess = true) => {
+    // Si es objeto y ya trae success, lo dejamos igual
+    if (isPlainObject(payload)) {
+        if ("success" in payload) return payload;
+
+        // Heurística: si solo trae message o trae error/rawText, asumimos fallo
+        const keys = Object.keys(payload);
+        const onlyMessage = keys.length === 1 && keys[0] === "message";
+        const looksError = onlyMessage || ("error" in payload) || ("rawText" in payload);
+
+        return { ...payload, success: looksError ? false : defaultSuccess };
+    }
+
+    // Si es array, lo envolvemos como lista
+    if (Array.isArray(payload)) {
+        return { success: true, data: payload, result: payload, message: "OK" };
+    }
+
+    // Otros tipos (string/null/number): envolvemos
+    return { success: defaultSuccess, data: payload, result: payload };
+};
+
+const pickArray = (x) =>
+    Array.isArray(x) ? x :
+    Array.isArray(x?.data) ? x.data :
+    Array.isArray(x?.result) ? x.result :
+    Array.isArray(x?.courses) ? x.courses :
+    Array.isArray(x?.data?.data) ? x.data.data :
+    Array.isArray(x?.data?.result) ? x.data.result :
+    Array.isArray(x?.data?.courses) ? x.data.courses :
+    [];
+
+const safeInvoke = async (channel, ...args) => {
+    try {
+        const raw = await ipcRenderer.invoke(channel, ...args); // usa tu invoke logueado
+        return ensureSuccessProp(raw, true);
+    } catch (error) {
+        return {
+            success: false,
+            data: null,
+            result: null,
+            message: error?.message || String(error)
+        };
+    }
+};
+
+const safeInvokeList = async (channel, ...args) => {
+    const base = await safeInvoke(channel, ...args);
+
+    // Si viene success:false, igual garantizamos data como array
+    if (base.success === false) {
+        return {
+            ...base,
+            data: Array.isArray(base.data) ? base.data : [],
+            result: Array.isArray(base.result) ? base.result : [],
+            message: base.message || "fetch failed"
+        };
+    }
+
+    // Si viene success:true pero la lista está en otra parte, la sacamos
+    const rows = pickArray(base.data ?? base.result ?? base);
+    return {
+        ...base,
+        success: true,
+        data: rows,
+        result: rows,
+        message: base.message || "OK"
+    };
+};
+
 
 contextBridge.exposeInMainWorld("api", {
     login: (email, password) =>
@@ -70,8 +150,9 @@ contextBridge.exposeInMainWorld("api", {
     changeCourseState: (courseId, newState) =>
         ipcRenderer.invoke("change-course-state", courseId, newState),
 
+    // ✅ BLINDADO: siempre regresa {success,data:[]|...,message}
     getAllCourses: () =>
-        ipcRenderer.invoke("get-all-courses"),
+        safeInvokeList("get-all-courses"),
 
     getCourseContent: (courseId) =>
         ipcRenderer.invoke("get-course-content", courseId),

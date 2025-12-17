@@ -75,9 +75,6 @@ function renderResponsesTable(responses, container) {
             <td>${response.studentUserId}</td>
             <td>${response.latestAttempt}</td>
             <td><strong>${scorePercentage}</strong></td>
-            <td>
-                <button class="btn-action btn-secondary" onclick="viewDetailedAttempt('${response.studentUserId}')">Ver Intentos</button>
-            </td>
         </tr>
         `;
     });

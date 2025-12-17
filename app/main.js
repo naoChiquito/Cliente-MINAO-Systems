@@ -1,5 +1,49 @@
+const API_BASE = (process.env.API_BASE_URL || "https://nonrevocable-continuous-lakendra.ngrok-free.dev").replace(/\/$/, "");
+const API = (p) => `${API_BASE}${p.startsWith("/") ? p : `/${p}`}`;
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+
+/**
+ * =========================
+ * Helpers de “blindaje”
+ * =========================
+ * - No cambian URLs.
+ * - Evitan crashes si la respuesta NO es JSON.
+ * - Si el backend devuelve objeto sin `success`, se lo añadimos sin romper el shape.
+ * - Si devuelve algo raro (string/array/null), lo envolvemos de forma consistente.
+ */
+const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+
+const safeJsonParse = (text) => {
+  try {
+    return { ok: true, value: text ? JSON.parse(text) : null };
+  } catch {
+    return { ok: false, value: { rawText: text } };
+  }
+};
+
+const ensureSuccessProp = (payload, defaultSuccess = true) => {
+  if (isPlainObject(payload)) {
+    if ("success" in payload) return payload;
+    return { ...payload, success: defaultSuccess };
+  }
+  // Si no es objeto (array/string/null), lo envolvemos
+  return { success: defaultSuccess, data: payload, result: payload };
+};
+
+const fetchJsonish = async (url, options) => {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  const parsed = safeJsonParse(text).value;
+  return { res, text, parsed };
+};
+
+const httpFailEnvelope = (res, parsed) => {
+  const msg =
+    (isPlainObject(parsed) && (parsed.message || parsed.error)) ||
+    `HTTP ${res.status}`;
+  return { success: false, message: msg };
+};
 
 
 
@@ -154,7 +198,7 @@ app.whenReady().then(() => {
   ipcMain.handle("get-students-attempts", async (event, quizId, studentUserId, token) => {
     try {
       const result = await getStudentsAttempts(quizId, studentUserId, token);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error(
         `Error get-students-attempts (quizId=${quizId}, studentUserId=${studentUserId}):`,
@@ -185,7 +229,7 @@ app.whenReady().then(() => {
       }
 
       const result = await viewQuizResult(quizId, studentUserId, attemptNumber, token);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error("Error view-quiz-result:", error);
       return { success: false, message: error.message };
@@ -343,7 +387,9 @@ app.whenReady().then(() => {
   ipcMain.handle("get-students-by-course", async (event, courseId) => {
     try {
       const result = await getStudentsByCourse(courseId);
-      return result;
+      // Blindaje sin cambiar estructura si ya venía “bien”
+      if (isPlainObject(result) && ("success" in result)) return result;
+      return ensureSuccessProp(result, true);
     } catch (error) {
       console.error(`Error get-students-by-course (${courseId}):`, error.message);
       return { success: false, students: [], message: error.message };
@@ -352,20 +398,34 @@ app.whenReady().then(() => {
 
   ipcMain.handle("get-instructor-from-course", async (event, courseId) => {
     try {
-      const url = `http://127.0.0.1:8000/minao_systems/instructor/${courseId}/instructor`;
-      const response = await fetch(url);
-      const json = await response.json();
-      return { success: true, data: json };
+      const url = API(`/minao_systems/instructor/${courseId}/instructor`);
+      const { res, parsed } = await fetchJsonish(url);
+
+      if (!res.ok) {
+        const base = httpFailEnvelope(res, parsed);
+        return { ...base, data: parsed };
+      }
+
+      const payload = ensureSuccessProp(parsed, true);
+
+      if (isPlainObject(parsed) && parsed.success === false) {
+        return payload;
+      }
+      return { success: true, data: payload };
     } catch (error) {
       console.error("Error IPC get-instructor-from-course:", error);
-      return { success: false, message: error.message };
+      const causeCode = error?.cause?.code;
+      const causeMsg = error?.cause?.message;
+      const extra = causeCode || causeMsg ? ` (${causeCode || causeMsg})` : "";
+      return { success: false, message: `${error.message}${extra}` };
     }
   });
 
+
   ipcMain.handle("join-course", async (event, data) => {
     try {
-      const url = "http://127.0.0.1:8000/minao_systems/courses/join";
-      const response = await fetch(url, {
+      const url = API("/minao_systems/courses/join");
+      const { res, parsed } = await fetchJsonish(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -373,23 +433,46 @@ app.whenReady().then(() => {
           cursoId: data.cursoId
         })
       });
-      return await response.json();
+
+      if (!res.ok) {
+        const base = httpFailEnvelope(res, parsed);
+        return ensureSuccessProp({ ...base, data: parsed }, false);
+      }
+
+      if (isPlainObject(parsed) && ("success" in parsed)) return parsed;
+
+      return ensureSuccessProp(parsed, true);
     } catch (e) {
-      return { success: false, message: e.message };
+      const causeCode = e?.cause?.code;
+      const causeMsg = e?.cause?.message;
+      const extra = causeCode || causeMsg ? ` (${causeCode || causeMsg})` : "";
+      return { success: false, message: `${e.message}${extra}` };
     }
   });
 
+
   ipcMain.handle("unenroll-student-from-course", async (event, data) => {
     try {
-      const url = `http://127.0.0.1:8000/minao_systems/courses/${data.courseId}/students/${data.studentId}/unenroll`;
-      const response = await fetch(url, { method: "DELETE" });
-      const json = await response.json();
-      return json;
+      const url = API(`/minao_systems/courses/${data.courseId}/students/${data.studentId}/unenroll`);
+      const { res, parsed } = await fetchJsonish(url, { method: "DELETE" });
+
+      if (!res.ok) {
+        const base = httpFailEnvelope(res, parsed);
+        return ensureSuccessProp({ ...base, data: parsed }, false);
+      }
+
+      if (isPlainObject(parsed) && ("success" in parsed)) return parsed;
+
+      return ensureSuccessProp(parsed, true);
     } catch (error) {
       console.error("Error IPC unenroll:", error);
-      return { success: false, message: error.message };
+      const causeCode = error?.cause?.code;
+      const causeMsg = error?.cause?.message;
+      const extra = causeCode || causeMsg ? ` (${causeCode || causeMsg})` : "";
+      return { success: false, message: `${error.message}${extra}` };
     }
   });
+
 
   ipcMain.handle("get-course-content", async (event, courseId) => {
     try {
@@ -439,7 +522,9 @@ app.whenReady().then(() => {
   ipcMain.handle("get-files-by-content", async (event, contentId) => {
     try {
       const result = await getFilesByContent(contentId);
-      return result; 
+      // blindaje suave: si no trae success, lo añadimos (sin tocar el objeto si ya está bien)
+      const safe = ensureSuccessProp(result, true);
+      return safe; 
       console.log("[IPC] get-files-by-content contentId:", contentId);
       console.log("[ENV] GRPC_HOST:", process.env.GRPC_HOST);
 
@@ -458,20 +543,67 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle("get-all-courses", async () => {
+ipcMain.handle("get-all-courses", async () => {
+  const pickArray = (x) =>
+    Array.isArray(x) ? x :
+    Array.isArray(x?.data) ? x.data :
+    Array.isArray(x?.result) ? x.result :
+    Array.isArray(x?.courses) ? x.courses :
+    Array.isArray(x?.data?.data) ? x.data.data :
+    Array.isArray(x?.data?.result) ? x.data.result :
+    Array.isArray(x?.data?.courses) ? x.data.courses :
+    [];
+
+  try {
+    const res = await fetch(API("/minao_systems/courses/all"));
+
+    const text = await res.text();
+    let parsed = null;
+
     try {
-      const res = await fetch("http://127.0.0.1:8000/minao_systems/courses/all");
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      return { success: false, message: error.message };
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = { rawText: text }; // si te llega HTML/texto
     }
-  });
+
+    // HTTP no-OK
+    if (!res.ok) {
+      const msg = parsed?.message || parsed?.error || `HTTP ${res.status}`;
+      return { success: false, data: [], message: msg };
+    }
+
+    // backend ya reportó success:false
+    if (parsed && typeof parsed === "object" && parsed.success === false) {
+      return {
+        success: false,
+        data: pickArray(parsed),
+        message: parsed.message || "Error obteniendo cursos."
+      };
+    }
+
+    // normaliza a array
+    const rows = pickArray(parsed);
+
+    return {
+      success: true,
+      data: rows,
+      message: parsed?.message || "OK"
+    };
+  } catch (error) {
+    const causeCode = error?.cause?.code;
+    const causeMsg = error?.cause?.message;
+    const extra = causeCode || causeMsg ? ` (${causeCode || causeMsg})` : "";
+    console.error("get-all-courses fetch error:", error, "cause:", error?.cause);
+    return { success: false, data: [], message: `${error.message}${extra}` };
+  }
+});
+
+
 
   ipcMain.handle("get-quizzes-by-course", async (event, courseId) => {
     try {
       const result = await getQuizzesByCourse(courseId);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error(`Error get-quizzes-by-course (${courseId}):`, error.message);
       return { success: false, result: [], message: error.message };
@@ -481,7 +613,7 @@ app.whenReady().then(() => {
   ipcMain.handle("update-questionnaire", async (event, quizId, updatedData) => {
     try {
       const result = await updateQuestionnaire(quizId, updatedData);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error("Error update-questionnaire:", error.message);
       return { success: false, message: error.message };
@@ -491,7 +623,7 @@ app.whenReady().then(() => {
   ipcMain.handle("get-quiz-detail-for-user", async (event, quizId, token) => {
     try {
       const quizDetail = await getQuizDetailForUser(quizId, token);
-      return quizDetail;
+      return ensureSuccessProp(quizDetail, true); // <-- blindaje suave
     } catch (error) {
       console.error("Error get-quiz-detail-for-user:", error);
       return { success: false, message: error.message };
@@ -501,7 +633,7 @@ app.whenReady().then(() => {
   ipcMain.handle("answer-quiz", async (event, studentUserId, quizId, answers, token) => {
     try {
       const result = await answerQuiz(studentUserId, quizId, answers, token);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error("Error answer-quiz:", error);
       return { success: false, message: error.message };
@@ -556,7 +688,7 @@ app.whenReady().then(() => {
   ipcMain.handle("create-quiz", async (event, quizData) => {
     try {
       const result = await createQuiz(quizData);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error("Error create-quiz:", error.message);
       return { success: false, quizId: null, message: error.message };
@@ -581,7 +713,7 @@ app.whenReady().then(() => {
   ipcMain.handle("delete-quiz", async (event, quizId) => {
     try {
       const result = await deleteQuiz(quizId);
-      return result;
+      return ensureSuccessProp(result, true); // <-- blindaje suave
     } catch (error) {
       console.error(`Error delete-quiz (${quizId}):`, error.message);
       return { success: false, result: null, message: error.message };
@@ -592,7 +724,7 @@ app.whenReady().then(() => {
 ipcMain.handle('get-student-report-html', async (event, userId, cursoId) => {
     try {
         const result = await getStudentReportHtml(userId, cursoId);
-        return result; 
+        return ensureSuccessProp(result, true); 
         
     } catch (error) {
         return { 
